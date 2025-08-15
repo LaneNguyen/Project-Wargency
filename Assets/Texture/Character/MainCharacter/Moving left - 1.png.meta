@@ -1,0 +1,550 @@
+fileFormatVersion: 2
+guid: 3d2ff60f7d095c24f9cd78211aed43aa
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3151611950798419390
+    second: Moving left - 1_0
+  - first:
+      213: -2312842158418915122
+    second: Moving left - 1_1
+  - first:
+      213: -596489634260358621
+    second: Moving left - 1_2
+  - first:
+      213: 5137719778502124349
+    second: Moving left - 1_3
+  - first:
+      213: -8195668579056947384
+    second: Moving left - 1_4
+  - first:
+      213: -6676904007932426259
+    second: Moving left - 1_5
+  - first:
+      213: 9009415904132511872
+    second: Moving left - 1_6
+  - first:
+      213: -678453447664282006
+    second: Moving left - 1_7
+  - first:
+      213: 2350926022991845447
+    second: Moving left - 1_8
+  - first:
+      213: 6556264536856886804
+    second: Moving left - 1_9
+  - first:
+      213: -3846015743406250687
+    second: Moving left - 1_10
+  - first:
+      213: -1203425760800636775
+    second: Moving left - 1_11
+  - first:
+      213: -7368207293856072169
+    second: Moving left - 1_12
+  - first:
+      213: -2757640858545187087
+    second: Moving left - 1_13
+  - first:
+      213: -9159403242694138127
+    second: Moving left - 1_14
+  - first:
+      213: 5802688104495237695
+    second: Moving left - 1_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 45
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Moving left - 1_0
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 1838
+        width: 135
+        height: 419
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b87ae1db00046cb4382f39f069947c27
+      internalID: 3151611950798419390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_1
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 2044
+        width: 137
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4bd3f5226b5f8ca429fdbf2bbf0c803b
+      internalID: -2312842158418915122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_2
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 1836
+        width: 132
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3bd6c3fe2f3c1ee439733f4ec6bc8339
+      internalID: -596489634260358621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_3
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 1593
+        width: 135
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 13d468ad892922943a14ac6981fb9b9e
+      internalID: 5137719778502124349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_4
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 1594
+        width: 137
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bdd7548a776c5664f88e283a92967ab4
+      internalID: -8195668579056947384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_5
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 1385
+        width: 131
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c3a00b3352449647a9df37e46d52ad2
+      internalID: -6676904007932426259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_6
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 1388
+        width: 132
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5683aa4c57a40794c865502fdb24acfd
+      internalID: 9009415904132511872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_7
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 1149
+        width: 135
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e2cc28d4f0570f74cae9f15a819be7f8
+      internalID: -678453447664282006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_8
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 1149
+        width: 138
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d1b6f3d24b2a3a34a963f7af45155feb
+      internalID: 2350926022991845447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_9
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 940
+        width: 130
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 13e64510a0eaaec428d51386a8d1769d
+      internalID: 6556264536856886804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_10
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 943
+        width: 132
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f84f2034d643ce24c9fb2024fd48f03c
+      internalID: -3846015743406250687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_11
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 495
+        width: 135
+        height: 418
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5627fd13745e4df448b9fe90f565fd0d
+      internalID: -1203425760800636775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_12
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 493
+        width: 138
+        height: 420
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7a192c391b5d6fa42a1b7746ba41302d
+      internalID: -7368207293856072169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_13
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 44
+        width: 135
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1660b44ba97f45341ad6eb330ee46531
+      internalID: -2757640858545187087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_14
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 252
+        width: 138
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eb3a29192a32df3499cef696dfc39cf8
+      internalID: -9159403242694138127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving left - 1_15
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 44
+        width: 133
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16faa5663a65d6d43b66f5ac205e2fb1
+      internalID: 5802688104495237695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 8e3243a6007e42748bd0e3f92738bef3
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceOnImport
+        value: False
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":true,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":45.0,"y":45.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Moving left - 1_0: 3151611950798419390
+      Moving left - 1_1: -2312842158418915122
+      Moving left - 1_10: -3846015743406250687
+      Moving left - 1_11: -1203425760800636775
+      Moving left - 1_12: -7368207293856072169
+      Moving left - 1_13: -2757640858545187087
+      Moving left - 1_14: -9159403242694138127
+      Moving left - 1_15: 5802688104495237695
+      Moving left - 1_2: -596489634260358621
+      Moving left - 1_3: 5137719778502124349
+      Moving left - 1_4: -8195668579056947384
+      Moving left - 1_5: -6676904007932426259
+      Moving left - 1_6: 9009415904132511872
+      Moving left - 1_7: -678453447664282006
+      Moving left - 1_8: 2350926022991845447
+      Moving left - 1_9: 6556264536856886804
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

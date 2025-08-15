@@ -1,0 +1,546 @@
+fileFormatVersion: 2
+guid: 6e83a8e44796bb649be3ffa018b59f1e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 9109881163437110635
+    second: Moving Right - 1_0
+  - first:
+      213: -8053266294311859166
+    second: Moving Right - 1_1
+  - first:
+      213: 7197805463635981853
+    second: Moving Right - 1_2
+  - first:
+      213: 9021518460080286526
+    second: Moving Right - 1_3
+  - first:
+      213: -564570785045646287
+    second: Moving Right - 1_4
+  - first:
+      213: -4908755204856271008
+    second: Moving Right - 1_5
+  - first:
+      213: 4477690521384637930
+    second: Moving Right - 1_6
+  - first:
+      213: 4418303370041610193
+    second: Moving Right - 1_7
+  - first:
+      213: 4286219419105807375
+    second: Moving Right - 1_8
+  - first:
+      213: -3801970513189136724
+    second: Moving Right - 1_9
+  - first:
+      213: -4370261026665098238
+    second: Moving Right - 1_10
+  - first:
+      213: -872475531344244386
+    second: Moving Right - 1_11
+  - first:
+      213: 2828575254742748636
+    second: Moving Right - 1_12
+  - first:
+      213: 1723712489723000508
+    second: Moving Right - 1_13
+  - first:
+      213: -5995789774054491514
+    second: Moving Right - 1_14
+  - first:
+      213: -6897420039784760573
+    second: Moving Right - 1_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 45
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Moving Right - 1_0
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 2043
+        width: 136
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b65f0b4e6accc6e70800000000000000
+      internalID: 9109881163437110635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_1
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 1836
+        width: 133
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22c4aed29fc0d3090800000000000000
+      internalID: -8053266294311859166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_2
+      rect:
+        serializedVersion: 2
+        x: 286
+        y: 1837
+        width: 136
+        height: 420
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d16736efeedb3e360800000000000000
+      internalID: 7197805463635981853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_3
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 1593
+        width: 135
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3be6bbcd3fd23d70800000000000000
+      internalID: 9021518460080286526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_4
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 1388
+        width: 132
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1347acabcdd3a28f0800000000000000
+      internalID: -564570785045646287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_5
+      rect:
+        serializedVersion: 2
+        x: 286
+        y: 1593
+        width: 136
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06f213d162990ebb0800000000000000
+      internalID: -4908755204856271008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_6
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 1385
+        width: 131
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae5d34d2ec3f32e30800000000000000
+      internalID: 4477690521384637930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_7
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 1149
+        width: 137
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dfcd318187f05d30800000000000000
+      internalID: 4418303370041610193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_8
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 1149
+        width: 136
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0cce213ad5bb7b30800000000000000
+      internalID: 4286219419105807375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_9
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 943
+        width: 133
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca61ad246ffac3bc0800000000000000
+      internalID: -3801970513189136724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_10
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 939
+        width: 131
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20494e930c6b953c0800000000000000
+      internalID: -4370261026665098238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_11
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 493
+        width: 136
+        height: 420
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e519107702854e3f0800000000000000
+      internalID: -872475531344244386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_12
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 495
+        width: 137
+        height: 418
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cddc66f253e114720800000000000000
+      internalID: 2828575254742748636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_13
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 252
+        width: 136
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb6f7d4706bdbe710800000000000000
+      internalID: 1723712489723000508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_14
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 44
+        width: 135
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68aff81b7fcaacca0800000000000000
+      internalID: -5995789774054491514
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right - 1_15
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 44
+        width: 133
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30bf7f594017740a0800000000000000
+      internalID: -6897420039784760573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Moving Right - 1_0: 9109881163437110635
+      Moving Right - 1_1: -8053266294311859166
+      Moving Right - 1_10: -4370261026665098238
+      Moving Right - 1_11: -872475531344244386
+      Moving Right - 1_12: 2828575254742748636
+      Moving Right - 1_13: 1723712489723000508
+      Moving Right - 1_14: -5995789774054491514
+      Moving Right - 1_15: -6897420039784760573
+      Moving Right - 1_2: 7197805463635981853
+      Moving Right - 1_3: 9021518460080286526
+      Moving Right - 1_4: -564570785045646287
+      Moving Right - 1_5: -4908755204856271008
+      Moving Right - 1_6: 4477690521384637930
+      Moving Right - 1_7: 4418303370041610193
+      Moving Right - 1_8: 4286219419105807375
+      Moving Right - 1_9: -3801970513189136724
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

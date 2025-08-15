@@ -1,0 +1,446 @@
+fileFormatVersion: 2
+guid: bf42eaa685496fc409d9bbb4b503097d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4056615429474138701
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_0
+  - first:
+      213: 5262007013619333394
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_1
+  - first:
+      213: -3653946842868974549
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_2
+  - first:
+      213: -4517564269051279321
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_3
+  - first:
+      213: 1684265198231187688
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_4
+  - first:
+      213: 4340582114019121328
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_5
+  - first:
+      213: 3069858748914228382
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_6
+  - first:
+      213: 5123388126975765352
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_7
+  - first:
+      213: -4486116587279634478
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_8
+  - first:
+      213: 8340481588154484691
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_9
+  - first:
+      213: -4753218245840496404
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_10
+  - first:
+      213: -7317076009738089669
+    second: ChatGPT Image 16_54_30 9 thg 8, 2025_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_0
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 707
+        width: 222
+        height: 139
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 915fc8b682f8c3545aa3e4f177031ef6
+      internalID: 613485899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_1
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 723
+        width: 125
+        height: 222
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b40b11b3e93512428d41a70bf03409f
+      internalID: 906766212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_2
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 722
+        width: 122
+        height: 223
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0f8ba80ed48af0645a4cf7dede3c027a
+      internalID: 1468587681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_3
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 719
+        width: 165
+        height: 235
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be1408ec478362b41b06f74fe87c0de4
+      internalID: 690114328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_4
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 409
+        width: 220
+        height: 137
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b4b9950f0f423d41b0b5523d06ce9b6
+      internalID: -1141126490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_5
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 423
+        width: 126
+        height: 218
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 118ec076892881249b59a9915f41e2b1
+      internalID: -1369563603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_6
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 425
+        width: 122
+        height: 218
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9e56fecd1109b13408becd0d993c2ae0
+      internalID: -673199619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_7
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 421
+        width: 164
+        height: 236
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5641d78e28e2aa3459f82ed6f538b3ce
+      internalID: 701419509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_8
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 107
+        width: 219
+        height: 137
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 147c1620b3c0fb34787d68265df11745
+      internalID: 1558951664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_9
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 123
+        width: 125
+        height: 215
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99f943a16e1623d4ea9a290b9fe67553
+      internalID: -1852535764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_10
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 123
+        width: 121
+        height: 215
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1ffc750842db58e4bbb3fd91860a920d
+      internalID: 1326447246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Floor Wall Pack 1_11
+      rect:
+        serializedVersion: 2
+        x: 782
+        y: 121
+        width: 163
+        height: 234
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 68f935547e30b1941bc1c97256a99520
+      internalID: 1441381809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: df14c7a212c3e714fb79198a027d5561
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceOnImport
+        value: True
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":true,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"autoSlicingMethod":0,"spriteAlignment":9,"slicingType":0,"keepEmptyRects":true,"isAlternate":false}'
+    nameFileIdTable:
+      Floor Wall Pack 1_0: 613485899
+      Floor Wall Pack 1_1: 906766212
+      Floor Wall Pack 1_10: 1326447246
+      Floor Wall Pack 1_11: 1441381809
+      Floor Wall Pack 1_2: 1468587681
+      Floor Wall Pack 1_3: 690114328
+      Floor Wall Pack 1_4: -1141126490
+      Floor Wall Pack 1_5: -1369563603
+      Floor Wall Pack 1_6: -673199619
+      Floor Wall Pack 1_7: 701419509
+      Floor Wall Pack 1_8: 1558951664
+      Floor Wall Pack 1_9: -1852535764
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

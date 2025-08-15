@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 620f1d03f2776504b930b955add73f18, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  pixelsPerUnit: 32
+  initialBudget: 1000
+  initialScore: 0
+  startWave: 1
+  playerMoveSpeed: 3.5
+  tickInterval: 1

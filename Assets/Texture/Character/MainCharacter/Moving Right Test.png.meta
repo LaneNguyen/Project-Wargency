@@ -1,0 +1,676 @@
+fileFormatVersion: 2
+guid: 3490941aa0ad5824884ffd1daad2acec
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1553667621559490680
+    second: Moving Right Animation_0
+  - first:
+      213: 8051450216101829228
+    second: Moving Right Animation_1
+  - first:
+      213: -4161393879039346108
+    second: Moving Right Animation_2
+  - first:
+      213: 3159296279709828210
+    second: Moving Right Animation_3
+  - first:
+      213: 4034420092038858255
+    second: Moving Right Animation_4
+  - first:
+      213: -670444758646049926
+    second: Moving Right Animation_5
+  - first:
+      213: -6779158026060790872
+    second: Moving Right Animation_6
+  - first:
+      213: -4169950869235620836
+    second: Moving Right Animation_7
+  - first:
+      213: 8237158531155987141
+    second: Moving Right Animation_8
+  - first:
+      213: 1105936704939941780
+    second: Moving Right Animation_9
+  - first:
+      213: 1046540525182821720
+    second: Moving Right Animation_10
+  - first:
+      213: -6457150089954065127
+    second: Moving Right Animation_11
+  - first:
+      213: 8673705238378643903
+    second: Moving Right Animation_12
+  - first:
+      213: -8332999812745821766
+    second: Moving Right Animation_13
+  - first:
+      213: -6065367953671545279
+    second: Moving Right Animation_14
+  - first:
+      213: -3552458053847514016
+    second: Moving Right Animation_15
+  - first:
+      213: -1145518392111101648
+    second: Moving Right Animation_16
+  - first:
+      213: -9118820204661130478
+    second: Moving Right Animation_17
+  - first:
+      213: 8039250692018773692
+    second: Moving Right Animation_18
+  - first:
+      213: 8410978405671731365
+    second: Moving Right Animation_19
+  - first:
+      213: 8216765521611474169
+    second: Moving Right Animation_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 42
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Moving Right Animation_0
+      rect:
+        serializedVersion: 2
+        x: 312
+        y: 2370
+        width: 132
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 887abe5a783407ae0800000000000000
+      internalID: -1553667621559490680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_1
+      rect:
+        serializedVersion: 2
+        x: 1083
+        y: 2369
+        width: 129
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6add79205f7cbf60800000000000000
+      internalID: 8051450216101829228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_2
+      rect:
+        serializedVersion: 2
+        x: 1855
+        y: 2369
+        width: 125
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44aff55a052cf36c0800000000000000
+      internalID: -4161393879039346108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_3
+      rect:
+        serializedVersion: 2
+        x: 2623
+        y: 2369
+        width: 125
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 274415c4a3318db20800000000000000
+      internalID: 3159296279709828210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_4
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 1919
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f06ccacc2b32df730800000000000000
+      internalID: 4034420092038858255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_5
+      rect:
+        serializedVersion: 2
+        x: 1087
+        y: 1919
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a73316f4b0a12b6f0800000000000000
+      internalID: -670444758646049926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_6
+      rect:
+        serializedVersion: 2
+        x: 1855
+        y: 1922
+        width: 125
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a3886c51b79be1a0800000000000000
+      internalID: -6779158026060790872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_7
+      rect:
+        serializedVersion: 2
+        x: 2623
+        y: 1919
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c14216c17cb5126c0800000000000000
+      internalID: -4169950869235620836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_8
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 1472
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ca8120ba04405270800000000000000
+      internalID: 8237158531155987141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_9
+      rect:
+        serializedVersion: 2
+        x: 1087
+        y: 1473
+        width: 127
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49fd20ad293195f00800000000000000
+      internalID: 1105936704939941780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_10
+      rect:
+        serializedVersion: 2
+        x: 1855
+        y: 1475
+        width: 125
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 855a296101f068e00800000000000000
+      internalID: 1046540525182821720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_11
+      rect:
+        serializedVersion: 2
+        x: 2623
+        y: 1475
+        width: 125
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91508e264389366a0800000000000000
+      internalID: -6457150089954065127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_12
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 1027
+        width: 122
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb1010485f03f5870800000000000000
+      internalID: 8673705238378643903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_13
+      rect:
+        serializedVersion: 2
+        x: 1090
+        y: 1028
+        width: 122
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab183e702dc3b5c80800000000000000
+      internalID: -8332999812745821766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_14
+      rect:
+        serializedVersion: 2
+        x: 1858
+        y: 1028
+        width: 122
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14e9e595bfb73dba0800000000000000
+      internalID: -6065367953671545279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_15
+      rect:
+        serializedVersion: 2
+        x: 2626
+        y: 1029
+        width: 122
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06481f4c83223bec0800000000000000
+      internalID: -3552458053847514016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_16
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 580
+        width: 125
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0398a82771d4a10f0800000000000000
+      internalID: -1145518392111101648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_17
+      rect:
+        serializedVersion: 2
+        x: 1087
+        y: 575
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21bb4826651737180800000000000000
+      internalID: -9118820204661130478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_18
+      rect:
+        serializedVersion: 2
+        x: 1855
+        y: 575
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbe971e19e7219f60800000000000000
+      internalID: 8039250692018773692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_19
+      rect:
+        serializedVersion: 2
+        x: 2623
+        y: 575
+        width: 125
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a08b83fb4cc9b470800000000000000
+      internalID: 8410978405671731365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Moving Right Animation_20
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 130
+        width: 125
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f4445625b0d70270800000000000000
+      internalID: 8216765521611474169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Moving Right Animation_0: -1553667621559490680
+      Moving Right Animation_1: 8051450216101829228
+      Moving Right Animation_10: 1046540525182821720
+      Moving Right Animation_11: -6457150089954065127
+      Moving Right Animation_12: 8673705238378643903
+      Moving Right Animation_13: -8332999812745821766
+      Moving Right Animation_14: -6065367953671545279
+      Moving Right Animation_15: -3552458053847514016
+      Moving Right Animation_16: -1145518392111101648
+      Moving Right Animation_17: -9118820204661130478
+      Moving Right Animation_18: 8039250692018773692
+      Moving Right Animation_19: 8410978405671731365
+      Moving Right Animation_2: -4161393879039346108
+      Moving Right Animation_20: 8216765521611474169
+      Moving Right Animation_3: 3159296279709828210
+      Moving Right Animation_4: 4034420092038858255
+      Moving Right Animation_5: -670444758646049926
+      Moving Right Animation_6: -6779158026060790872
+      Moving Right Animation_7: -4169950869235620836
+      Moving Right Animation_8: 8237158531155987141
+      Moving Right Animation_9: 1105936704939941780
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
