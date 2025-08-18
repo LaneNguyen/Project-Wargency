@@ -11,9 +11,22 @@ namespace Wargency.Gameplay
         public enum TaskState { New, InProgess, Completed, Failed } //ko cần none vì New chính là trạng thái khởi đầu
 
         public TaskDefinition definition;
+
         [Range(0, 1)] public float progress01;//range để hiện slider dễ theo dõi debug, tính từ 0-100%
         public float timeLeft; //đếm ngược còn bao nhiu time
         public TaskState state; //lưu trạng thái hiện tại của task
+
+        // TaskManager sẽ gán: instance.stressImpact + baseStressCos
+        public int stressCost = -1;// -1 = chưa gán (phòng khi quên set)
+
+        //Tên hiển thị cho UI (đọc từ ScriptableObject).
+        public string DisplayName => definition != null ? definition.displayName : "(Task không tên)";
+        //Tiến độ 0..1 (để UI hiển thị %)
+        public float Progress01 => progress01;
+        //Trạng thái hiện tại
+        public TaskState State => state;
+        //Tham chiếu TaskDefinition
+        public TaskDefinition Definition => definition;
 
         public TaskInstance(TaskDefinition definition) //Hàm tạo task: Gán definition, đặt tiến độ  0, timeLeft = durationSec (có clamp nhỏ để tránh chia 0), trạng thái bắt đầu là New.
         {

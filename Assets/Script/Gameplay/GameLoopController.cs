@@ -8,16 +8,16 @@ namespace Wargency.Gameplay
 {
     public enum GameLoopState { None, Init, Run, End }
 
-    /// tóm tắt: 
-    /// Minimal game loop for M1.
-    /// - Holds Budget / Score / Wave runtime values
-    /// - Ticks a dummy timer to drive UI stubs
-    /// - Cơ chế quản lý đơn giản: Init -> Run -> End
+    //tóm tắt: 
+    // Minimal game loop for M1.
+    // - Holds Budget / Score / Wave runtime values
+    // - Ticks a dummy timer to drive UI stubs
+    // - Cơ chế quản lý đơn giản: Init -> Run -> End
     public class GameLoopController : MonoBehaviour
     {
         // Instance tĩnh để có thể gọi từ bất kỳ script nào khác.
         // Chỉ được set trong script này (private set) để tránh thay đổi ngoài ý muốn.
-        public static GameLoopController Instance { get;private set; }
+        public static GameLoopController Instance { get; private set; }
         [Header("Config")]
         [SerializeField]
         private GameConfig config;
@@ -82,7 +82,7 @@ namespace Wargency.Gameplay
         #region Core Flow
         // Chuẩn bị: lấy số tiền/điểm/wave ban đầu từ GameConfig, rồi chuyển sang trạng thái Run (đang chơi)
         public void Boot()
-        {           
+        {
             // nếu có config thì gán config vào ko thì tự gán
             budget = config ? config.initialBudget : 1000;
             score = config ? config.initialScore : 0;
@@ -110,14 +110,14 @@ namespace Wargency.Gameplay
         #endregion
 
         #region Public API
-       //Hàm qua màn
+        //Hàm qua màn
         public void SetWave(int value)
         {
             int limitwave = Mathf.Max(1, value); //Số màn set nhỏ hơn 1 => lấy 1
             if (wave == limitwave) return;
             wave = limitwave;
             OnWaveChanged?.Invoke(wave);
-        } 
+        }
         public void NextWave()
         {
             SetWave(wave + 1);
@@ -126,16 +126,16 @@ namespace Wargency.Gameplay
         //Hàm cộng budget
         public void AddBudget(int amount)
         {
-            budget += amount; 
+            budget += amount;
             OnBudgetChanged?.Invoke(budget);
         }
         //Hàm thử xài tiền coi đủ hay không
         public bool TrySpendBudget(int amount) //bỏ số tiền và coi thử đủ tiền xài không
         {
             int cost = Mathf.Abs(amount); //đảm bảo là số dương
-            if(budget < cost) return false; //hổng đủ tiền
+            if (budget < cost) return false; //hổng đủ tiền
             budget -= cost;
-            OnBudgetChanged?.Invoke(cost);
+            OnBudgetChanged?.Invoke(budget);
             return true;
         }
 
