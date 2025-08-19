@@ -1,5 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UISlider = UnityEngine.UI.Slider;
 using Wargency.Gameplay;
 
 namespace Wargency.UI
@@ -11,17 +13,22 @@ namespace Wargency.UI
         [SerializeField] private WaveManager waveManager;
         [SerializeField] private GameLoopController glc;
         [SerializeField] private TextMeshProUGUI waveText;
+        [SerializeField] private UISlider waveProgressBar;
+
+        [Header("Text hiển thị")]
+        [Tooltip("{wave}, {name}, {score}, {target}, {percent}")]
+        [SerializeField] private string format = "Quý {wave} – {name}: {score}/{target} ({percent}%)";
+
 
         private void Reset() // tự gán reference
         {
-            if (waveText == null)
-            {
-                waveText = GetComponentInChildren<TextMeshProUGUI>();
-            }
             if(waveManager == null)
                 waveManager = FindFirstObjectByType<WaveManager>();
             if(glc == null)
                 glc = FindFirstObjectByType<GameLoopController>();
+            if (waveText == null)
+            { waveText = GetComponentInChildren<TextMeshProUGUI>();}
+            if (!waveProgressBar) waveProgressBar = GetComponentInChildren<UnityEngine.UI.Slider>();
         }
 
 
@@ -90,6 +97,7 @@ namespace Wargency.UI
 
             if (glc == null || currentWave == null || currentWave.targetScore <= 0)
             {
+                waveProgressBar.value = 0f;
                 waveText.text = "Wave: trống";
                 return;
             }
@@ -98,8 +106,10 @@ namespace Wargency.UI
             float progress01 = Mathf.Clamp01((float)glc.Score / currentWave.targetScore);
             int percent = Mathf.RoundToInt(progress01 * 100f);
 
+            // Hiển thị bar
+            waveProgressBar.value = progress01;
             // Hiển thị: Quý + chạy % + tiến độ
-            waveText.text = $"{currentWave.displayName}: {glc.Score}/{currentWave.targetScore} ({percent}%)";
+            waveText.text = $"{currentWave.displayName}: ({percent}%)";
         }
     }
 }

@@ -1,0 +1,598 @@
+fileFormatVersion: 2
+guid: 73e4acb32f8f7614480440b23a221fa7
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -396849891684884228
+    second: Funiture 2_0
+  - first:
+      213: -1931828212179506442
+    second: Funiture 2_1
+  - first:
+      213: -4638156892554445116
+    second: Funiture 2_2
+  - first:
+      213: -6979795916550754566
+    second: Funiture 2_3
+  - first:
+      213: 6250505082604895053
+    second: Funiture 2_4
+  - first:
+      213: -9128576100166366910
+    second: Funiture 2_5
+  - first:
+      213: -6963286610513111580
+    second: Funiture 2_6
+  - first:
+      213: 5439475274619071691
+    second: Funiture 2_7
+  - first:
+      213: 1056767842554357500
+    second: Funiture 2_8
+  - first:
+      213: 1399456043460817545
+    second: Funiture 2_9
+  - first:
+      213: 1599617881007002391
+    second: Funiture 2_10
+  - first:
+      213: -2163381631605486411
+    second: Funiture 2_11
+  - first:
+      213: 767760967322491846
+    second: Funiture 2_12
+  - first:
+      213: 8630213878415053750
+    second: Funiture 2_13
+  - first:
+      213: -5811170161659055797
+    second: Funiture 2_14
+  - first:
+      213: -7989374100030638998
+    second: Funiture 2_15
+  - first:
+      213: -7145720041881075693
+    second: Funiture 2_16
+  - first:
+      213: 69886709988122022
+    second: Funiture 2_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Funiture 2_0
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 799
+        width: 240
+        height: 201
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf068f8402b1e7af0800000000000000
+      internalID: -396849891684884228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_1
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 800
+        width: 135
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fa66fde974c035e0800000000000000
+      internalID: -1931828212179506442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_2
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 799
+        width: 133
+        height: 204
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ce33c651e4f1afb0800000000000000
+      internalID: -4638156892554445116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_3
+      rect:
+        serializedVersion: 2
+        x: 807
+        y: 805
+        width: 137
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afe254d2898c22f90800000000000000
+      internalID: -6979795916550754566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_4
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 579
+        width: 139
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4b307b81414eb650800000000000000
+      internalID: 6250505082604895053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_5
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 579
+        width: 174
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2498674f668c05180800000000000000
+      internalID: -9128576100166366910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_6
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 607
+        width: 166
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e5d12788bf6d5f90800000000000000
+      internalID: -6963286610513111580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_7
+      rect:
+        serializedVersion: 2
+        x: 791
+        y: 591
+        width: 168
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bcca03451f5ec7b40800000000000000
+      internalID: 5439475274619071691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_8
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 381
+        width: 147
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf62289f0c46aae00800000000000000
+      internalID: 1056767842554357500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_9
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 384
+        width: 183
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 982714d5bdddb6310800000000000000
+      internalID: 1399456043460817545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_10
+      rect:
+        serializedVersion: 2
+        x: 524
+        y: 383
+        width: 155
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71319c5dcfbf23610800000000000000
+      internalID: 1599617881007002391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_11
+      rect:
+        serializedVersion: 2
+        x: 775
+        y: 373
+        width: 170
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bccc8e3edf1af1e0800000000000000
+      internalID: -2163381631605486411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_12
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 182
+        width: 180
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cbdaa13882a7aa00800000000000000
+      internalID: 767760967322491846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_13
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 170
+        width: 139
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b3539e2ccda4c770800000000000000
+      internalID: 8630213878415053750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_14
+      rect:
+        serializedVersion: 2
+        x: 519
+        y: 0
+        width: 147
+        height: 365
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4176f0e6839a5fa0800000000000000
+      internalID: -5811170161659055797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_15
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 19
+        width: 164
+        height: 349
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a64b7f5e59a002190800000000000000
+      internalID: -7989374100030638998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_16
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 1
+        width: 135
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3100a474b7d45dc90800000000000000
+      internalID: -7145720041881075693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Funiture 2_17
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 0
+        width: 147
+        height: 161
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6addc5ba79948f000800000000000000
+      internalID: 69886709988122022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Funiture 2_0: -396849891684884228
+      Funiture 2_1: -1931828212179506442
+      Funiture 2_10: 1599617881007002391
+      Funiture 2_11: -2163381631605486411
+      Funiture 2_12: 767760967322491846
+      Funiture 2_13: 8630213878415053750
+      Funiture 2_14: -5811170161659055797
+      Funiture 2_15: -7989374100030638998
+      Funiture 2_16: -7145720041881075693
+      Funiture 2_17: 69886709988122022
+      Funiture 2_2: -4638156892554445116
+      Funiture 2_3: -6979795916550754566
+      Funiture 2_4: 6250505082604895053
+      Funiture 2_5: -9128576100166366910
+      Funiture 2_6: -6963286610513111580
+      Funiture 2_7: 5439475274619071691
+      Funiture 2_8: 1056767842554357500
+      Funiture 2_9: 1399456043460817545
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
