@@ -14,7 +14,7 @@ namespace Wargency.Gameplay
 
         [Range(0, 1)] public float progress01;//range để hiện slider dễ theo dõi debug, tính từ 0-100%
         public float timeLeft; //đếm ngược còn bao nhiu time
-        public TaskState state; //lưu trạng thái hiện tại của task
+        public TaskState state { get; private set; }//lưu trạng thái hiện tại của task
 
         // TaskManager sẽ gán: instance.stressImpact + baseStressCos
         public int stressCost = -1;// -1 = chưa gán (phòng khi quên set)
@@ -65,6 +65,22 @@ namespace Wargency.Gameplay
         public void Cancel(bool fail = false)
         {
             state = fail ? TaskState.Failed : TaskState.New; //Cho phép hủy và đánh dấu fail cho task. Còn nếu không fail thì thì đưa về new tùy sau này
+        }
+
+        private void Complete()
+        {
+            state = TaskState.Completed;
+            Debug.Log($"[TaskManager] Task {DisplayName} đã hoàn thành!");
+
+            // consider sau: gọi event OnCompleted nếu muốn TaskManager/ UI biết
+        }
+        public void AddProgress(float delta01)
+        {
+            if (delta01 <= 0f || state == TaskState.Completed) return;
+
+            progress01 = Mathf.Clamp01(progress01 + delta01);
+
+            if (progress01 >= 1f) Complete();
         }
     }
 }

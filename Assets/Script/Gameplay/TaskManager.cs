@@ -126,5 +126,10 @@ namespace Wargency.Gameplay
             if (baseStressCost < 0) baseStressCost = 0;
         }
 
+        public void ContributeProgress(TaskInstance task, float delta01)
+        {
+            if (task == null || delta01 <= 0f) return;
+            task.AddProgress(delta01); 
+        }
     }
 }

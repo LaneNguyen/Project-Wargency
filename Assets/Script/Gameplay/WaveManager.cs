@@ -8,7 +8,7 @@ namespace Wargency.Gameplay
     // - public void AddScore(int)
     // - public void AddBudget(int)
     // - public void SetWave(int)  // set index hiện tại (1-based)
-    public class WaveManager : MonoBehaviour
+    public class WaveManager : MonoBehaviour, IDifficultyProvider
     {
         [Header("Ref cần tham chiếu")]
         [SerializeField] private GameLoopController glc;
@@ -20,6 +20,14 @@ namespace Wargency.Gameplay
         [Header("Difficulty Scaling")]
         [Tooltip("Mỗi khi sang Wave mới, tăng stress + giá trị này.")]
         [SerializeField] private int stressIncreasePerWave = 5;
+
+        //Đoạn này dedicated cho interface 
+        [SerializeField] private float taskSpeedMultiplier = 1f;
+        [SerializeField] private float energyDrainPerSec = 0.5f;
+        [SerializeField] private float stressGainPerSec = 1f;
+        public float TaskSpeedMultiplier => taskSpeedMultiplier;
+        public float EnergyDrainPerSec => energyDrainPerSec;
+        public float StressGainPerSec => stressGainPerSec;
 
         // Chỉ số vị trí Wave hiện tại trong mảng `waves`. Mặc định = -1 nghĩa là "chưa bắt đầu wave nào"
         // Khi StartWave(0) chạy, currentIndex sẽ = 0 (tương ứng Quý 1)
@@ -134,6 +142,11 @@ namespace Wargency.Gameplay
             }
         }
     }
-
+    public interface IDifficultyProvider //tạo interfact này ngay trong đây luôn apply qua Character Agent sau
+    {
+        float TaskSpeedMultiplier { get; }
+        float EnergyDrainPerSec { get; }
+        float StressGainPerSec { get; }
+    }
 }
 
