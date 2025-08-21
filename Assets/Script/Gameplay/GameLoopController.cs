@@ -35,6 +35,8 @@ namespace Wargency.Gameplay
         // Các getter cho UI sử dụng sau. (chỉ đọc, không sửa trực tiếp).
         public GameLoopState State => state;
         public int Budget => budget;
+
+        public int CurrentBudget => budget;//Cân nhắc sau này để phát triển review ngân sách
         public int Score => score;
         public int Wave => wave;
 

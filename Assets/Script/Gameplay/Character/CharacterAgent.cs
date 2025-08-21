@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Wargency.Core;
 
 namespace Wargency.Gameplay
 {
@@ -12,7 +13,7 @@ namespace Wargency.Gameplay
     [DisallowMultipleComponent] //ko cho gắn 2 lần, xài thử
     public class CharacterAgent : MonoBehaviour
     {
-        // 1) Trạng thái — tên rõ nghĩa, gọn và đủ:
+        //Trạng thái nhân vật nhe
         public enum AgentState { Idle, Moving, Working, Resting }
 
         [Header("Refs")]
@@ -27,15 +28,11 @@ namespace Wargency.Gameplay
         private UnityEngine.Object difficultyProviderObj;         // Để tham chiều vào
         private IDifficultyProvider difficultyProvider;           // Interface: TaskSpeedMultiplier, EnergyDrainPerSec, StressGainPerSec
 
-        [Header("Working / Resting rates (fallback nếu chưa có WaveManager)")]
+        [Header("Tỷ lệ Working / Resting (fallback nếu chưa có WaveManager)")]
         [Min(0f)][SerializeField] private float baseEnergyDrainPerSecWorking = 6f; //mỗi giây tốn đây sức
         [Min(0f)][SerializeField] private float baseStressGainPerSecWorking = 3f;
         [Min(0f)][SerializeField] private float restEnergyPerSec = 12f; // mỗi giây nghỉ tăng nhiêu đây
         [Min(0f)][SerializeField] private float restStressRecoverPerSec = 8f;
-
-        [Header("Sorting (Order in Layer theo Y)")] //liên quan đến isometric setting
-        [SerializeField] private bool autoSortByY = true;
-        [SerializeField] private int sortScale = 100;
 
         // chỉ lúc chạy chứ ko có chỉnh inpsector
         private AgentState state = AgentState.Idle;
@@ -55,7 +52,7 @@ namespace Wargency.Gameplay
         {
             // Ko tìm thấy component thì tự ref vô
             if (!stats) stats = GetComponent<CharacterStats>();
-            if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
+            if (!spriteRenderer) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
 
             // Event liên quan đế agent-level event (HUD sẽ subscribe event này sau ở M4)
@@ -77,9 +74,9 @@ namespace Wargency.Gameplay
 
         private void Update()
         {
-            // Sắp xếp sprite theo Y để đúng thứ tự hiển thị isometric/topdown
-            if (autoSortByY && spriteRenderer)
-                spriteRenderer.sortingOrder = -(int)(transform.position.y * sortScale);
+            // Sắp xếp sprite theo Y để đúng thứ tự hiển thị isometric/topdown. Viết thêm lần nữa cho chắc thôi
+            if (spriteRenderer)
+                spriteRenderer.sortingOrder = IsometricHelper.OrderFromY(transform.position.y);
 
             TickState(Time.deltaTime);
         }
@@ -132,11 +129,11 @@ namespace Wargency.Gameplay
 
             // Hồi “đủ tốt” -> về Idle (ngưỡng 90%/10% là con số dễ hiểu ở M3)
             if (stats.Energy >= stats.MaxEnergy * 0.9f && stats.Stress <= stats.MaxStress * 0.1f)
-                state = AgentState.Idle; // nghỉ đủ rồi cho vẻ idle
+                state = AgentState.Idle; // nghỉ đủ rồi cho về lại idle
         }
 
-        // Thiết lập nhanh sau Instantiate (prefab)
-        public void Setup(CharacterDefinition def, IDifficultyProvider difficulty = null, TaskManager tm = null)
+        // Thiết lập nhanh sau khi dùng Instantiate tạo prefab
+        public void SetupCharacter(CharacterDefinition def, IDifficultyProvider difficulty = null, TaskManager tm = null)
         {
             definition = def;
             if (definition && spriteRenderer && definition.Body)
@@ -150,10 +147,10 @@ namespace Wargency.Gameplay
             currentTask = null;
         }
 
-        // 9) Cho phép đổi difficulty provider runtime (vd khi Wave đổi)
-        public void AssignDifficultyProvider(IDifficultyProvider provider) => difficultyProvider = provider;
+        //Cho phép đổi difficulty provider runtime (vd khi Wave đổi)
+        public void SetDifficultyProvider(IDifficultyProvider provider) => difficultyProvider = provider;
 
-        // 10) Nhận task: chỉ nhận khi không ở Working (tránh đè)
+        // Nhận task: chỉ nhận khi không ở Working (tránh đè)
         public void AssignTask(TaskInstance task)
         {
             if (task == null) return;
@@ -164,7 +161,7 @@ namespace Wargency.Gameplay
             OnAssigned?.Invoke(this, task);
         }
 
-        // 11) Thả task: an toàn, phát sự kiện, đặt state hợp lý
+        // Kết thúc giải phóng khỏi task: check task hiện tại, phát sự kiện, đặt state của nhân vật theo stat
         public void ReleaseTask()
         {
             if (currentTask != null)
@@ -174,13 +171,13 @@ namespace Wargency.Gameplay
                 OnReleased?.Invoke(this, t);
             }
 
-            // Quy tắc đơn giản: nếu yếu/kiệt -> Resting, ngược lại Idle
+            // nếu yếu/kiệt -> Resting, ngược lại Idle
             state = (stats.Energy <= stats.MaxEnergy * 0.2f || stats.Stress >= stats.MaxStress * 0.8f)
                 ? AgentState.Resting
                 : AgentState.Idle;
         }
 
-        // 12) Bị hệ thống ngoài kết thúc/hủy task (TaskManager/WaveManager gọi)
+        // hệ thống ngoài kết thúc/hủy task (TaskManager/WaveManager gọi)
         public void OnExternalTaskTerminated(TaskInstance task)
         {
             if (task != null && task == currentTask)

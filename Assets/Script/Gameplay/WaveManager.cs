@@ -36,6 +36,9 @@ namespace Wargency.Gameplay
         //Trả về Wave (Quý) đang chạy dựa trên currentIndex.
         //Nếu currentIndex nằm ngoài khoảng hợp lệ (chưa start || đã vượt quá tổng wave) thì trả về null để các nơi khác biết là hok có wave active.
         public WaveDefinition CurrentWave => (currentIndex >= 0 && currentIndex < waves.Length) ? waves[currentIndex] : null;
+        
+        //Dành cho HRPanel
+        public int GetCurrentWaveIndex() => currentIndex;
 
 
         // Reset gọi khi Add component hoặc nhấn Reset trên Inspector. Để đỡ quên sau này chứ ko gì hết

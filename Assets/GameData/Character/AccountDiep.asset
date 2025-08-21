@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 425aab5a11183af47b47586ab5900c52, type: 3}
+  m_Name: AccountDiep
+  m_EditorClassIdentifier: 
+  id: Account01
+  displayName: "Ng\u1ECDc Di\u1EC7p"
+  avatar: {fileID: -8215983968360767997, guid: e1edf63bdba40074983bb6ab30ce4838, type: 3}
+  body: {fileID: -8215983968360767997, guid: e1edf63bdba40074983bb6ab30ce4838, type: 3}
+  baseEnergy: 100
+  baseStress: 30
+  moveSpeed: 3.5
+  roleTag: Account

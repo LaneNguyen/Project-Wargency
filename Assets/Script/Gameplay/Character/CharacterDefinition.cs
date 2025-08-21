@@ -26,7 +26,7 @@ namespace Wargency.Gameplay
 
         public string Id => id;
         public string DisplayName => displayName;
-        public Sprite Portrait => avatar;
+        public Sprite Avatar => avatar;
         public Sprite Body => body;
         public int BaseEnergy => baseEnergy;
         public int BaseStress => baseStress;
