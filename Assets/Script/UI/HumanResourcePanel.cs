@@ -11,14 +11,15 @@ namespace Wargency.Gameplay
         private Transform defaultSpawnPoint;
         [SerializeField, Tooltip("Optional WaveManager")]
         private WaveManager waveManager;
+    
 
         [Header("UI Layout")]
         [SerializeField, Tooltip("Prefab 1 item HireCharacter")]
-        private HireItemUI itemPrefab;
+        private HireCharacterUI itemPrefab;
         [SerializeField, Tooltip("Content của ScrollView/Grid để chứa item")]
         private Transform itemsParent;
 
-        private readonly List<HireItemUI> pool = new();
+        private readonly List<HireCharacterUI> pool = new();
 
         private void OnEnable()
         {

@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 425aab5a11183af47b47586ab5900c52, type: 3}
-  m_Name: AccountDiep
+  m_Name: Account01
   m_EditorClassIdentifier: 
-  id: Account01
-  displayName: "Ng\u1ECDc Di\u1EC7p"
-  avatar: {fileID: -8215983968360767997, guid: e1edf63bdba40074983bb6ab30ce4838, type: 3}
-  body: {fileID: -8215983968360767997, guid: e1edf63bdba40074983bb6ab30ce4838, type: 3}
+  id: acc_01
+  displayName: Account
+  avatar: {fileID: 1666387697947646530, guid: 6841b9d6182b29d42b8d9cedd2c054b3, type: 3}
+  body: {fileID: 1666387697947646530, guid: 6841b9d6182b29d42b8d9cedd2c054b3, type: 3}
+  role: 3
   baseEnergy: 100
-  baseStress: 30
+  baseStress: 20
   moveSpeed: 3.5
-  roleTag: Account
+  agentPrefabs: []

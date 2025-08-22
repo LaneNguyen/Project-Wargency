@@ -17,6 +17,11 @@ namespace Wargency.UI
         public Button spawnFirstButton;     // Spawn availableDefinitions[0]
         public Button startAllButton;       // Start tất cả task đang chờ
 
+        // New update đáp ứng role M3.2
+        [Header("Display Options")] // NEW
+        public bool showRoleRequirement = true; // NEW
+        public bool showAssignee = true;        // NEW
+
         private readonly StringBuilder stringBuilder = new StringBuilder();
 
         void Awake()
@@ -55,11 +60,27 @@ namespace Wargency.UI
                     if (task.state == TaskInstance.TaskState.Completed ||
                         task.state == TaskInstance.TaskState.Failed) continue;
 
+                    //M1
                     var name = task.DisplayName;
                     int percent = Mathf.RoundToInt(task.progress01 * 100f);
                     var state = task.state.ToString();
-                    stringBuilder.AppendLine($"{row}. {name} — {percent}% — {state}");
-                    row++;
+
+                    //M3.2
+                    string requiresStr = string.Empty; // NEW
+                    var def = task.definition;         // NEW
+                    if (showRoleRequirement && def != null && def.HasRoleRestriction(out var reqRole)) // NEW
+                    {
+                        requiresStr = $" <alpha=#88>(Requires: {reqRole})</alpha>"; // NEW
+                    }
+                    // M3.2: TaskInstance.assignee khi có
+                    string assigneeStr = string.Empty; // NEW
+                    if (showAssignee && task.assignee != null) // NEW
+                    {
+                        assigneeStr = $" — <alpha=#AA>{task.assignee.name} ({task.assignee.Role})</alpha>"; // NEW
+                    }
+                    
+                    
+                    stringBuilder.AppendLine($"{row}. {name}{requiresStr}{assigneeStr} — {percent}% — {state}"); row++;
                 }
                 if (row == 1) stringBuilder.AppendLine("(Không có task. Rảnh rồi!)");
             }

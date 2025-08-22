@@ -10,8 +10,8 @@ namespace Wargency.Gameplay
     public class CharacterHiringService : MonoBehaviour
     {
         [Header("Prefab & Difficulty")]
-        [SerializeField, Tooltip("Prefab có CharacterAgent + CharacterStats + SpriteRenderer")]
-        private CharacterAgent agentPrefab;
+        [SerializeField, Tooltip("Prefab fallback có CharacterAgent + CharacterStats + SpriteRenderer")]
+        private CharacterAgent agentPrefab; //Chỉ Fallback khi Definition trống
 
         [SerializeField, Tooltip("Optional: kéo WaveManager (implement IDifficultyProvider) để agent mới chịu ảnh hưởng difficulty hiện thời")]
         private UnityEngine.Object difficultyProviderObj;
@@ -21,10 +21,17 @@ namespace Wargency.Gameplay
 
         private IDifficultyProvider difficultyProvider;
 
+        [Header("Spawning Points")]
+        [SerializeField, Tooltip("Tập điểm spawn mặc định. Nếu null/empty sẽ fallback transform.position")]
+        private SpawnPointSets spawnPointSet;
+
         [System.Serializable]
         public class HireOption
         {
-            [Tooltip("SO nhân vật")]
+            [Tooltip("Prefab nhân vật (GameObject có CharacterAgent). ƯU TIÊN cao nhất")]
+            public GameObject agentPrefabGO;
+
+            [Tooltip("SO nhân vật (backup nếu prefab không tự khai Definition)")]
             public CharacterDefinition definition;
 
             [Min(0), Tooltip("Chi phí thuê")]
@@ -78,13 +85,18 @@ namespace Wargency.Gameplay
             return true;
         }
 
+        // Overload: Không truyền vị trí → tự lấy từ SpawnPointSets (round-robin) hoặc transform.position
+        public CharacterAgent Hire(CharacterDefinition def, int currentWaveIndex = int.MaxValue)
+        {
+            var pos = ResolveSpawnPosition(); // tự xử lý round-robin nếu có spawnPointSet
+            return Hire(def, pos, currentWaveIndex);
+        }
         // Thuê & spawn tại worldPos.
         // - Trả null nếu: không qua điều kiện unlock/limit, hoặc ngân sách không đủ (TrySpendBudget trả false).
         // - Lưu ý: TrySpendBudget sẽ TỰ trừ tiền nếu đủ.
-
         public CharacterAgent Hire(CharacterDefinition def, Vector3 worldPos, int currentWaveIndex = int.MaxValue)
         {
-            if (!agentPrefab || def == null) { Debug.LogWarning("[Hiring] Thiếu prefab/definition."); return null; }
+            if (def == null) { Debug.LogWarning("[Hiring] Thiếu CharacterDefinition."); return null; }
 
             if (!CanHireNonBudget(def, currentWaveIndex, out var opt, out var reason))
             {
@@ -107,13 +119,28 @@ namespace Wargency.Gameplay
             }
 
             // Spawn & setup
-            var agent = Instantiate(agentPrefab, worldPos, Quaternion.identity, transform);
-            agent.SetupCharacter(def, difficultyProvider, taskManager);
-            activeAgents.Add(agent);
+            var prefabCA = ResolvePrefab(opt, def, agentPrefab);
+            if (!prefabCA) { Debug.LogWarning("[Spawn] không tìm thấy prefab"); return null; }
 
-            Debug.Log($"[Hiring] Hired: {def.DisplayName} ({def.RoleTag}) với giá {opt.hireCost} tại {worldPos}");
+            // Nếu ở trên không có: resolve Definition cuối cùng => chuyển qua ưu tiên definition gắn trên prefab
+            var resolvedDef = ResolveDefinitionForSpawn(opt, prefabCA);
+            if (resolvedDef == null)
+            {
+                Debug.LogWarning("[Hiring] Missing CharacterDefinition (option null & prefab không gán).");
+                return null;
+            }
+
+            // Parent giữ là transform hiện tại (quản lý theo service)
+            var agent = Instantiate(prefabCA, worldPos, Quaternion.identity, transform);
+            agent.SetupCharacter(resolvedDef, difficultyProvider, taskManager);
+
+            //Track Active list để activeLimit hoạt động chính xác
+            if (!activeAgents.Contains(agent))
+                activeAgents.Add(agent);
+            Debug.Log($"[Hiring] Hired: {def.DisplayName} ({def.Role}) với giá {opt.hireCost} tại {worldPos}");
             return agent;
         }
+       
 
         // Sa thải agent: release task và hủy game Object
         public void Dismiss(CharacterAgent agent)
@@ -134,7 +161,7 @@ namespace Wargency.Gameplay
             for (int i = 0; i < activeAgents.Count; i++)
             {
                 var a = activeAgents[i];
-                if (a && a.Definition == def) 
+                if (a && a.Definition == def)
                     count++;
             }
             return count;
@@ -145,6 +172,53 @@ namespace Wargency.Gameplay
         {
             var opt = hireCatalog.Find(o => o.definition == def);
             if (opt != null) opt.unlockWaveIndex = unlockWaveIndex;
+        }
+
+
+        //----------- Helper của đống trên
+
+        // Ưu tiên prefab từ Definition; nếu rỗng => fallback mặc định của service
+        private CharacterAgent ResolvePrefab(HireOption opt, CharacterDefinition def, CharacterAgent serviceFallback)
+        {
+            // 1) Prefab từ Option (GameObject có CharacterAgent)
+            if (opt != null && opt.agentPrefabGO != null)
+            {
+                var ca = opt.agentPrefabGO.GetComponent<CharacterAgent>();
+                if (ca != null) return ca;
+                Debug.LogWarning("[Hiring] agentPrefabGO không có CharacterAgent component");
+            }
+
+            // 2) Prefab từ Definition (random variant)
+            if (def != null)
+            {
+                var fromDef = def.GetRandomPrefab();
+                if (fromDef != null) return fromDef;
+            }
+
+            // 3) Fallback của Service
+            return serviceFallback;
+        }
+
+        //Lấy definition cuối cùng cho SetupCharacter
+        private CharacterDefinition ResolveDefinitionForSpawn(HireOption opt, CharacterAgent prefabCA)
+        {
+            // Nếu prefab đã gán sẵn definition → ưu tiên
+            if (prefabCA != null && prefabCA.Definition != null)
+                return prefabCA.Definition;
+
+            // Ngược lại dùng definition trong option
+            return opt != null ? opt.definition : null;
+        }
+
+        public Vector3 ResolveSpawnPosition(Vector3? explicitPosition = null)
+        {
+            if (explicitPosition.HasValue)
+                return explicitPosition.Value;
+
+            if (spawnPointSet != null && spawnPointSet.HasAny)
+                return spawnPointSet.GetNextRoundPoint(); // gọi API mới
+
+            return transform.position;
         }
     }
 }

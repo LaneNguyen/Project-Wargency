@@ -6,6 +6,12 @@ namespace Wargency.Gameplay
 {
     // Quản lý spawn / tick / complete các TaskInstance.
     // Khi task Completed -> cộng Budget/Score qua GameLoopController.
+
+    public enum AssignmentFallback
+    {
+        AnyAgent, // Không có agent đúng role thì gán cho bất kỳ agent nào cũng dc
+        Fail      // Không có agent đúng role thì báo fail
+    }
     public class TaskManager : MonoBehaviour
     {
         [Header("Definitions (tạo trong editor)")]
@@ -20,6 +26,12 @@ namespace Wargency.Gameplay
         [Tooltip("Để kéo ref Object có script GameLoopController vào")]
         public GameLoopController gameLoopController;
 
+        [Header("Agents")]
+        [Tooltip("Danh sách agent đang hoạt động trong scene. Gọi RegisterAgent/UnregisterAgent từ Spawner/Hiring.")]
+        public List<CharacterAgent> activeAgents = new List<CharacterAgent>();
+
+        [Header("Assignment Rules")]
+        public AssignmentFallback fallbackMode = AssignmentFallback.AnyAgent;
 
         private readonly List<TaskInstance> active = new List<TaskInstance>();//danh sách task tồn tại lúc chơi
         public IReadOnlyList<TaskInstance> Active => active;//để UI đọc, chứ ko sửa trực tiếp
@@ -43,6 +55,90 @@ namespace Wargency.Gameplay
             OnTaskSpawned?.Invoke(task);
             return task;
         }
+
+        // Update M3 - 22/08: AssignTask với ưu tiên role + fallback 
+        // Trả về true nếu assign thành công (có agent được chọn). instanceOut là task đã spawn và gán assignee.
+        public bool AssignTask(TaskDefinition definition, out TaskInstance instanceOut)
+        {
+            instanceOut = null;
+            if (definition == null)
+            {
+                Debug.LogWarning("[TaskManager] AssignTask: definition == null");
+                return false;
+            }
+
+            if (activeAgents == null || activeAgents.Count == 0)
+            {
+                Debug.LogWarning("[TaskManager] AssignTask: activeAgents trống.");
+                return false;
+            }
+
+            CharacterAgent chosen = null;
+
+            // 1) Nếu có yêu cầu role → lọc trước
+            if (definition.UseRequiredRole)
+            {
+                var req = definition.RequiredRole;
+                for (int i = 0; i < activeAgents.Count; i++)
+                {
+                    var a = activeAgents[i];
+                    if (a != null && a.Role == req)
+                    {
+                        chosen = a;
+                        break;
+                    }
+                }
+
+                // 2) Không có agent role phù hợp
+                if (chosen == null)
+                {
+                    if (fallbackMode == AssignmentFallback.Fail)
+                    {
+                        Debug.Log($"[TaskManager] AssignTask FAIL: thiếu agent role {req} cho '{definition.DisplayName}'.");
+                        return false;
+                    }
+                    else
+                    {
+                        // AnyAgent
+                        for (int i = 0; i < activeAgents.Count; i++)
+                        {
+                            if (activeAgents[i] != null) { chosen = activeAgents[i]; break; }
+                        }
+                        if (chosen == null)
+                        {
+                            Debug.Log($"[TaskManager] AssignTask: không có agent nào để fallback cho '{definition.DisplayName}'.");
+                            return false;
+                        }
+                        Debug.Log($"[TaskManager] Fallback ANY: giao '{definition.DisplayName}' cho {chosen.name} do thiếu role {req}.");
+                    }
+                }
+            }
+            else
+            {
+                // Không yêu cầu role => chọn đại agent đầu tiên còn thở
+                for (int i = 0; i < activeAgents.Count; i++)
+                {
+                    if (activeAgents[i] != null) { chosen = activeAgents[i]; break; }
+                }
+                if (chosen == null)
+                {
+                    Debug.Log("[TaskManager] AssignTask: activeAgents đều null?");
+                    return false;
+                }
+            }
+
+            // 3) Spawn task + gán assignee + Start
+            var task = Spawn(definition);
+            if (task == null) return false;
+
+            task.assignee = chosen;
+            StartTask(task); // dùng luồng start cũ
+            instanceOut = task;
+
+            Debug.Log($"[TaskManager] Assigned '{definition.DisplayName}' → Agent: {chosen.name} (Role: {chosen.Role})");
+            return true;
+        }
+
 
         public void StartTask(TaskInstance task) //hàm bắt đầu task, chuyển task sang start
         {
@@ -130,6 +226,17 @@ namespace Wargency.Gameplay
         {
             if (task == null || delta01 <= 0f) return;
             task.AddProgress(delta01); 
+        }
+
+        // ====== Agent registry (gọi từ Spawner/Hiring) ======
+        public void RegisterAgent(CharacterAgent agent)
+        {
+            if (agent != null && !activeAgents.Contains(agent))
+                activeAgents.Add(agent);
+        }
+        public void UnregisterAgent(CharacterAgent agent)
+        {
+            if (agent != null) activeAgents.Remove(agent);
         }
     }
 }

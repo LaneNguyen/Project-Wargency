@@ -16,8 +16,11 @@ namespace Wargency.Gameplay
         public float timeLeft; //đếm ngược còn bao nhiu time
         public TaskState state { get; private set; }//lưu trạng thái hiện tại của task
 
+        // Gán khi Assign: ai là người thực hiện task (optional).
+        public CharacterAgent assignee;
+
         // TaskManager sẽ gán: instance.stressImpact + baseStressCos
-        public int stressCost = -1;// -1 = chưa gán (phòng khi quên set)
+        public int stressCost = -1; // -1 = chưa gán (phòng khi quên set)
 
         //Tên hiển thị cho UI (đọc từ ScriptableObject).
         public string DisplayName => definition != null ? definition.displayName : "(Task không tên)";
@@ -35,6 +38,12 @@ namespace Wargency.Gameplay
             timeLeft = Mathf.Max(0.01f, definition.durationSecond); //đặt giới hạn 0.01f để ko bị lỗi khi nhập sau này, lun giữ tối thiểu
             state = TaskState.New;
         }
+        // optional ở đây: constructor khi đã biết assignee
+        public TaskInstance(TaskDefinition definition, CharacterAgent assignee) : this(definition)
+        {
+            this.assignee = assignee;
+        }
+
 
         // Tick tiến độ theo deltaTime. Chỉ giảm khi đang progess task. Trả về true nếu vừa Completed/Failed trong tick này.
         public bool Tick(float deltaTime)

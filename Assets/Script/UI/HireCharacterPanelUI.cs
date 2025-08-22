@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Wargency.Gameplay
 {
-    public class HireItemUI : MonoBehaviour
+    public class HireCharacterUI : MonoBehaviour
     {
         [Header("UI Refs")]
         [SerializeField] private Image avatarImage;
@@ -17,21 +17,23 @@ namespace Wargency.Gameplay
         // runtime backing:
         private CharacterHiringService hiringService;
         private CharacterHiringService.HireOption option;
-        private Transform spawnPoint;
+        private Transform spawnPoint;// optional
         private WaveManager waveManager;
 
-        public void Setup(CharacterHiringService service, CharacterHiringService.HireOption opt, Transform spawn, WaveManager wave = null)
+        private bool initialized = false;
+
+        public void Setup(CharacterHiringService service, CharacterHiringService.HireOption opt, Transform spawn=null, WaveManager wave = null)
         {
-            hiringService = service;
+            hiringService = service != null ? service : FindAnyObjectByType<CharacterHiringService>();//gia cố
             option = opt;
-            spawnPoint = spawn;
+            spawnPoint = spawn; //có thể để trống
             waveManager = wave;
 
             var def = opt.definition;
             if (def != null)
             {
                 if (nameText) nameText.text = def.DisplayName;
-                if (roleText) roleText.text = def.RoleTag;
+                if (roleText) roleText.text = def.Role.ToString();
                 if (avatarImage) avatarImage.sprite = def.Avatar; 
             }
             if (priceText) priceText.text = $"{opt.hireCost:N0}";
@@ -80,13 +82,31 @@ namespace Wargency.Gameplay
 
         private void HandleHireClicked()
         {
-            if (hiringService == null || option == null || spawnPoint == null) return;
+            // log chẩn đoán
+            Debug.Log($"[HireUI] Click. service={hiringService != null}, option={(option != null)}, def={(option != null ? option.definition != null : false)}, spawn={(spawnPoint != null)}");
+
+            if (hiringService == null || option == null)
+            {
+                if (statusText) statusText.text = "Thiếu gì đó: hiringservice hoặc option";
+                Debug.LogWarning("[HireUI] Missing HiringService/Option.");
+                return;
+            }
 
             int waveIdx = waveManager ? waveManager.GetCurrentWaveIndex() : int.MaxValue;
-            var agent = hiringService.Hire(option.definition, spawnPoint.position, waveIdx); //
 
-            if (agent == null && statusText) //ko có agent rồi mà vẫn có text
-                statusText.text = "Thuê thất bại";
+            CharacterAgent agent = null;
+            if (spawnPoint != null)
+                agent = hiringService.Hire(option.definition, spawnPoint.position, waveIdx);
+            else
+                agent = hiringService.Hire(option.definition, waveIdx); /// dùng SpawnPointSets
+
+
+
+            if (agent == null)
+            {
+                if (statusText) statusText.text = "Thuê thất bại";
+                Debug.LogWarning("[HireUI] Hire failed. Kiểm tra: Definition prefab variants hoặc fallback prefab trong HiringService.");
+            }
         }
     }
 }

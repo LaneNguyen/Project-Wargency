@@ -20,6 +20,7 @@ namespace Wargency.Gameplay
         [SerializeField] private CharacterDefinition definition;  // dữ liệu nhân vật (avatar/body/moveSpeed/base stats)
         [SerializeField] private CharacterStats stats;            // Runtime coi stats (Energy/Stress)
         [SerializeField] private SpriteRenderer spriteRenderer;   // Hiển thị body
+
         [SerializeField, Tooltip("Optional: null thì FindAnyObjectByType")]
         private TaskManager taskManager;                          // Để thêm bớt cộng trừ tiến độ task
 
@@ -47,6 +48,7 @@ namespace Wargency.Gameplay
         public CharacterDefinition Definition => definition;
         public TaskInstance CurrentTask => currentTask;
         public AgentState State => state;
+        public CharacterRole Role { get; }
 
         private void Awake()
         {
@@ -135,7 +137,14 @@ namespace Wargency.Gameplay
         // Thiết lập nhanh sau khi dùng Instantiate tạo prefab
         public void SetupCharacter(CharacterDefinition def, IDifficultyProvider difficulty = null, TaskManager tm = null)
         {
-            definition = def;
+
+            var resolved = definition != null ? definition : def;
+            if (resolved == null)
+            {
+                Debug.LogError($"[Agent] Ko tìm thấy CharacterDefinition ở {name}. Check lại prefab hoặc để SetupCharacter");
+                return;
+            }
+            definition = resolved;
             if (definition && spriteRenderer && definition.Body)
                 spriteRenderer.sprite = definition.Body;
 
