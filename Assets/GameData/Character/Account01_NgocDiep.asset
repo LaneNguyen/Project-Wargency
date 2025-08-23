@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 425aab5a11183af47b47586ab5900c52, type: 3}
-  m_Name: Account01
+  m_Name: Account01_NgocDiep
   m_EditorClassIdentifier: 
   id: acc_01
-  displayName: Account
+  displayName: "Ng\u1ECDc Di\u1EC7p"
   avatar: {fileID: 1666387697947646530, guid: 6841b9d6182b29d42b8d9cedd2c054b3, type: 3}
   body: {fileID: 1666387697947646530, guid: 6841b9d6182b29d42b8d9cedd2c054b3, type: 3}
   role: 3
