@@ -27,19 +27,37 @@ namespace Wargency.Gameplay
         public GameLoopController gameLoopController;
 
         [Header("Agents")]
-        [Tooltip("Danh sách agent đang hoạt động trong scene. Gọi RegisterAgent/UnregisterAgent từ Spawner/Hiring.")]
+        [Tooltip("Danh sách agent đang hoạt động trong scene. Gọi RegisterAgent/UnregisterAgent từ Spawner/Hiring")]
         public List<CharacterAgent> activeAgents = new List<CharacterAgent>();
 
         [Header("Assignment Rules")]
         public AssignmentFallback fallbackMode = AssignmentFallback.AnyAgent;
 
+        //UPDATE 24.08
+        [Header("Limits")]                              
+        [Tooltip("Giới hạn số task đang còn hiệu lực (New/InProgress).")] 
+        public int maxConcurrentTasks = 3;     
+        
         private readonly List<TaskInstance> active = new List<TaskInstance>();//danh sách task tồn tại lúc chơi
         public IReadOnlyList<TaskInstance> Active => active;//để UI đọc, chứ ko sửa trực tiếp
 
+        // === NEW getters cho M3.3 ===
+        // UI đọc danh sách instance (read-only)
+        public IReadOnlyList<TaskInstance> ActiveInstances => active;
+        //Số task đang hiệu lực (New/InProgress)
+        public int ActiveCount => CountActiveEffectiveTasks();
+        // Expose limit để spawner tham chiếu
+        public int MaxConcurrentTasks => maxConcurrentTasks;
+        // Expose danh sách agent đang hoạt động (spawner/DnD dùng
+        public List<CharacterAgent> ActiveAgents => activeAgents;
+
+
         public event Action<TaskInstance> OnTaskSpawned; // tạo sự kiện có task mới
         public event Action<TaskInstance> OnTaskCompleted; //tạo sự kiện báo task hoàn thành
+        public event Action<TaskInstance> OnTaskFailed;//sự kiện báo khi task failed
 
         private float timeBuffer;//biến cộng dồng thời gian
+
 
         //Tăng độ khó = stress cost
         private int baseStressCost = 0;
@@ -47,15 +65,21 @@ namespace Wargency.Gameplay
         public TaskInstance Spawn(TaskDefinition definition)
         {
             if (definition == null) return null;
-            var task = new TaskInstance(definition);
 
+            // Kiểm tra giới hạn task trước khi tạo task
+            if (CountActiveEffectiveTasks() >= maxConcurrentTasks)
+            {
+                Debug.LogWarning($"[TaskManager] Đạt giới hạn {maxConcurrentTasks} task đang hoạt động. Không spawn thêm nhé");
+                return null;
+            }
+
+            var task = new TaskInstance(definition);
             task.stressCost = Mathf.Max(0, definition.stressImpact + baseStressCost);
 
             active.Add(task);
             OnTaskSpawned?.Invoke(task);
             return task;
         }
-
         // Update M3 - 22/08: AssignTask với ưu tiên role + fallback 
         // Trả về true nếu assign thành công (có agent được chọn). instanceOut là task đã spawn và gán assignee.
         public bool AssignTask(TaskDefinition definition, out TaskInstance instanceOut)
@@ -64,6 +88,13 @@ namespace Wargency.Gameplay
             if (definition == null)
             {
                 Debug.LogWarning("[TaskManager] AssignTask: definition == null");
+                return false;
+            }
+
+            // Chặn assign khi đã đủ task
+            if (CountActiveEffectiveTasks() >= maxConcurrentTasks)
+            {
+                Debug.LogWarning($"[TaskManager] AssignTask bị chặn: đã đạt max {maxConcurrentTasks} task hoạt động");
                 return false;
             }
 
@@ -140,18 +171,31 @@ namespace Wargency.Gameplay
         }
 
 
-        public void StartTask(TaskInstance task) //hàm bắt đầu task, chuyển task sang start
+        public void StartTask(TaskInstance task)
         {
             if (task == null) return;
+
+            // Update 24/08 -CHẶN: nếu task yêu cầu role mà chưa có assignee đúng
+            if (!MeetsRoleRequirement(task.definition, task.assignee))
+            {
+                Debug.LogWarning($"[TaskManager] Không thể Start '{task?.DisplayName}' vì thiếu assignee role {task?.definition?.RequiredRole}.");
+                return; // quan trọng: ĐỪNG cho chạy
+            }
+
             task.Start();
         }
-        public void StartAll() //hàm bắt đầu toàn bộ task đang chờ
+
+        public void StartAll()
         {
             for (int i = 0; i < active.Count; i++)
             {
-                if (active[i].state == TaskInstance.TaskState.New)
+                var t = active[i];
+                if (t.state == TaskInstance.TaskState.New)
                 {
-                    active[i].Start();
+                    if (MeetsRoleRequirement(t.definition, t.assignee))
+                        t.Start();
+                    else
+                        Debug.LogWarning($"[TaskManager] Bỏ qua Start '{t.DisplayName}' (thiếu assignee role {t.definition.RequiredRole}).");
                 }
             }
         }
@@ -159,6 +203,11 @@ namespace Wargency.Gameplay
         {
             if (task == null) return;
             task.Cancel(fail);
+
+            if (fail)
+            {
+                OnTaskFailed?.Invoke(task);
+            }
         }
         private void Update()
         {
@@ -228,15 +277,88 @@ namespace Wargency.Gameplay
             task.AddProgress(delta01); 
         }
 
+        // M3.3 update: Reassign task sang agent mới (giữ progress). Tự validate role 
+        public bool Reassign(TaskInstance task, CharacterAgent newAssignee)
+        {
+            if (task == null || newAssignee == null) return false;
+
+            var def = task.Definition;
+            if (def != null && def.UseRequiredRole && newAssignee.Role != def.RequiredRole)
+            {
+                Debug.LogWarning("[TaskManager] Reassign failed: role mismatch.");
+                return false;
+            }
+
+            var old = task.assignee;
+            if (old != null)
+            {
+                // Giải phóng an toàn phía agent cũ 
+                old.OnExternalTaskTerminated(task);
+            }
+
+            task.assignee = newAssignee;
+
+            // Nếu task còn New → start
+            if (task.state == TaskInstance.TaskState.New)
+            {
+                StartTask(task);
+            }
+            // Nếu đang InProgress → thông báo agent mới tiếp tục
+            else if (task.state == TaskInstance.TaskState.InProgess)
+            {
+                newAssignee.AssignTask(task);
+            }
+
+            Debug.Log($"[TaskManager] Reassigned '{task.DisplayName}' → {newAssignee.DisplayName} ({newAssignee.Role})");
+            return true;
+        }
+
+
+        //============ Helper =====
+
+
+        private bool MeetsRoleRequirement(TaskDefinition def, CharacterAgent assignee)
+        {
+            if (def == null) return false;
+            if (!def.UseRequiredRole) return true;                  // task không yêu cầu role
+            return assignee != null && assignee.Role == def.RequiredRole; // phải có assignee đúng role
+        }
         // ====== Agent registry (gọi từ Spawner/Hiring) ======
         public void RegisterAgent(CharacterAgent agent)
         {
             if (agent != null && !activeAgents.Contains(agent))
+            {
                 activeAgents.Add(agent);
+                Debug.Log($"[TaskManager] RegisterAgent: {agent.name} (Role: {agent.Role})");//debug log 24:08
+            }
         }
         public void UnregisterAgent(CharacterAgent agent)
         {
             if (agent != null) activeAgents.Remove(agent);
+        }
+
+        private int CountActiveEffectiveTasks()
+        {
+            int c = 0;
+            for (int i = 0; i < active.Count; i++)
+            {
+                var st = active[i].state;
+                if (st != TaskInstance.TaskState.Completed && st != TaskInstance.TaskState.Failed)
+                    c++;
+            }
+            return c;
+        }
+
+        // Spawner dùng để kiểm tra có ít nhất 1 agent đúng role không.
+        public bool HasActiveAgentWithRole(CharacterRole role)
+        {
+            if (activeAgents == null || activeAgents.Count == 0) return false;
+            for (int i = 0; i < activeAgents.Count; i++)
+            {
+                var a = activeAgents[i];
+                if (a != null && a.Role == role) return true;
+            }
+            return false;
         }
     }
 }

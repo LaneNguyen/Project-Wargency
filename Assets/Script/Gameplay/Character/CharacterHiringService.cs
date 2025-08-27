@@ -25,6 +25,9 @@ namespace Wargency.Gameplay
         [SerializeField, Tooltip("Tập điểm spawn mặc định. Nếu null/empty sẽ fallback transform.position")]
         private SpawnPointSets spawnPointSet;
 
+        [Header("Object parent khi thuê character")]
+        [SerializeField] private Transform agentsParent;
+
         [System.Serializable]
         public class HireOption
         {
@@ -50,11 +53,14 @@ namespace Wargency.Gameplay
         public IReadOnlyList<CharacterAgent> ActiveAgents => activeAgents;
         public IReadOnlyList<HireOption> Catalog => hireCatalog;
 
+        public event System.Action<CharacterAgent> OnAgentHired;
+
         private void Awake()
         {
             if (difficultyProviderObj is IDifficultyProvider difficultprovide) difficultyProvider = difficultprovide;
             if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
         }
+
 
         // Kiểm tra điều kiện KHÔNG liên quan đến ngân sách (limit/unlock). Dành cho UI check thôi
         // Ngân sách sẽ kiểm tra khi gọi Hire (vì TrySpendBudget trừ tiền khi thành công).
@@ -131,9 +137,14 @@ namespace Wargency.Gameplay
             }
 
             // Parent giữ là transform hiện tại (quản lý theo service)
-            var agent = Instantiate(prefabCA, worldPos, Quaternion.identity, transform);
+            var parent = GetSpawnParent();
+            var agent = Instantiate(prefabCA, worldPos, Quaternion.identity, parent);
             agent.SetupCharacter(resolvedDef, difficultyProvider, taskManager);
 
+            //2408 - đăng ký có agent
+            RegisterIntoTaskManager(agent);
+            //2708 - báo cho UIHudWireUp
+            OnAgentHired?.Invoke(agent);
             //Track Active list để activeLimit hoạt động chính xác
             if (!activeAgents.Contains(agent))
                 activeAgents.Add(agent);
@@ -175,7 +186,23 @@ namespace Wargency.Gameplay
         }
 
 
-        //----------- Helper của đống trên
+        //----------- Helper của đống trên ----------------------
+
+        // Update ngày 2408: đăng ký active agent
+        private void RegisterIntoTaskManager(CharacterAgent agent)
+        {
+            if (agent == null) return;
+            if (taskManager == null) taskManager = FindAnyObjectByType<TaskManager>(); // phòng quên kéo
+            if (taskManager != null)
+            {
+                taskManager.RegisterAgent(agent);
+                Debug.Log($"[Hiring] Registered to TaskManager: {agent.name} ({agent.Definition?.Role})");
+            }
+            else
+            {
+                Debug.LogWarning("[Hiring] Không tìm thấy TaskManager để RegisterAgent. UI/AssignTask sẽ không thấy agent này!");
+            }
+        }
 
         // Ưu tiên prefab từ Definition; nếu rỗng => fallback mặc định của service
         private CharacterAgent ResolvePrefab(HireOption opt, CharacterDefinition def, CharacterAgent serviceFallback)
@@ -219,6 +246,11 @@ namespace Wargency.Gameplay
                 return spawnPointSet.GetNextRoundPoint(); // gọi API mới
 
             return transform.position;
+        }
+
+        private Transform GetSpawnParent()
+        {
+            return agentsParent? agentsParent : transform; // fallback về object đang gắn service
         }
     }
 }

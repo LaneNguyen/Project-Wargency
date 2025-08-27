@@ -35,6 +35,11 @@ namespace Wargency.Gameplay
         [Min(0f)][SerializeField] private float restEnergyPerSec = 12f; // mỗi giây nghỉ tăng nhiêu đây
         [Min(0f)][SerializeField] private float restStressRecoverPerSec = 8f;
 
+        // UPDATE 2408: Tùy chọn tự động đăng ký với TaskManager
+        [Header("TaskManager Auto-Register")]
+        [SerializeField, Tooltip("Tự động Register/Unregister với TaskManager khi Agent bật/tắt.")]
+        private bool autoRegisterToTaskManager = true; // UPDATE 2408
+
         // chỉ lúc chạy chứ ko có chỉnh inpsector
         private AgentState state = AgentState.Idle;
         private TaskInstance currentTask;
@@ -45,10 +50,11 @@ namespace Wargency.Gameplay
         public event Action<CharacterAgent> OnStatsChanged;           // Dính dáng được gọi forward từ CharacterStats.StatsChanged
 
         //Public API = getters
-        public CharacterDefinition Definition => definition;
+        public CharacterDefinition Definition => definition; 
         public TaskInstance CurrentTask => currentTask;
         public AgentState State => state;
-        public CharacterRole Role { get; }
+        public string DisplayName => Definition != null ? Definition.DisplayName : name;
+        public CharacterRole Role => Definition != null ? Definition.Role : CharacterRole.Planner;
 
         private void Awake()
         {
@@ -74,6 +80,21 @@ namespace Wargency.Gameplay
             currentTask = null;
         }
 
+
+        // UPDATE 2408: Auto-register với TaskManager khi bật
+        private void OnEnable() // UPDATE 2408
+        {
+            if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
+            if (autoRegisterToTaskManager && taskManager != null)
+            {
+                taskManager.RegisterAgent(this);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log($"[Agent] OnEnable → RegisterAgent: {name} (Role: {Role}) TM id={taskManager.GetInstanceID()}"); // UPDATE 2408
+#endif
+            }
+        }
+
+    
         private void Update()
         {
             // Sắp xếp sprite theo Y để đúng thứ tự hiển thị isometric/topdown. Viết thêm lần nữa cho chắc thôi
@@ -90,6 +111,18 @@ namespace Wargency.Gameplay
                 case AgentState.Working: TickWorking(dt); break;
                 case AgentState.Resting: TickResting(dt); break;
                     // Idle/Moving: M3 chưa làm gì nhé
+            }
+        }
+
+        // UPDATE 2408: Unregister khi tắt
+        private void OnDisable() // UPDATE 2408
+        {
+            if (autoRegisterToTaskManager && taskManager != null)
+            {
+                taskManager.UnregisterAgent(this);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Debug.Log($"[Agent] OnDisable → UnregisterAgent: {name}"); // UPDATE 2408
+#endif
             }
         }
 
@@ -137,23 +170,44 @@ namespace Wargency.Gameplay
         // Thiết lập nhanh sau khi dùng Instantiate tạo prefab
         public void SetupCharacter(CharacterDefinition def, IDifficultyProvider difficulty = null, TaskManager tm = null)
         {
-
-            var resolved = definition != null ? definition : def;
-            if (resolved == null)
-            {
-                Debug.LogError($"[Agent] Ko tìm thấy CharacterDefinition ở {name}. Check lại prefab hoặc để SetupCharacter");
-                return;
-            }
-            definition = resolved;
-            if (definition && spriteRenderer && definition.Body)
-                spriteRenderer.sprite = definition.Body;
-
-            stats.InitFrom(definition);
+            DefinitionAssign(def); // tách nhỏ cho gọn
             if (difficulty != null) difficultyProvider = difficulty;
             if (tm != null) taskManager = tm;
 
+            // UPDATE 2408: Đảm bảo đã đăng ký vào TM ngay sau khi setup (idempotent)
+            if (autoRegisterToTaskManager)
+            {
+                if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
+                if (taskManager != null)
+                {
+                    taskManager.RegisterAgent(this); // Register nhiều lần cũng OK vì TaskManager đã chặn trùng
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    Debug.Log($"[Agent] SetupCharacter → RegisterAgent: {name} (Role: {Role}) TM id={taskManager.GetInstanceID()}"); // UPDATE 2408
+#endif
+                }
+            }
+
             state = AgentState.Idle;
             currentTask = null;
+        }
+
+        // UPDATE 2408: gom logic gán definition + sprite + init stat
+        private void DefinitionAssign(CharacterDefinition def) // UPDATE 2408
+        {
+            var resolved = definition != null ? definition : def;
+            if (resolved == null)
+            {
+                Debug.LogError($"[Agent] Không tìm thấy CharacterDefinition ở {name}. Kiểm tra prefab/SetupCharacter.");
+                return;
+            }
+
+            definition = resolved;
+
+            if (definition && spriteRenderer && definition.Body)
+                spriteRenderer.sprite = definition.Body;
+
+            if (stats != null)
+                stats.InitFrom(definition);
         }
 
         //Cho phép đổi difficulty provider runtime (vd khi Wave đổi)

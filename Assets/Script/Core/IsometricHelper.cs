@@ -15,7 +15,7 @@ namespace Wargency.Core
         }
         public static int OrderFromY(float y, float scale = 100f)
         {   //tính sorting order cho sprite dựa vào Y → đảm bảo object thấp hơn sẽ vẽ đè lên object cao hơn hệt isometric thực
-            return Mathf.RoundToInt(-y * scale); //-y để object nào có y thấp hơn => sorting order lớn hơn 
+            return Mathf.RoundToInt(-y * scale ); //-y để object nào có y thấp hơn => sorting order lớn hơn 
         }
 
         //Object có collider,

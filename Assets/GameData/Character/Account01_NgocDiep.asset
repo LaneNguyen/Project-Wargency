@@ -17,7 +17,7 @@ MonoBehaviour:
   avatar: {fileID: 1666387697947646530, guid: 6841b9d6182b29d42b8d9cedd2c054b3, type: 3}
   body: {fileID: 1666387697947646530, guid: 6841b9d6182b29d42b8d9cedd2c054b3, type: 3}
   role: 3
-  baseEnergy: 100
-  baseStress: 20
+  baseEnergy: 50
+  baseStress: 50
   moveSpeed: 3.5
   agentPrefabs: []

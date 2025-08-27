@@ -185,8 +185,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxEnergy: 100
   maxStress: 100
-  energy: 0
-  stress: 0
+  energy: 50
+  stress: 50
 --- !u!114 &1970154286565779759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,3 +208,4 @@ MonoBehaviour:
   baseStressGainPerSecWorking: 3
   restEnergyPerSec: 12
   restStressRecoverPerSec: 8
+  autoRegisterToTaskManager: 1

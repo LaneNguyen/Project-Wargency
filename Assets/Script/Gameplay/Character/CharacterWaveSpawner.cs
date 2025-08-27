@@ -26,7 +26,10 @@ namespace Wargency.Gameplay
 
         [Header("Điểm Spawn")]
         [SerializeField, Tooltip("Tập điểm spawn cho Wave/Hiring. Nếu null hoặc rỗng => fallback transform.position")]
-        private SpawnPointSets spawnPointSet; 
+        private SpawnPointSets spawnPointSet;
+
+        [Header("Parenting Object")]
+        [SerializeField] private Transform agentsParent;
 
         [Header("Difficulty/Task refs (optional)")]
         [SerializeField] private UnityEngine.Object difficultyProviderObj;
@@ -68,8 +71,8 @@ namespace Wargency.Gameplay
                 Debug.LogWarning("[Spawn] Không tìm thấy prefab (Definition rỗng & fallback hổng có)");
                 return;
             }
-
-            var agent = Instantiate(prefab, pos, Quaternion.identity, transform);
+            var parent = agentsParent != null ? agentsParent : null;
+            var agent = Instantiate(prefab, pos, Quaternion.identity, parent);
             agent.SetupCharacter(directSpawnDefinition, difficultyProvider, taskManager);
             Debug.Log($"[Manual] Direct spawned: {directSpawnDefinition.DisplayName} at {pos}");
         }
@@ -107,8 +110,8 @@ namespace Wargency.Gameplay
                 Debug.LogWarning("[WaveSpawner] Không tìm thấy prefab");
                 return;
             }
-
-            var agent = Instantiate(prefab, pos, Quaternion.identity, transform);
+               var parent = agentsParent != null ? agentsParent : null; // null = root của scene
+            var agent = Instantiate(prefab, pos, Quaternion.identity, parent);
             agent.SetupCharacter(def, difficultyProvider, taskManager);
             Debug.Log($"[WaveSpawner] Spawned {def?.DisplayName ?? prefab.name} ({def?.Role.ToString() ?? "Unknown"}) at {pos}");
         }
