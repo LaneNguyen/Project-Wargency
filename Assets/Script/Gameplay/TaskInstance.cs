@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Wargency.Gameplay
 {
-    // Trạng thái runtime(dữ liệu khi có chỉ khi chạy game) của 1 TaskDefinition.
-
+    public enum AssignResult { Success, RoleMismatch, AlreadyAssigned, Invalid }
+    // Trạng thái runtime(dữ liệu khi có chỉ khi chạy game) của 1 TaskDefinition
     [Serializable] //cho phép serialize class này trong inspector sau này   
     public class TaskInstance
     {
@@ -17,7 +17,7 @@ namespace Wargency.Gameplay
         public TaskState state { get; private set; }//lưu trạng thái hiện tại của task
 
         // Gán khi Assign: ai là người thực hiện task (optional).
-        public CharacterAgent assignee;
+        public CharacterAgent Assignee { get; private set; }
 
         // TaskManager sẽ gán: instance.stressImpact + baseStressCos
         public int stressCost = -1; // -1 = chưa gán (phòng khi quên set)
@@ -41,7 +41,7 @@ namespace Wargency.Gameplay
         // optional ở đây: constructor khi đã biết assignee
         public TaskInstance(TaskDefinition definition, CharacterAgent assignee) : this(definition)
         {
-            this.assignee = assignee;
+            this.Assignee = assignee;
         }
 
 
@@ -90,6 +90,63 @@ namespace Wargency.Gameplay
             progress01 = Mathf.Clamp01(progress01 + delta01);
 
             if (progress01 >= 1f) Complete();
+        }
+
+
+// Assign a character to this task with role validation
+public AssignResult AssignCharacter(CharacterAgent agent)
+        {
+            if (agent == null) return AssignResult.Invalid;
+            if (Assignee == agent) return AssignResult.Success; // idempotent
+            if (Assignee != null) return AssignResult.AlreadyAssigned;
+
+            bool roleOk = false;
+            if (definition != null)
+            {
+                // Prefer AllowedRoles if available
+                try
+                {
+                    // dynamic-like access: if your TaskDefinition exposes AllowedRoles (List<CharacterRole>), use it
+                    var allowed = definition.GetType().GetField("AllowedRoles");
+                    if (allowed != null)
+                    {
+                        var list = allowed.GetValue(definition) as System.Collections.IEnumerable;
+                        if (list != null)
+                        {
+                            foreach (var r in list)
+                            {
+                                if (r != null && r.Equals(agent.Role)) { roleOk = true; break; }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // fallback to RequiredRole
+                        var req = definition.GetType().GetField("RequiredRole");
+                        if (req != null)
+                        {
+                            var reqVal = req.GetValue(definition);
+                            if (reqVal != null && reqVal.Equals(agent.Role)) roleOk = true;
+                        }
+                        else
+                        {
+                            // if neither exists, accept any role
+                            roleOk = true;
+                        }
+                    }
+                }
+                catch { roleOk = true; }
+            }
+            else
+            {
+                // No definition → accept to avoid hard crash in dev
+                roleOk = true;
+            }
+
+            if (!roleOk) return AssignResult.RoleMismatch;
+
+            Assignee = agent;
+            return AssignResult.Success;
         }
     }
 }

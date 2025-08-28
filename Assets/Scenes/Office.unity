@@ -3097,7 +3097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   taskManager: {fileID: 670157600}
   panelContainer: {fileID: 1795230470}
-  itemPrefab: {fileID: 8954262760260454259, guid: 3ba7104259483ee40a391e041e9db209, type: 3}
+  itemPrefab: {fileID: 6191337107655410889, guid: 3ba7104259483ee40a391e041e9db209, type: 3}
   listText: {fileID: 1902309128}
   spawnFirstButton: {fileID: 665564721}
   startAllButton: {fileID: 357228752}
@@ -4161,13 +4161,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f087ec121412c424da0ab4017a51e596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 1970154286565779759, guid: 34d69afba71b0f74899b565d695d218c, type: 3}
+  agentPrefab: {fileID: 0}
   difficultyProviderObj: {fileID: 1390609113}
   taskManager: {fileID: 670157600}
   spawnPointSet: {fileID: 11400000, guid: cb5de2ad9d3780e4e9b630e06f25cb31, type: 2}
   agentsParent: {fileID: 1399002760}
   hireCatalog:
-  - agentPrefabGO: {fileID: 8702636308194837394, guid: 34d69afba71b0f74899b565d695d218c, type: 3}
+  - agentPrefabGO: {fileID: 6660629567293913805, guid: 34d69afba71b0f74899b565d695d218c, type: 3}
     definition: {fileID: 11400000, guid: 9a26ea483fd893a4f96d5562caec87d4, type: 2}
     hireCost: 300
     activeLimit: 10
@@ -5406,7 +5406,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hudLayer: {fileID: 1623766933}
   alertsFeed: {fileID: 888683012}
-  hudPrefab: {fileID: 6629416344572070724, guid: 27cb167d10a04cb44990fe5424e56135, type: 3}
+  hudPrefab: {fileID: 3795570539452054290, guid: 27cb167d10a04cb44990fe5424e56135, type: 3}
   hiringService: {fileID: 1242415667}
   agentsRoot: {fileID: 1399002760}
 --- !u!1 &1781443949
@@ -6478,6 +6478,7 @@ MonoBehaviour:
   definition: {fileID: 11400000, guid: ba6a6b2a67d7d2243a88b924d150e1fc, type: 2}
   stats: {fileID: 0}
   spriteRenderer: {fileID: 0}
+  portraitIcon: {fileID: 0}
   taskManager: {fileID: 0}
   difficultyProviderObj: {fileID: 0}
   baseEnergyDrainPerSecWorking: 6

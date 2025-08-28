@@ -30,10 +30,11 @@ namespace Wargency.UI
         private float autoDestroyEffectAfter = 1f;
         [Header("Effects Scale Control")]
         [SerializeField] private bool compensateParentScale = true;
-        [SerializeField] private Vector2 effectPixelSize = new Vector2(300 , 300);
+        [SerializeField] private Vector2 effectPixelSize = new Vector2(300, 300);
 
         private TaskInstance lastBound;
         public TaskInstance Current { get; private set; }
+        public RectTransform EffectAnchor => effectAnchor;
 
         // ====== Lifecycle ======
         private void Awake() => EnsureEffectAnchor();
@@ -91,10 +92,10 @@ namespace Wargency.UI
 
             if (assigneeText != null)
             {
-                if (inst != null && inst.assignee != null)
+                if (inst != null && inst.Assignee != null)
                 {
                     assigneeText.gameObject.SetActive(true);
-                    assigneeText.text = $"{inst.assignee.DisplayName} nhận task!";
+                    assigneeText.text = $"{inst.Assignee.DisplayName} nhận task!";
                 }
                 else assigneeText.gameObject.SetActive(false);
             }
@@ -105,6 +106,16 @@ namespace Wargency.UI
                 visualProgress = (inst != null) ? inst.progress01 : 0f;
                 if (progressBar != null) progressBar.value = visualProgress;
             }
+        }
+
+
+        /// <summary>
+        /// Làm mới nhanh toàn bộ những phần dễ thay đổi.
+        /// Hiện tại chỉ refresh người nhận task để sửa lỗi compile nơi khác gọi.
+        /// </summary>
+        public void RefreshAll()
+        {
+            RefreshAssignee();
         }
 
         // ====== Effect spawning ======
@@ -159,6 +170,34 @@ namespace Wargency.UI
             if (autoDestroyEffectAfter > 0f)
                 Destroy(go, autoDestroyEffectAfter);
         }
+
+        /// <summary>
+        /// Cập nhật phần hiển thị người được gán (Assignee) cho task.
+        /// Dễ hiểu: nếu có người → hiện tên + icon (nếu bạn muốn sau này).
+        /// Nếu chưa ai nhận → ghi "<Unassigned>" và ẩn dòng này cho gọn.
+        /// </summary>
+        public void RefreshAssignee()
+        {
+            if (Current == null) return;
+
+            var a = Current.Assignee;
+
+            if (assigneeText != null)
+            {
+                if (a != null)
+                {
+                    assigneeText.gameObject.SetActive(true);
+                    assigneeText.text = $"{a.DisplayName} nhận task!";
+                }
+                else
+                {
+                    // Chưa có ai nhận
+                    assigneeText.text = "<Unassigned>";
+                    assigneeText.gameObject.SetActive(false);
+                }
+            }
+        }
+
         private void Update()
         {
             if (progressBar == null) return;

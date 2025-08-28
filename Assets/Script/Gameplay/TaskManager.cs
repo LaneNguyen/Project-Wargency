@@ -34,10 +34,10 @@ namespace Wargency.Gameplay
         public AssignmentFallback fallbackMode = AssignmentFallback.AnyAgent;
 
         //UPDATE 24.08
-        [Header("Limits")]                              
-        [Tooltip("Giới hạn số task đang còn hiệu lực (New/InProgress).")] 
-        public int maxConcurrentTasks = 3;     
-        
+        [Header("Limits")]
+        [Tooltip("Giới hạn số task đang còn hiệu lực (New/InProgress).")]
+        public int maxConcurrentTasks = 3;
+
         private readonly List<TaskInstance> active = new List<TaskInstance>();//danh sách task tồn tại lúc chơi
         public IReadOnlyList<TaskInstance> Active => active;//để UI đọc, chứ ko sửa trực tiếp
 
@@ -162,7 +162,11 @@ namespace Wargency.Gameplay
             var task = Spawn(definition);
             if (task == null) return false;
 
-            task.assignee = chosen;
+            var assignRes = task.AssignCharacter(chosen);
+            if (assignRes != AssignResult.Success)
+            {
+                Debug.LogWarning($"[TaskManager] AssignCharacter failed: {assignRes} for '{definition.DisplayName}'.");
+            }
             StartTask(task); // dùng luồng start cũ
             instanceOut = task;
 
@@ -176,7 +180,7 @@ namespace Wargency.Gameplay
             if (task == null) return;
 
             // Update 24/08 -CHẶN: nếu task yêu cầu role mà chưa có assignee đúng
-            if (!MeetsRoleRequirement(task.definition, task.assignee))
+            if (!MeetsRoleRequirement(task.definition, task.Assignee))
             {
                 Debug.LogWarning($"[TaskManager] Không thể Start '{task?.DisplayName}' vì thiếu assignee role {task?.definition?.RequiredRole}.");
                 return; // quan trọng: ĐỪNG cho chạy
@@ -192,7 +196,7 @@ namespace Wargency.Gameplay
                 var t = active[i];
                 if (t.state == TaskInstance.TaskState.New)
                 {
-                    if (MeetsRoleRequirement(t.definition, t.assignee))
+                    if (MeetsRoleRequirement(t.definition, t.Assignee))
                         t.Start();
                     else
                         Debug.LogWarning($"[TaskManager] Bỏ qua Start '{t.DisplayName}' (thiếu assignee role {t.definition.RequiredRole}).");
@@ -274,7 +278,7 @@ namespace Wargency.Gameplay
         public void ContributeProgress(TaskInstance task, float delta01)
         {
             if (task == null || delta01 <= 0f) return;
-            task.AddProgress(delta01); 
+            task.AddProgress(delta01);
         }
 
         // M3.3 update: Reassign task sang agent mới (giữ progress). Tự validate role 
@@ -289,14 +293,28 @@ namespace Wargency.Gameplay
                 return false;
             }
 
-            var old = task.assignee;
+            var old = task.Assignee;
             if (old != null)
             {
                 // Giải phóng an toàn phía agent cũ 
                 old.OnExternalTaskTerminated(task);
             }
 
-            task.assignee = newAssignee;
+
+            // Set private setter via reflection to allow reassign
+            try
+            {
+                var pi = typeof(TaskInstance).GetProperty("Assignee", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                var setm = pi?.GetSetMethod(true);
+                if (setm != null) setm.Invoke(task, new object[] { newAssignee });
+                else Debug.LogWarning("[TaskManager] Unable to set Assignee via reflection.");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[TaskManager] Reflection set Assignee failed: {ex.Message}");
+                return false;
+            }
+
 
             // Nếu task còn New → start
             if (task.state == TaskInstance.TaskState.New)

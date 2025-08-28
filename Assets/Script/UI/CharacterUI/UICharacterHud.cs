@@ -52,7 +52,7 @@ namespace Wargency.UI
         // link đến stats (gắn sẵn ở Agent)
         [SerializeField] private Wargency.Gameplay.CharacterStats stats;
 
-
+        public CharacterAgent Agent { get; private set; }
 
         // internal
         private int maxEnergy = 100, maxStress = 100;
@@ -279,6 +279,14 @@ namespace Wargency.UI
             if (energyBar) energyBar.value = vEnergy01;
             if (stressBar) stressBar.value = vStress01;
         }
+
+        public void SetAgent(Wargency.Gameplay.CharacterAgent a)
+        {
+            Agent = a;
+            var drags = GetComponentsInChildren<Wargency.UI.UICharacterDraggable>(true);
+            foreach (var d in drags) d.Bind(Agent);
+        }
+
     }
 
 }

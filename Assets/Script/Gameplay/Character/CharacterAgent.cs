@@ -21,6 +21,9 @@ namespace Wargency.Gameplay
         [SerializeField] private CharacterStats stats;            // Runtime coi stats (Energy/Stress)
         [SerializeField] private SpriteRenderer spriteRenderer;   // Hiển thị body
 
+        [Header("UI")]
+        [SerializeField, Tooltip("Portrait/icon for UI panels. Fallback to Definition.Body if null")] private Sprite portraitIcon;
+
         [SerializeField, Tooltip("Optional: null thì FindAnyObjectByType")]
         private TaskManager taskManager;                          // Để thêm bớt cộng trừ tiến độ task
 
@@ -55,6 +58,7 @@ namespace Wargency.Gameplay
         public AgentState State => state;
         public string DisplayName => Definition != null ? Definition.DisplayName : name;
         public CharacterRole Role => Definition != null ? Definition.Role : CharacterRole.Planner;
+        public Sprite IconSprite => portraitIcon != null ? portraitIcon : (Definition != null && Definition.Body ? Definition.Body : null);
 
         private void Awake()
         {
