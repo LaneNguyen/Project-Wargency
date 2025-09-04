@@ -14,8 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: client_praise
   title: "Kh\xE1ch khen!"
-  description: "\u201CKh\xE1ch h\xE0ng khen n\u1EE9c n\u1EDF!\u201D"
+  description: "Kh\xE1ch h\xE0ng khen n\u1EE9c n\u1EDF!\n+10 \u0111i\u1EC3m"
+  kind: 0
+  unlockAtWave: 0
   budgetChange: 0
   scoreChange: 10
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 0
+  optionA:
+    optionTitle: "Ph\u01B0\u01A1ng \xE1n A/B"
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: "Ph\u01B0\u01A1ng \xE1n A/B"
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
   minIntervalSec: 8
   maxIntervalSec: 15

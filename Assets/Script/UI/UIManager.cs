@@ -1,160 +1,203 @@
 ﻿using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using Wargency.Gameplay;
 
 namespace Wargency.UI
 {
-    // UIManager gom các UI Stub (Budget/Score/Wave), bao gồm function:
-    // - Dev Hotkeys để test nhanh gameplay loop (B/N/[ / ])
-    // - Pause/Resume bằng phím Esc (tạm thời dùng Time.timeScale)
-    // - (Optional) Tham chiếu tới các stub để tiện kiểm tra trong Inspector
-    // Note nhẹ:
-    // - Các UIBudgetStub/UIScoreStub/UIWaveStub TỰ cập nhật qua event từ GameLoopController.
-    //   UIManager không can thiệp vào việc update text.
-    // - Mục tiêu là tổ chức & điều phối UI, tạo tiện ích test mà không làm rối logic
+    // quản lý UI tổng quát cho game cho gọn
+    // có pause resume nhẹ nhàng và dev hotkeys để thử vòng lặp
+    // gom bốn mảng chức năng chính: Leadership, HumanResource, Deadline, Event
+    // mở khóa theo wave bằng codeId, kèm intro panel tạm dừng game nếu cần
+    // UI => Manager => Gameplay nói chuyện chủ yếu qua GameLoopController
+
     public class UIManager : MonoBehaviour
     {
         public static UIManager instance { get; private set; }
 
-        [Header("Khu vực tham chiếu")]
-        [Tooltip("Tham chiếu UIBudgetStub")]
-        [SerializeField] private UIBudgetStub budgetStub;
-        [SerializeField] private UIScoreStub scoreStub;
-        [SerializeField] private UIWaveStub waveStub;
-
-        [Header("Nút Pause")]
+        [Header("Pause")]
         [SerializeField] private GameObject pausePanel;
 
         [Header("Developer Hotkeys")]
-        [Tooltip("Bật tắt nút test nhanh khi dev")]
         [SerializeField] private bool enableDevHotkey = true;
-
-        [Tooltip("Nút cộng budget - nút B mặc định")]
         [SerializeField] private KeyCode keyAddBudget = KeyCode.B;
-
-        [Tooltip("Nút trừ và xài tiền - Mặc định: N")]
         [SerializeField] private KeyCode keySpendBudget = KeyCode.N;
+        [SerializeField] private KeyCode keyWaveDecrease = KeyCode.LeftBracket;
+        [SerializeField] private KeyCode keyWaveIncrease = KeyCode.RightBracket;
+        [SerializeField] private KeyCode keyPauseToggle = KeyCode.Escape;
 
-        [Tooltip("Phím giảm wave - Mặc định [")]
-        [SerializeField] private KeyCode keyWavedecrease = KeyCode.LeftBracket;
+        [Header("Game Features")]
+        [SerializeField] private FeatureEntry leadership;     // panel chọn skill leader
+        [SerializeField] private FeatureEntry humanResource;  // panel tuyển dụng nhân sự
+        [SerializeField] private FeatureEntry deadline;       // bảng deadline hay cảnh báo
+        [SerializeField] private FeatureEntry eventFeature;   // panel sự kiện trong game
 
-        [Tooltip("Phím tăng wave - Mặc định ]")]
-        [SerializeField] private KeyCode keyWaveincrease = KeyCode.RightBracket;
-
-        [Tooltip("Phím pause/resume - Mặc định Esc")]
-        [SerializeField] private KeyCode keyPausetoggle = KeyCode.Escape;
-
-        // Trạng thái pause cục bộ cho UIManager (M1: chỉ dùng Time.timeScale)
         private bool isPaused = false;
+        private int lastKnownWave = int.MinValue;
 
         private void Awake()
         {
-            if (instance == null)
-            {
-                instance = this;
-            }
-            else { Destroy(this.gameObject); }
-            DontDestroyOnLoad(this.gameObject);
+            if (instance == null) instance = this;
+            else { Destroy(gameObject); return; }
+            DontDestroyOnLoad(gameObject);
         }
+
         private void Start()
-        {             
-            // Ẩn panel Pause lúc bắt đầu (nếu có gán)
-            if (pausePanel !=null)
-            {
-                pausePanel.SetActive(false);
-            }
+        {
+            if (pausePanel) pausePanel.SetActive(false);
 
-            // Log nhẹ để check đã sẵn sàng hay chưa
+            // UIManager không giữ tham chiếu UIBudget/UIScore/UIWave nữa
+            // các stub đó tự nghe event từ GameLoopController
+
+            // đồng bộ mở khóa ban đầu
+            SyncFeatureLocks(forceIntroCheck: true);
+
             if (GameLoopController.Instance == null)
-            {
-                Debug.LogWarning("[UIManager] GameLoopController.Instance chưa tồn tại trong scene.");
-            }
-
+                Debug.LogWarning("[UIManager] GameLoopController.Instance chưa sẵn sàng");
         }
 
         private void Update()
         {
             HandleHotkeys();
+            PollWaveChangeForUnlock();
         }
 
-        // Xử lý các phím tắt dành cho dev/QA để test nhanh dòng chảy M1.
+        // ===== hotkeys cho QA/dev =====
         private void HandleHotkeys()
         {
             if (!enableDevHotkey) return;
-            // An toàn: chỉ xử lý khi GameLoopController đã sẵn sàng
-            var gameloopcontroller = GameLoopController.Instance;
-            if (gameloopcontroller == null) { return; }
+            var loop = GameLoopController.Instance;
+            if (loop == null) return;
 
-            //Add budget (+100)
-            if(Input.GetKeyDown(keyAddBudget))
+            if (Input.GetKeyDown(keyAddBudget))
             {
-                gameloopcontroller.AddBudget(100);
-                Debug.Log("[UIManager] +100 Budget (dev hotkey).");
+                loop.AddBudget(100);
+                Debug.Log("[UIManager] +100 Budget (dev)");
             }
 
-            // Xài 50 tiền nếu đủ
-            if(Input.GetKeyDown(keySpendBudget))
+            if (Input.GetKeyDown(keySpendBudget))
             {
-                bool tryspend = gameloopcontroller.TrySpendBudget(50);
-                Debug.Log(tryspend ? "[UIManager] -50 Budget (dev hotkey)."
-                              : "[UIManager] Không đủ Budget để trừ 50.");
+                bool ok = loop.TrySpendBudget(50);
+                Debug.Log(ok ? "[UIManager] -50 Budget (dev)" : "[UIManager] Không đủ tiền");
             }
 
-            // Wave giảm
-            if(Input.GetKeyDown(keyWavedecrease))
+            if (Input.GetKeyDown(keyWaveDecrease))
             {
-                int currentwave = gameloopcontroller.Wave;
-                gameloopcontroller.SetWave(currentwave - 1);
-                Debug.Log($"[UIManager] Wave -> {gameloopcontroller.Wave} (dev hotkey)");
+                loop.SetWave(loop.Wave - 1);
+                Debug.Log($"[UIManager] Wave -> {loop.Wave} (dev)");
             }
 
-            //Wave tăng
-            if (Input.GetKeyDown(keyWaveincrease))
+            if (Input.GetKeyDown(keyWaveIncrease))
             {
-                int currentwave = gameloopcontroller.Wave;
-                gameloopcontroller.SetWave(currentwave + 1);
-                Debug.Log($"[UIManager] Wave -> {gameloopcontroller.Wave} (dev hotkey).");
+                loop.SetWave(loop.Wave + 1);
+                Debug.Log($"[UIManager] Wave -> {loop.Wave} (dev)");
             }
 
-            //Pause hoặc resume
-            if (Input.GetKeyDown(keyPausetoggle))
+            if (Input.GetKeyDown(keyPauseToggle))
             {
                 TogglePause();
             }
         }
 
-        // Bật/tắt Pause đơn giản bằng Time.timeScale (M1).
-        // - Pause: timeScale = 0 (dừng Update/FixedUpdate dựa trên Time.deltaTime)
-        // - Resume: timeScale = 1
-        // - Hiện/ẩn pausePanel nếu có
-        // note trước:
-        // - Tạm thời cho M1. Sang M2 có thể chuyển sang cơ chế Pause thực thụ qua GameLoopController (thêm state Pause).
+        // ===== pause đơn giản bằng timeScale =====
         public void TogglePause()
         {
             isPaused = !isPaused;
             Time.timeScale = isPaused ? 0f : 1f;
-
-            if(pausePanel != null)
-            {
-                pausePanel.SetActive(isPaused);
-            }
-            Debug.Log(isPaused ? "UI Manager: PAUSED" : "UI MANAGER: Resumed");
+            if (pausePanel) pausePanel.SetActive(isPaused);
+            Debug.Log(isPaused ? "UI Manager: PAUSED" : "UI Manager: Resumed");
         }
 
-        // API thêm để mở/tắt pause từ nơi khác (vd: nút UI).
         public void SetPause(bool pause)
         {
             if (isPaused == pause) return;
             isPaused = pause;
             Time.timeScale = isPaused ? 0f : 1f;
-
-            if (pausePanel != null)
-            {
-                pausePanel.SetActive(isPaused);
-            }
-            Debug.Log(isPaused ? "UI Manager: PAUSED" : "UI MANAGER: Resumed");
+            if (pausePanel) pausePanel.SetActive(isPaused);
+            Debug.Log(isPaused ? "UI Manager: PAUSED" : "UI Manager: Resumed");
         }
 
+        // ===== chỉ theo dõi wave để mở khóa tính năng =====
+        private void PollWaveChangeForUnlock()
+        {
+            var loop = GameLoopController.Instance;
+            if (loop == null) return;
+
+            if (lastKnownWave != loop.Wave)
+            {
+                lastKnownWave = loop.Wave;
+                SyncFeatureLocks(forceIntroCheck: true);
+            }
+        }
+
+        private void SyncFeatureLocks(bool forceIntroCheck)
+        {
+            var wave = GameLoopController.Instance != null ? GameLoopController.Instance.Wave : 0;
+            ApplyFeatureLock(leadership, wave, forceIntroCheck);
+            ApplyFeatureLock(humanResource, wave, forceIntroCheck);
+            ApplyFeatureLock(deadline, wave, forceIntroCheck);
+            ApplyFeatureLock(eventFeature, wave, forceIntroCheck);
+        }
+
+        private void ApplyFeatureLock(FeatureEntry entry, int wave, bool forceIntroCheck)
+        {
+            if (entry == null) return;
+
+            bool unlocked = wave >= entry.unlockWave;
+            if (entry.root) entry.root.SetActive(unlocked);
+
+            // khi vừa mở khóa và muốn hiện hướng dẫn thì hiển thị một lần
+            if (unlocked && (forceIntroCheck || !entry.wasIntroChecked))
+            {
+                entry.wasIntroChecked = true;
+                if (entry.showIntroOnUnlock)
+                    ShowFeatureIntro(entry);
+            }
+        }
+
+        // ===== intro panel cho chức năng =====
+        public void ShowFeatureIntro(FeatureEntry entry)
+        {
+            if (entry == null || entry.introPanel == null) return;
+            entry.introPanel.SetActive(true);
+            if (entry.pauseWhileIntro) SetPause(true);
+        }
+
+        // đóng intro theo code id
+        public void CloseFeatureIntro(string codeId)
+        {
+            var entry = GetEntryByCodeId(codeId);
+            if (entry == null) return;
+
+            if (entry.introPanel) entry.introPanel.SetActive(false);
+            if (entry.pauseWhileIntro) SetPause(false);
+            entry.showIntroOnUnlock = false; // xem rồi thì thôi đừng hiện lại
+        }
+
+        private FeatureEntry GetEntryByCodeId(string codeId)
+        {
+            if (leadership != null && leadership.codeId == codeId) return leadership;
+            if (humanResource != null && humanResource.codeId == codeId) return humanResource;
+            if (deadline != null && deadline.codeId == codeId) return deadline;
+            if (eventFeature != null && eventFeature.codeId == codeId) return eventFeature;
+            return null;
+        }
+
+        // ===== cấu hình cho từng chức năng =====
+        [Serializable]
+        public class FeatureEntry
+        {
+            [Header("Định danh")]
+            public string codeId = "feature";  // dùng code ID để gọi đóng intro
+
+            [Header("Root UI của chức năng")]
+            public GameObject root;            // bật tắt cả chức năng
+            public int unlockWave = 1;         // mở khóa từ wave này trở đi
+
+            [Header("Intro Panel (hướng dẫn)")]
+            public GameObject introPanel;      // panel hướng dẫn tùy chọn
+            public bool pauseWhileIntro = true;
+            public bool showIntroOnUnlock = true;
+            [NonSerialized] public bool wasIntroChecked = false;
+        }
     }
 }

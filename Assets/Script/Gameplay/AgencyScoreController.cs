@@ -3,42 +3,40 @@ using UnityEngine;
 
 namespace Wargency.Gameplay
 {
-    /// <summary>
-    /// Điểm uy tín của agency. Dùng để mở khoá/mốc.
-    /// - Gọi AddScore để cộng điểm. Bắn sự kiện khi điểm đổi.
-    /// </summary>
+    // điểm uy tín của agency nè, xài để mở mốc hoặc khoá gì đó
+    // gọi AddScore là cộng, có event báo cho UI biết luôn
+    [DefaultExecutionOrder(-200)]
     [DisallowMultipleComponent]
     public class AgencyScoreController : MonoBehaviour
     {
         public static AgencyScoreController I { get; private set; }
 
-        [Header("Thiết lập khởi tạo")]
-        [Tooltip("Điểm khởi tạo khi vào game.")]
+        [Header("Start Value")]
+        [Tooltip("điểm ban đầu khi vào game")]
         [SerializeField] private int startScore = 0;
 
-        /// <summary>Điểm hiện tại.</summary>
+        // điểm hiện tại đang có
         public int Score { get; private set; }
 
-        /// <summary>Sự kiện: gọi khi Score đổi.</summary>
+        // ai cần nghe thì đăng ký, mỗi lần điểm đổi sẽ kêu
         public event Action<int> OnScoreChanged;
 
         private void Awake()
         {
             if (I != null && I != this) { Destroy(gameObject); return; }
             I = this;
-            Score = Mathf.Max(0, startScore);
+            Score = Mathf.Max(0, startScore); // không cho âm cho lành
         }
 
         private void Start()
         {
-            // bắn event 1 lần để UI nhận giá trị ban đầu
+            // báo 1 phát để UI nắm số ban đầu
             OnScoreChanged?.Invoke(Score);
         }
 
-        /// <summary>Cộng điểm và bắn event (bỏ qua nếu amount <= 0).</summary>
         public void AddScore(int amount)
         {
-            if (amount <= 0) return;
+            if (amount <= 0) return; // cộng số kỳ kỳ thì thôi
             Score += amount;
             OnScoreChanged?.Invoke(Score);
         }

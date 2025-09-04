@@ -3,9 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wargency.Gameplay;
 
+// bản stub để show điểm số tạm
+// nếu chưa gắn text thì tự tạo cho khỏi quên
+// nghe ngóng GameLoopController đổi điểm là cập nhật ngay
+// UI => Manager => Gameplay nối nhau bằng event score
+
 namespace Wargency.UI
 {
-    /// UI Stub để hiển thị Score (Điểm số) tạm thời.
     public class UIScoreStub : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI scoreText;

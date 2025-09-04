@@ -14,8 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: pc_crash
   title: PC Crash
-  description: "M\xE1y render s\u1EADp gi\u1EEFa ch\u1EEBng, ph\u1EA3i s\u1EEDa g\u1EA5p."
-  budgetChange: -200
+  description: "M\xE1y render s\u1EADp gi\u1EEFa ch\u1EEBng, ph\u1EA3i s\u1EEDa g\u1EA5p\n-100
+    x\xE8ng T_T"
+  kind: 0
+  unlockAtWave: 0
+  budgetChange: -100
   scoreChange: 0
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 0
+  optionA:
+    optionTitle: "Ph\u01B0\u01A1ng \xE1n A/B"
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: "Ph\u01B0\u01A1ng \xE1n A/B"
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
   minIntervalSec: 8
   maxIntervalSec: 15

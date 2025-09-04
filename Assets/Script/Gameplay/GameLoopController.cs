@@ -1,165 +1,157 @@
 ﻿using UnityEngine;
 using System;
 using Wargency.Core;
-using System.Runtime.CompilerServices;
-
 
 namespace Wargency.Gameplay
 {
+    // cái đồng hồ chạy game: giữ state, ngân sách, điểm, wave
+    // có tick để test, ai cần nghe gì thì có event hết
     public enum GameLoopState { None, Init, Run, End }
 
-    //tóm tắt: 
-    // Minimal game loop for M1.
-    // - Holds Budget / Score / Wave runtime values
-    // - Ticks a dummy timer to drive UI stubs
-    // - Cơ chế quản lý đơn giản: Init -> Run -> End
     public class GameLoopController : MonoBehaviour
     {
-        // Instance tĩnh để có thể gọi từ bất kỳ script nào khác.
-        // Chỉ được set trong script này (private set) để tránh thay đổi ngoài ý muốn.
         public static GameLoopController Instance { get; private set; }
+
         [Header("Config")]
-        [SerializeField]
-        private GameConfig config;
+        [SerializeField] private GameConfig config; // để lấy mấy con số khởi tạo
 
         [Header("Runtime (Read-Only)")]
-        [SerializeField]
-        private GameLoopState state = GameLoopState.None;
-        [SerializeField]
-        private int budget;
-        [SerializeField]
-        private int score;
-        [SerializeField]
-        private int wave;
+        [SerializeField] private GameLoopState state = GameLoopState.None;
+        [SerializeField] private int budget;
+        [SerializeField] private int score;
+        [SerializeField] private int wave;
 
-        // Các getter cho UI sử dụng sau. (chỉ đọc, không sửa trực tiếp).
+        // team stats cho objective kiểu giữ stress/energy…
+        [Header("Team Stats (Objectives)")]
+        [SerializeField] private float teamStressValue = 0f;
+        [SerializeField] private float teamEnergyValue = 100f;
+        public float TeamStressValue => teamStressValue;
+        public float TeamEnergyValue => teamEnergyValue;
+
+        // get nhanh cho mấy chỗ khác
         public GameLoopState State => state;
         public int Budget => budget;
-
-        public int CurrentBudget => budget;//Cân nhắc sau này để phát triển review ngân sách
+        public int CurrentBudget => budget; // chỗ khác đang gọi tên này nên giữ
         public int Score => score;
         public int Wave => wave;
 
-        // Đồng hồ nhỏ để tính thời gian giữa các lần cập nhật điểm  (giai đoạn đầu)
+        // tick đơn giản, để test
         private float tickTimer;
 
-        // Các sự kiện để UI check theo sau này khi cần
+        [Header("Debug")]
+        [Tooltip("bật lên thì mỗi tick +1 điểm cho vui, giống bản M1")]
+        [SerializeField] private bool autoDebugScoreTick = false;
+
+        // sự kiện cho ai quan tâm
         public event Action OnTick;
-        public event Action<int> OnWaveChanged; //thông báo đổi wave (có truyền vào int)
-        public event Action<int> OnBudgetChanged; //thông báo đổi budget
-        public event Action<int> OnScoreChanged; //thông báo đổi điểm
-        public event Action<GameLoopState> OnStateChanged; //thông báo đổi trạng thái
+        public event Action<int> OnWaveChanged;
+        public event Action<int> OnBudgetChanged;
+        public event Action<int> OnScoreChanged;
+        public event Action<GameLoopState> OnStateChanged;
+        public event Action<float, float> OnTeamStatsChanged; // stress, energy
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) //kiểm tra nếu có GameLoopControl khác thì xóa, tránh bị overlapse
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this; //tự gán vô làm bản chạy duy nhất
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
         }
 
         private void Start()
         {
-            Boot();
+            Boot(); // khởi động cái đã
         }
 
         private void Update()
         {
             if (state != GameLoopState.Run) return;
 
-            //bấm đồng hồ đến giờ
             tickTimer += Time.deltaTime;
 
-            // nếu đồng hồ đạt đến lúc tick, đang để 0.5 phút
-            if (tickTimer >= (config != null ? config.tickInterval : 0.5f))
+            // chỉ cộng điểm nếu bật chế độ debug tick
+            if (autoDebugScoreTick && tickTimer >= (config != null ? config.tickInterval : 0.5f))
             {
                 tickTimer = 0;
-                AddScore(1); //mỗi khi tick thì sẽ lên 1 điểm để test UI
+                AddScore(1);
                 OnTick?.Invoke();
             }
         }
 
-        #region Core Flow
-        // Chuẩn bị: lấy số tiền/điểm/wave ban đầu từ GameConfig, rồi chuyển sang trạng thái Run (đang chơi)
         public void Boot()
         {
-            // nếu có config thì gán config vào ko thì tự gán
-            budget = config ? config.initialBudget : 1000;
+            budget = config ? config.initialBudget : 1000; // không có config thì xài số tạm
             score = config ? config.initialScore : 0;
             wave = config ? config.startWave : 1;
 
             tickTimer = 0f;
-            SetState(GameLoopState.Init); // Bước “chuẩn bị”
-            SetState(GameLoopState.Run);  // Bắt đầu “giờ học”
+            SetState(GameLoopState.Init);
+            SetState(GameLoopState.Run);
         }
 
         public void End()
         {
             SetState(GameLoopState.End);
-            Debug.Log("Hết game - place holder trước");
+            Debug.Log("Game over thử nghiệm"); // placeholder
         }
 
-
-        // Chuyển trạng thái một cách an toàn + thông báo cho ai cần
         private void SetState(GameLoopState next)
         {
-            if (state == next) return;//nếu sẵn rồi thì khỏi set
+            if (state == next) return; // khỏi báo lại cho ồn
             state = next;
             OnStateChanged?.Invoke(state);
         }
-        #endregion
 
-        #region Public API
-        //Hàm qua màn
         public void SetWave(int value)
         {
-            int limitwave = Mathf.Max(1, value); //Số màn set nhỏ hơn 1 => lấy 1
-            if (wave == limitwave) return;
-            wave = limitwave;
+            int v = Mathf.Max(1, value); // wave dưới 1 nhìn kỳ
+            if (wave == v) return;
+            wave = v;
             OnWaveChanged?.Invoke(wave);
         }
+
         public void NextWave()
         {
             SetWave(wave + 1);
-            tickTimer = 0f; //reset bộ đếm khi sang wave mới
+            tickTimer = 0f; // reset nhịp cho gọn
         }
-        //Hàm cộng budget
+
         public void AddBudget(int amount)
         {
             budget += amount;
             OnBudgetChanged?.Invoke(budget);
         }
-        //Hàm thử xài tiền coi đủ hay không
-        public bool TrySpendBudget(int amount) //bỏ số tiền và coi thử đủ tiền xài không
+
+        public bool TrySpendBudget(int amount)
         {
-            int cost = Mathf.Abs(amount); //đảm bảo là số dương
-            if (budget < cost) return false; //hổng đủ tiền
+            int cost = Mathf.Abs(amount); // lỡ đưa số âm thì vẫn trừ dương
+            if (budget < cost) return false;
             budget -= cost;
             OnBudgetChanged?.Invoke(budget);
             return true;
         }
 
-        //hàm cộng điểm
         public void AddScore(int amount)
         {
             score += amount;
             OnScoreChanged?.Invoke(score);
         }
 
-        //hàm reset màn chơi
         public void ResetRun()
-        {//reset lại chỉ số
+        {
             budget = config ? config.initialBudget : 1000;
             wave = config ? config.startWave : 1;
             score = config ? config.initialScore : 0;
-            tickTimer = 0f;//reset bộ đếm
+            tickTimer = 0f;
             SetState(GameLoopState.Run);
             OnBudgetChanged?.Invoke(budget);
             OnWaveChanged?.Invoke(wave);
-            OnScoreChanged?.Invoke(Score);
+            OnScoreChanged?.Invoke(score);
         }
-        #endregion
+
+        public void SetTeamStats(float stress, float energy)
+        {
+            teamStressValue = stress;
+            teamEnergyValue = energy;
+            OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
+        }
     }
 }

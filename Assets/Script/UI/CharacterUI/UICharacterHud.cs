@@ -5,22 +5,28 @@ using Wargency.Gameplay;
 
 namespace Wargency.UI
 {
-    // HUD nổi cạnh nhân vật: Energy/Stress + Mood icon + tên
-    //Tự bám theo worldTarget (nhân vật) => HUD “lơ lửng” theo offset
-    //- Nhận StatsChanged và cập nhật Energy/Stress(mượt)
-    //- Đổi Mood icon theo ngưỡng
-    //- Có OnAlert để đẩy cảnh báo ra “Live Alerts Feed”
+
+    // HUD nhỏ bay trên đầu agent nè
+    // có thanh energy, stress, mặt mood, tên nhân vật
+    // bind trực tiếp agent + stats rồi follow theo world position
+    // stress tăng mạnh sẽ nổ effect cảnh báo cho vui mắt
+    // HUD nổi trên đầu agent nè
+    // show Energy và Stress kèm mood với tên nhân vật
+    // bind trực tiếp vào CharacterAgent + CharacterStats để update mượt
     public class UICharacterHUD : MonoBehaviour
     {
-        [Header("Target")]
-        [SerializeField] private Transform worldTarget;      // nhân vật (transform của agent)
-        [SerializeField] private Camera uiCamera;            // nếu Canvas = Screen Space - Camera
-        [SerializeField] private Canvas rootCanvas;          // canvas chứa HUD
-        [SerializeField] private Camera worldCamera;   // camera render MainCamera
+        [Header("Target (runtime)")]
+        [SerializeField] private Transform worldTarget;               // transform của agent
+        [SerializeField] private CharacterStats stats;                // stats hiện tại
+        public CharacterAgent Agent { get; private set; }
 
+        [Header("Cameras & Canvas")]
+        [SerializeField] private Canvas rootCanvas;
+        [SerializeField] private Camera uiCamera;
+        [SerializeField] private Camera worldCamera;
         [SerializeField] private Vector3 worldOffset = new Vector3(0f, 1.5f, 0f);
 
-        [Header("Refs (UI)")]
+        [Header("UI Refs")]
         [SerializeField] private Slider energyBar;
         [SerializeField] private Slider stressBar;
         [SerializeField] private Image moodIcon;
@@ -40,39 +46,35 @@ namespace Wargency.UI
         public Sprite moodTired;
         public Sprite moodStressed;
 
-        //Hiệu ứng khi stress nhảy vọt
+        [Header("Effects")]
         [SerializeField] private RectTransform effectAnchor;
-        [SerializeField] private GameObject stressSpikeEffect; // prefab UI
+        [SerializeField] private GameObject stressSpikeEffect;
         [SerializeField] private bool compensateParentScale = true;
         [SerializeField] private Vector2 effectPixelSize = new Vector2(160, 160);
-        [SerializeField] private int spikeThreshold = 10; // tăng >=10 điểm trong 1 lần update → coi là "nhảy vọt"
-
-        private int _lastStress = -1; // theo dõi delta
-
-        // link đến stats (gắn sẵn ở Agent)
-        [SerializeField] private Wargency.Gameplay.CharacterStats stats;
-
-        public CharacterAgent Agent { get; private set; }
+        [SerializeField] private int spikeThreshold = 10; // tăng >=10/lần → spike
+        private int _lastStress = -1;
 
         // internal
         private int maxEnergy = 100, maxStress = 100;
-        private float vEnergy01, vStress01; // giá trị hiển thị mượt
+        private float vEnergy01, vStress01;
+        public System.Action<string> OnAlert;
 
-        public System.Action<string> OnAlert; // đẩy text alert ra feed nếu muốn
+        [Header("Debug")]
+        [SerializeField] private bool logAutoBindIssues = false; // đã có WireUp lo bind, tắt cảnh báo mặc định
 
-        private void Awake()
+        private void Start()
         {
-            TryAutoBind();
+            TryAutoBind(); // an toàn khi prefab đã gán sẵn target/stats (optional)
         }
 
         private void OnEnable()
         {
-            BindStats(true);
+            BindStats(true);   // nếu stats đã có, subscribe ngay
         }
 
         private void OnDisable()
         {
-            BindStats(false);
+            BindStats(false);  // hủy đăng ký event khi disable
         }
 
         private void LateUpdate()
@@ -81,38 +83,97 @@ namespace Wargency.UI
             SmoothUpdateBars();
         }
 
+        // ================== API CHÍNH ==================
+
+
+        public void Bind(CharacterAgent agent, CharacterStats s)
+        {
+            Agent = agent;
+            worldTarget = agent ? agent.transform : null;
+            stats = s;
+
+            if (nameText != null && agent != null)
+                nameText.text = agent.DisplayName;
+
+            // re-subscribe cho chắc
+            BindStats(false);
+            BindStats(true);
+
+            // vẽ ngay (không đợi tick/event)
+            if (stats != null)
+                RefreshFromStats(stats);
+
+            SnapNow();
+        }
+
+
+        public void SetWorldTarget(Transform target)
+        {
+            worldTarget = target;
+
+            if (stats == null && worldTarget != null)
+            {
+                stats = worldTarget.GetComponent<CharacterStats>()
+                        ?? worldTarget.GetComponentInChildren<CharacterStats>()
+                        ?? worldTarget.GetComponentInParent<CharacterStats>();
+            }
+
+            BindStats(false);
+            BindStats(true);
+
+            if (stats != null)
+                RefreshFromStats(stats);
+        }
+
+
+        public void OnAgentStatsChanged(CharacterAgent agent)
+        {
+            RefreshFromStats(agent);
+        }
+
+        // ================== NỘI BỘ ==================
+
         private void TryAutoBind()
         {
-            // Tự tìm canvas/camera nếu trống
             if (rootCanvas == null) rootCanvas = GetComponentInParent<Canvas>();
             if (uiCamera == null && rootCanvas != null && rootCanvas.renderMode == RenderMode.ScreenSpaceCamera)
                 uiCamera = rootCanvas.worldCamera;
+            if (worldCamera == null) worldCamera = Camera.main;
 
-            // Nếu không set worldTarget, thử lấy parent
-            if (worldTarget == null) worldTarget = transform.parent;
+            if (worldTarget == null)
+            {
+                var maybeAgent = GetComponentInParent<CharacterAgent>();
+                if (maybeAgent != null) worldTarget = maybeAgent.transform;
+            }
 
-            // camera render world
-            if (worldCamera == null)
-                worldCamera = Camera.main;               
-
-            // Nếu không set stats, thử tìm trên worldTarget
             if (stats == null && worldTarget != null)
-                stats = worldTarget.GetComponentInParent<Wargency.Gameplay.CharacterStats>();
+            {
+                stats = worldTarget.GetComponent<CharacterStats>()
+                        ?? worldTarget.GetComponentInChildren<CharacterStats>()
+                        ?? worldTarget.GetComponentInParent<CharacterStats>();
+            }
+
+            if (stats == null && logAutoBindIssues)
+            {
+                Debug.LogWarning($"[UICharacterHUD] Chưa bind được CharacterStats. Hãy gọi hud.Bind(agent, agent.stats) hoặc SetWorldTarget(agent.transform).", this);
+            }
+            else if (stats != null)
+            {
+                RefreshFromStats(stats);
+            }
         }
 
         private void BindStats(bool subscribe)
         {
             if (stats == null) return;
 
-            // Lấy max từ stats nếu có API; nếu không, giữ 100
             maxEnergy = Mathf.Max(1, stats.MaxEnergy);
             maxStress = Mathf.Max(1, stats.MaxStress);
 
-            // gắn event
             if (subscribe)
             {
                 stats.StatsChanged += HandleStatsChanged;
-                // init
+                // kéo HUD về trạng thái hiện tại
                 HandleStatsChanged(stats.Energy, stats.Stress);
             }
             else
@@ -120,20 +181,21 @@ namespace Wargency.UI
                 stats.StatsChanged -= HandleStatsChanged;
             }
 
-            // tên
-            if (nameText != null && stats.TryGetComponent(out Wargency.Gameplay.CharacterAgent agent))
-                nameText.text = agent.DisplayName;
+            if (nameText != null && Agent != null)
+                nameText.text = Agent.DisplayName;
+            else if (nameText != null && stats.TryGetComponent(out CharacterAgent a))
+                nameText.text = a.DisplayName;
         }
 
         private void HandleStatsChanged(int energy, int stress)
         {
-            float e01 = Mathf.Clamp01((float)energy / maxEnergy);
-            float s01 = Mathf.Clamp01((float)stress / maxStress);
+            float e01 = Mathf.Clamp01((float)energy / Mathf.Max(1, maxEnergy));
+            float s01 = Mathf.Clamp01((float)stress / Mathf.Max(1, maxStress));
 
             if (!smooth)
             {
-                if (energyBar) energyBar.value = e01;
-                if (stressBar) stressBar.value = s01;
+                if (energyBar) energyBar.normalizedValue = e01;
+                if (stressBar) stressBar.normalizedValue = s01;
             }
             else
             {
@@ -141,38 +203,51 @@ namespace Wargency.UI
                 vStress01 = s01;
             }
 
-            // detect spike
             if (_lastStress >= 0 && (stress - _lastStress) >= spikeThreshold)
                 PlayHudEffect(stressSpikeEffect);
-
             _lastStress = stress;
 
             UpdateMoodIcon(e01, s01);
             MaybeAlert(stress);
         }
 
+        // === ĐÃ MỞ: public để HUDWireUp gọi thẳng bằng CharacterStats ===
+        public void RefreshFromStats(CharacterStats s)
+        {
+            if (s == null) return;
+            HandleStatsChanged(s.Energy, s.Stress);
+        }
+
+        // === Overload nhận Agent (forward từ OnAgentStatsChanged) ===
+        public void RefreshFromStats(CharacterAgent agent)
+        {
+            if (agent == null) return;
+            RefreshFromStats(agent.GetComponent<CharacterStats>());
+        }
+
         private void SmoothUpdateBars()
         {
             if (!smooth) return;
-
             if (energyBar)
-                energyBar.value = Mathf.MoveTowards(energyBar.value, vEnergy01, smoothSpeed * Time.deltaTime);
-
+                energyBar.normalizedValue = Mathf.MoveTowards(energyBar.normalizedValue, vEnergy01, smoothSpeed * Time.deltaTime);
             if (stressBar)
-                stressBar.value = Mathf.MoveTowards(stressBar.value, vStress01, smoothSpeed * Time.deltaTime);
+                stressBar.normalizedValue = Mathf.MoveTowards(stressBar.normalizedValue, vStress01, smoothSpeed * Time.deltaTime);
         }
 
         private void UpdateMoodIcon(float e01, float s01)
         {
             if (moodIcon == null) return;
 
-            // Quy ước đơn giản: ưu tiên stress
+            // stress dùng ngưỡng tuyệt đối, energy dùng tỷ lệ
+            bool stressHigh = s01 >= (float)stressDanger / Mathf.Max(1, maxStress);
+            bool stressWarned = s01 >= (float)stressWarn / Mathf.Max(1, maxStress);
+
             Sprite pick =
-                (s01 >= (float)stressDanger / maxStress) ? moodStressed :
-                (s01 >= (float)stressWarn / maxStress) ? moodTired :
+                stressHigh ? moodStressed :
+                stressWarned ? moodTired :
                 (e01 <= 0.25f) ? moodTired :
                 (e01 <= 0.5f) ? moodOk :
-                                                             moodHappy;
+                moodHappy;
 
             if (pick != null) moodIcon.sprite = pick;
         }
@@ -180,42 +255,32 @@ namespace Wargency.UI
         private void MaybeAlert(int stress)
         {
             if (OnAlert == null) return;
-
-            if (stress >= stressDanger)
-                OnAlert.Invoke("⚠️ Stress nguy hiểm! Cần nghỉ ngơi.");
-            else if (stress >= stressWarn)
-                OnAlert.Invoke("⚠️ Stress cao, chú ý giảm tải");
+            if (stress >= stressDanger) OnAlert.Invoke("⚠️ Stress nguy hiểm! Cần nghỉ ngơi.");
+            else if (stress >= stressWarn) OnAlert.Invoke("⚠️ Stress cao, chú ý giảm tải");
         }
 
         private void UpdatePositionFollow()
         {
             if (worldTarget == null || rootCanvas == null) return;
 
-            // Bảo đảm camera
             if (worldCamera == null) worldCamera = Camera.main;
             if (uiCamera == null) uiCamera = rootCanvas.worldCamera;
 
-            // Vị trí world của nhân vật + offset
             Vector3 worldPos = worldTarget.position + worldOffset;
-
-            // 1) world → screen (dùng camera render world)
             Vector2 screen = worldCamera != null
                 ? (Vector2)worldCamera.WorldToScreenPoint(worldPos)
-                : (Vector2)worldPos; // fallback
+                : (Vector2)worldPos;
 
-            // 2) screen → local trong KHUNG CHA THỰC TẾ của HUD (not canvas root!)
             RectTransform parentRect = transform.parent as RectTransform;
-            if (parentRect == null) parentRect = (RectTransform)rootCanvas.transform; // fallback
+            if (parentRect == null) parentRect = (RectTransform)rootCanvas.transform;
 
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screen, uiCamera, out var localPoint))
             {
                 RectTransform rt = (RectTransform)transform;
-                // Không để NaN
                 if (!float.IsNaN(localPoint.x) && !float.IsNaN(localPoint.y))
                     rt.anchoredPosition = localPoint;
             }
         }
-
 
         private void PlayHudEffect(GameObject prefab)
         {
@@ -253,40 +318,23 @@ namespace Wargency.UI
             var ps = go.GetComponentInChildren<ParticleSystem>();
             if (ps != null && !ps.main.playOnAwake) ps.Play();
 
-            Destroy(go, 1.0f); // tự huỷ sau 1s (chỉnh theo prefab)
+            Destroy(go, 1.0f);
         }
 
-        //Hàm bind cho WireUp work
-        public void Bind(CharacterAgent agent, CharacterStats s)
-        {
-            // Gán target & stats cho HUD
-            worldTarget = agent != null ? agent.transform : null;
-            stats = s;
-
-            // Cập nhật tên hiển thị nếu có
-            if (nameText != null && agent != null)
-                nameText.text = agent.DisplayName;
-
-            // Re-subscribe sự kiện để đồng bộ UI ngay
-            // (BindStats là method đã có trong class, giữ nguyên access 'private' cũng gọi được vì đang ở trong class)
-            BindStats(false);
-            BindStats(true);
-        }
 
         public void SnapNow()
         {
             UpdatePositionFollow();
-            if (energyBar) energyBar.value = vEnergy01;
-            if (stressBar) stressBar.value = vStress01;
+            if (energyBar) energyBar.normalizedValue = vEnergy01;
+            if (stressBar) stressBar.normalizedValue = vStress01;
         }
 
-        public void SetAgent(Wargency.Gameplay.CharacterAgent a)
+
+        public void SetAgent(CharacterAgent a)
         {
             Agent = a;
-            var drags = GetComponentsInChildren<Wargency.UI.UICharacterDraggable>(true);
+            var drags = GetComponentsInChildren<UICharacterDraggable>(true);
             foreach (var d in drags) d.Bind(Agent);
         }
-
     }
-
 }

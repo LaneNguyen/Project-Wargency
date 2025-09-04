@@ -3,60 +3,53 @@ using UnityEngine;
 
 namespace Wargency.Gameplay
 {
-    /// <summary>
-    /// Hệ thống giữ tiền của agency.
-    /// - Dùng TrySpend để trừ an toàn (tự kiểm tra đủ tiền).
-    /// - Bắn sự kiện khi số dư thay đổi để UI cập nhật.
-    /// </summary>
+    // ví tiền của team, có thêm bớt là báo UI liền
+    // TrySpend sẽ tự kiểm tra đủ tiền chưa, cho an toàn
+    [DefaultExecutionOrder(-200)]
     [DisallowMultipleComponent]
     public class BudgetController : MonoBehaviour
     {
         public static BudgetController I { get; private set; }
 
-        [Header("Thiết lập khởi tạo")]
-        [Tooltip("Số dư ban đầu khi vào game.")]
+        [Header("Start Value")]
+        [Tooltip("tiền ban đầu khi vào game")]
         [SerializeField] private int startBalance = 0;
 
-        /// <summary>Số dư hiện tại.</summary>
+        // số dư hiện tại
         public int Balance { get; private set; }
 
-        /// <summary>Sự kiện: gọi khi Balance đổi.</summary>
+        // ai quan tâm số dư thì nghe cái này
         public event Action<int> OnBudgetChanged;
 
         private void Awake()
         {
             if (I != null && I != this) { Destroy(gameObject); return; }
             I = this;
-            Balance = Mathf.Max(0, startBalance);
+            Balance = Mathf.Max(0, startBalance); // âm nhìn sợ quá nên chặn
         }
 
         private void Start()
         {
-            // bắn event 1 lần để UI nhận giá trị ban đầu
+            // báo số tiền ban đầu để UI hiển thị liền
             OnBudgetChanged?.Invoke(Balance);
         }
 
-        /// <summary>
-        /// Kiểm tra & trừ tiền an toàn. Đủ tiền -> trừ và bắn event, ngược lại trả false.
-        /// </summary>
         public bool TrySpend(int amount)
         {
-            if (amount <= 0) return true;               // không trừ các giá trị không hợp lệ/âm/0
-            if (Balance < amount) return false;         // không đủ tiền
+            if (amount <= 0) return true; // trừ số lạ thì coi như không làm gì
+            if (Balance < amount) return false; // thiếu tiền thì chịu
             Balance -= amount;
             OnBudgetChanged?.Invoke(Balance);
             return true;
         }
 
-        /// <summary>Cộng tiền và bắn event (bỏ qua nếu amount <= 0).</summary>
         public void Add(int amount)
         {
-            if (amount <= 0) return;
+            if (amount <= 0) return; // cộng số lạ thì thôi
             Balance += amount;
             OnBudgetChanged?.Invoke(Balance);
         }
 
-        /// <summary>Kiểm tra nhanh có đủ tiền hay không.</summary>
-        public bool CanAfford(int amount) => Balance >= amount;
+        public bool CanAfford(int amount) => Balance >= amount; // hỏi nhanh: đủ tiền hông
     }
 }

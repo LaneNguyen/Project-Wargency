@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: TD_ClientMeeting
   m_EditorClassIdentifier: 
   id: caf72a5b-c442-42e1-b12d-28080340f764
-  displayName: "G\u1EB7p kh\xE1ch h\xE0ng"
+  displayName: "G\u1ECDi kh\xE1ch h\xE0ng"
   baseDuration: 10
   useRequiredRole: 1
   requiredRole: 3
-  durationSecond: 10
-  budgetReward: 200
-  scoreReward: 5
-  energyCost: 50
+  durationSecond: 2
+  RewardMoney: 100
+  RewardScore: 100
+  energyCost: -20
   stressImpact: 50

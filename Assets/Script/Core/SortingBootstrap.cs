@@ -3,19 +3,24 @@ using UnityEngine.Rendering;
 
 namespace Wargency.Core
 {
-    [DefaultExecutionOrder(-100)] //đảm bảo script chạy sớm khi load scene
+    // // SortingBootstrap
+    // // nhiệm vụ: bật chế độ vẽ sprite theo trục mình muốn (CustomAxis)
+    // // ở đây lấy trục Y làm “chuẩn đẹp trai”, y nào thấp hơn thì vẽ sau (đè lên), giả isometric nghèo mà hợp lý
+    // // chạy sớm tí cho chắc kèo (DefaultExecutionOrder)
+
+    [DefaultExecutionOrder(-100)] // // cho nó dậy sớm hơn mấy đứa khác
     public class SortingBootstrap : MonoBehaviour
     {
-        //script thiết lập thứ tự vẽ cho sprite (render order), vì isometric giả thì cần cái nào gần màn hình hơn vẽ trước
-
         [SerializeField]
-        private Vector3 customAxis = new Vector3(0f, 1f, 0f); // quyết định cái nào hiện trước, trong trường hợp này là dựa trên giá trị Y của object
+        private Vector3 customAxis = new Vector3(0f, 1f, 0f); // // tập trung vào Y thôi, không suy nghĩ nhiều
 
         private void Awake()
         {
-            GraphicsSettings.transparencySortMode = TransparencySortMode.CustomAxis; //tự định nghĩa trục để so sánh
-            GraphicsSettings.transparencySortAxis = customAxis; // sắp xếp dựa vào giá trị Y ở trên
-        }
+            // // bật mode theo trục tự chọn
+            GraphicsSettings.transparencySortMode = TransparencySortMode.CustomAxis;
 
+            // // bảo nó dùng trục này nè (0,1,0), chuẩn bị đi isometric nghèo
+            GraphicsSettings.transparencySortAxis = customAxis;
+        }
     }
 }

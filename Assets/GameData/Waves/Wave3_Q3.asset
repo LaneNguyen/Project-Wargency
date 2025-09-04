@@ -12,7 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b389c74c9de593040aa8f39fec7d10cb, type: 3}
   m_Name: Wave3_Q3
   m_EditorClassIdentifier: 
-  id: Q3
-  displayName: "Qu\xFD3"
-  targetScore: 300
-  rewardBudget: 200
+  displayName: "Qu\xFD 3"
+  waveDescription: "Cu\u1ED1i n\u0103m s\u1EBD c\xF2n kh\u1ED1c li\u1EC7t h\u01A1n,
+    chu\u1EA9n b\u1ECB tinh th\u1EA7n v\xE0 ng\xE2n s\xE1ch."
+  endSummaryHint: 
+  useTimer: 1
+  timeLimitSeconds: 120
+  objectives:
+  - displayName: "Ho\xE0n th\xE0nh 15 task"
+    kind: 0
+    targetValue: 15
+    currentValue: 0
+    completed: 0
+  - displayName: "Gi\u1EA3i quy\u1EBFt 2 s\u1EF1 ki\u1EC7n"
+    kind: 2
+    targetValue: 2
+    currentValue: 0
+    completed: 0
+  - displayName: "Gi\u1EEF Stress < 50"
+    kind: 3
+    targetValue: 50
+    currentValue: 0
+    completed: 0
+  targetScore: 0

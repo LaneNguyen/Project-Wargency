@@ -4,6 +4,16 @@ using UnityEngine.UI;
 
 namespace Wargency.Gameplay
 {
+    // <summary>
+    // Item UI để thuê 1 nhân vật
+    // - Bind: Avatar, Name, Role, Price, Description
+    // - Nút Hire chỉ sáng khi qua CanHireNonBudget + đủ budget
+    // - Tự yêu cầu panel gỡ item khi đã đạt LIMIT hoặc thuê thành công
+    // </summary>
+    // item UI để thuê 1 nhân vật nè
+    // bind avatar tên vai trò giá mô tả rồi bật tắt nút hire
+    // bấm hire => gọi HiringService trừ tiền và spawn agent, xong báo WaveManager cộng KPI 1 cái
+
     public class HireCharacterUI : MonoBehaviour
     {
         [Header("UI Refs")]
@@ -11,109 +21,125 @@ namespace Wargency.Gameplay
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI roleText;
         [SerializeField] private TextMeshProUGUI priceText;
-        [SerializeField] private TextMeshProUGUI statusText;
+        [SerializeField] private TextMeshProUGUI descriptionText;   // NEW: mô tả từ CharacterDefinition
         [SerializeField] private Button hireButton;
-        [SerializeField] private Transform spawnPoint;// optional
 
-        // runtime backing:
+        [Header("Optional")]
+        [SerializeField] private Transform spawnPoint;              // có thể để trống
+        [SerializeField] private WaveManager waveManager;           // optional
+
+        // Runtime backing
         private CharacterHiringService hiringService;
         private CharacterHiringService.HireOption option;
-        
-        private WaveManager waveManager;
+        private CharacterDefinition def;
 
-        private bool initialized = false;
+        // Cho Panel lắng nghe để remove
+        public System.Action<HireCharacterUI> OnRequestRemove;
 
-        public void Setup(CharacterHiringService service, CharacterHiringService.HireOption opt, Transform spawn=null, WaveManager wave = null)
+        // <summary>
+        // Chuẩn hoá chữ ký Setup để Panel gọi thống nhất
+        // </summary>
+        public void Setup(CharacterHiringService service, CharacterHiringService.HireOption opt, Transform spawn = null, WaveManager wave = null)
         {
-            hiringService = service != null ? service : FindAnyObjectByType<CharacterHiringService>();//gia cố
+            hiringService = service != null ? service : FindAnyObjectByType<CharacterHiringService>();
             option = opt;
-            spawnPoint = spawn; //có thể để trống
+            spawnPoint = spawn;
             waveManager = wave;
 
-            var def = opt.definition;
+            def = option != null ? option.definition : null;
+
+            BindStatic();
+            WireButton();
+            Refresh(); // chạy 1 lần ngay
+        }
+
+        private void Update() => Refresh();
+
+        private void BindStatic()
+        {
             if (def != null)
             {
                 if (nameText) nameText.text = def.DisplayName;
                 if (roleText) roleText.text = def.Role.ToString();
-                if (avatarImage) avatarImage.sprite = def.Avatar; 
-            }
-            if (priceText) priceText.text = $"{opt.hireCost:N0}";
-
-            if (hireButton)
-            {
-                hireButton.onClick.RemoveAllListeners();
-                hireButton.onClick.AddListener(HandleHireClicked);
+                if (avatarImage) avatarImage.sprite = def.Avatar;
+                if (descriptionText) descriptionText.text = def.Description;   // đồng bộ mô tả
             }
 
-            Refresh();
+            // Giá chuẩn lấy từ Definition.HireCost
+            int cost = def != null ? def.HireCost : 0;
+            if (priceText) priceText.text = cost.ToString("N0");
         }
 
-        private void Update()
+        private void WireButton()
         {
-            Refresh();
+            if (!hireButton) return;
+            hireButton.onClick.RemoveAllListeners();
+            hireButton.onClick.AddListener(HandleHireClicked);
         }
 
         private void Refresh()
         {
-            if (hiringService == null || option == null) return;
+            if (hiringService == null || option == null || def == null) return;
 
-            //lấy wave đem đi kiểm tra
             int waveIdx = waveManager ? waveManager.GetCurrentWaveIndex() : int.MaxValue;
+
+            // 1) Check logic unlock/limit (KHÔNG dính budget)
             string reason;
-            
-            //kiểm tra logic thuê được => lấy lý do ra
             CharacterHiringService.HireOption _;
-            bool canLogic = hiringService.CanHireNonBudget(option.definition, waveIdx, out _, out reason);
+            bool canLogic = hiringService.CanHireNonBudget(def, waveIdx, out _, out reason);   // :contentReference[oaicite:3]{index=3}
 
-            // kiểm tra ngân sách hiện tại 
-            int budget = GameLoopController.Instance ? GameLoopController.Instance.CurrentBudget : 0;
-            bool canBudget = budget >= option.hireCost;
-
-            if (statusText)
+            // Nếu đã đạt LIMIT/quota -> yêu cầu panel remove item này
+            if (!canLogic && LooksLikeLimit(reason))
             {
-                if (!canLogic) statusText.text = reason;           // lock/limit
-                else if (!canBudget) statusText.text = "Thiếu Budget";
-                else statusText.text = "Sẵn sàng nhích";
+                OnRequestRemove?.Invoke(this);
+                return;
             }
 
-            //nếu có nút rồi => đủ logic và budget thì bật lên
-            if (hireButton) 
+            // 2) Check budget hiện tại
+            int budget = GameLoopController.Instance ? GameLoopController.Instance.CurrentBudget : 0;
+            bool canBudget = def != null && budget >= def.HireCost;
+
+            if (hireButton)
                 hireButton.interactable = canLogic && canBudget;
         }
 
+        private bool LooksLikeLimit(string reason)
+        {
+            if (string.IsNullOrEmpty(reason)) return false;
+            var r = reason.ToLowerInvariant();
+            return r.Contains("giới hạn") || r.Contains("limit") || r.Contains("quota") || r.Contains("đã đạt");
+        }
+
+        // click nút thuê nè => gọi HiringService để trừ tiền và spawn agent
+        // nếu ok thì báo WaveManager tăng HireCount và nhờ panel gỡ item cho gọn
         private void HandleHireClicked()
         {
-            // log chẩn đoán
-            Debug.Log($"[HireUI] Click. service={hiringService != null}, option={(option != null)}, def={(option != null ? option.definition != null : false)}, spawn={(spawnPoint != null)}");
-
-            if (hiringService == null || option == null)
+            if (hireButton) hireButton.interactable = false; // fix: chặn double click liên tiếp gây thuê đúp
+            if (hiringService == null || def == null)
             {
-                if (statusText) statusText.text = "Thiếu gì đó: hiringservice hoặc option";
-                Debug.LogWarning("[HireUI] Missing HiringService/Option.");
+                Debug.LogWarning("[HireCharacterUI] Missing service/definition.");
                 return;
             }
 
             int waveIdx = waveManager ? waveManager.GetCurrentWaveIndex() : int.MaxValue;
 
             CharacterAgent agent = null;
-
-            if (spawnPoint != null)
-            {
-                agent = hiringService.Hire(option.definition, spawnPoint.position, waveIdx);
-            }
+            if (spawnPoint)
+                agent = hiringService.Hire(def, spawnPoint.position, waveIdx);
             else
-            {
-                // Không có spawnPoint → dùng SpawnPointSets trong HiringService
-                agent = hiringService.Hire(option.definition, waveIdx);
-            }
+                agent = hiringService.Hire(def, waveIdx);
 
-            if (agent == null)
+            // nếu fail thì mở nút lại cho user thử tiếp
+            if (agent == null && hireButton) hireButton.interactable = true;
+
+            // Thuê thành công => yêu cầu panel gỡ item
+            // KPI hirecount sẽ do hệ thống Wave/Objective tự đếm, UI không cộng nữa
+            if (agent != null)
             {
-                if (statusText) statusText.text = "Thuê thất bại";
-                Debug.LogWarning("[HireUI] Hire failed. Kiểm tra: Definition prefab variants hoặc fallback prefab trong HiringService.");
+                if (waveManager == null) waveManager = FindAnyObjectByType<WaveManager>();
+
+                OnRequestRemove?.Invoke(this);
             }
         }
-
-
     }
 }

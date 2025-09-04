@@ -12,7 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b389c74c9de593040aa8f39fec7d10cb, type: 3}
   m_Name: Wave1_Q1
   m_EditorClassIdentifier: 
-  id: Q1
   displayName: "Qu\xFD 1"
-  targetScore: 100
-  rewardBudget: 100
+  waveDescription: "S\u1EAFp t\u1EDBi b\u1EA1n s\u1EBD c\u1EA7n th\xEAm \u0111\u1ED3ng
+    \u0111\u1ED9i \u0111\u1EC3 g\xE1nh workload"
+  endSummaryHint: 
+  useTimer: 0
+  timeLimitSeconds: 60
+  objectives:
+  - displayName: XONG TASK
+    kind: 0
+    targetValue: 4
+    currentValue: 0
+    completed: 0
+  targetScore: 0

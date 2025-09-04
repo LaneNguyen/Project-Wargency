@@ -186,8 +186,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5.000002, y: -17.599987}
-  m_SizeDelta: {x: 80, y: 30}
+  m_AnchoredPosition: {x: 0.2, y: -15.899975}
+  m_SizeDelta: {x: 86.52, y: 36.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5243303677443541909
 MonoBehaviour:
@@ -234,9 +234,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 3610816794509930036}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 0.534
+  m_Value: 52.9
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -456,7 +456,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.691
+  m_FillAmount: 0.71199995
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -531,7 +531,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.534
+  m_FillAmount: 0.52900004
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -681,8 +681,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -76.7, y: -5.7}
-  m_SizeDelta: {x: 60, y: 55}
+  m_AnchoredPosition: {x: -83.6, y: -11.3}
+  m_SizeDelta: {x: 65, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5317307976054129882
 CanvasRenderer:
@@ -756,7 +756,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -37, y: 43}
+  m_AnchoredPosition: {x: -8, y: 33}
   m_SizeDelta: {x: 136.9, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6763136989731007438
@@ -789,15 +789,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 972835bb79d23b4498870eac2d5b4934, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: ebbbd3dff5dfae846ad621c259b10edb, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -814,13 +814,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 33.5
-  m_fontSizeBase: 25
+  m_fontSize: 38.55
+  m_fontSizeBase: 39.1
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
@@ -852,7 +852,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -68.37506, y: -11.834106, z: -24.983032, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -894,8 +894,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5, y: 3}
-  m_SizeDelta: {x: 80, y: 30}
+  m_AnchoredPosition: {x: 0.2, y: 4.7}
+  m_SizeDelta: {x: 86.52, y: 36.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4870348970962037995
 MonoBehaviour:
@@ -942,9 +942,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6792579173691496928}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 0.691
+  m_Value: 71.2
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1144,10 +1144,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   worldTarget: {fileID: 0}
-  uiCamera: {fileID: 0}
+  stats: {fileID: 0}
   rootCanvas: {fileID: 0}
+  uiCamera: {fileID: 0}
   worldCamera: {fileID: 0}
-  worldOffset: {x: 1, y: 5.2, z: 0}
+  worldOffset: {x: 1, y: 5, z: 0}
   energyBar: {fileID: 4870348970962037995}
   stressBar: {fileID: 5243303677443541909}
   moodIcon: {fileID: 1884504342077473502}
@@ -1165,7 +1166,7 @@ MonoBehaviour:
   compensateParentScale: 1
   effectPixelSize: {x: 160, y: 160}
   spikeThreshold: 10
-  stats: {fileID: 0}
+  logAutoBindIssues: 1
 --- !u!225 &1550994784292973303
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1195,8 +1196,10 @@ MonoBehaviour:
   retryOnBeginDrag: 1
   agent: {fileID: 0}
   avatarImage: {fileID: 0}
-  dragGhostPrefab: {fileID: 0}
   bringToFrontOnDrag: 1
+  ghostTintGray: {r: 0.65, g: 0.65, b: 0.65, a: 0.9}
+  highlightColor: {r: 1, g: 1, b: 0.85, a: 1}
+  highlightScale: 1.05
 --- !u!222 &3282288627041371672
 CanvasRenderer:
   m_ObjectHideFlags: 0

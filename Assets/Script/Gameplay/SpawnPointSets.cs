@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Wargency.Gameplay
 {
     // Tập các vị trí spawn (world-space). Hai hàm xài:
-    // - GetNextRoundPoint(): lấy vị trí theo vòng tròn (A→B→C→...→A)
+    // - GetNextRoundPoint(): lấy vị trí theo vòng tròn (A=>B=>C=>...=>A)
     // - GetRandom(): lấy vị trí ngẫu nhiên
 
     [CreateAssetMenu(

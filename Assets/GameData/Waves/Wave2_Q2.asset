@@ -12,7 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b389c74c9de593040aa8f39fec7d10cb, type: 3}
   m_Name: Wave2_Q2
   m_EditorClassIdentifier: 
-  id: Q2
   displayName: "Qu\xFD 2"
-  targetScore: 200
-  rewardBudget: 150
+  waveDescription: "C\u1ED1 g\u1EAFng gi\u1EEF tinh th\u1EA7n team v\xE0 ph\xE2n
+    b\u1ED5 h\u1EE3p l\xFD, 6 th\xE1ng sau s\u1EBD c\u0103ng l\u1EAFm \xE0 nhaaaaa"
+  endSummaryHint: 
+  useTimer: 0
+  timeLimitSeconds: 60
+  objectives:
+  - displayName: "THU\xCA \u0110\u1EE6 4 NG\u01AF\u1EDCI"
+    kind: 1
+    targetValue: 4
+    currentValue: 0
+    completed: 0
+  - displayName: "HO\xC0N TH\xC0NH 10 TASK"
+    kind: 0
+    targetValue: 10
+    currentValue: 0
+    completed: 0
+  targetScore: 0

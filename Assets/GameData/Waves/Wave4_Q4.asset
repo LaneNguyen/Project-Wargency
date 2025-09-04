@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b389c74c9de593040aa8f39fec7d10cb, type: 3}
+  m_Name: Wave4_Q4
+  m_EditorClassIdentifier: 
+  displayName: "Qu\xFD 4"
+  waveDescription: "K\u1EBFt qu\u1EA3 c\u1EA3 n\u0103m c\u1EE7a b\u1EA1n s\u1EBD
+    \u0111\u01B0\u1EE3c t\u1ED5ng k\u1EBFt ngay sau \u0111\xE2y"
+  endSummaryHint: 
+  useTimer: 1
+  timeLimitSeconds: 120
+  objectives:
+  - displayName: "Ho\xE0n th\xE0nh 15 task"
+    kind: 0
+    targetValue: 15
+    currentValue: 0
+    completed: 0
+  - displayName: "\u0110\u1EA0T 5000 MONEY!"
+    kind: 5
+    targetValue: 20
+    currentValue: 0
+    completed: 0
+  targetScore: 300

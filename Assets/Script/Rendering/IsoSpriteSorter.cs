@@ -12,6 +12,8 @@ namespace Wargency.Rendering
         [SerializeField]private SpriteRenderer sr;
         private int lastOrder;
         [SerializeField] private Transform targetTransform; // lấy Y từ đâu, mặc định là this.transform
+        //Update 2808 để cộng thêm cho nhân vật khi cần
+        [SerializeField] private int orderBias = 0; // ví dụ: -50 để hạ thấp nhân vật
 
 
         private void Reset()
@@ -31,7 +33,7 @@ namespace Wargency.Rendering
         {
             if (sr == null || targetTransform == null) return;
 
-            int order = IsometricHelper.OrderFromY(targetTransform.position.y, scale);
+            int order = IsometricHelper.OrderFromY(targetTransform.position.y, scale, orderBias);
             if (order != lastOrder)
             {
                 sr.sortingOrder = order;

@@ -3,12 +3,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wargency.Gameplay;
 
+// chỉ là stub tạm để show budget thôi
+// sau này sẽ thay bằng widget xịn hơn nên đừng lo
+// vẫn nghe ngóng budget từ GameLoop để update text
+// UI => Manager => Gameplay gắn kết qua event budget
+
 namespace Wargency.UI
 {
-    /// <summary>
-    /// Tạm thời hiển thị Budget (Ngân sách) lên UI.
-    /// Sau này sẽ thay bằng UI thật.
-    /// </summary>
+    // Tạm thời hiển thị Budget (Ngân sách) lên UI.
+    // Sau này sẽ thay bằng UI thật.
     public class UIBudgetStub : MonoBehaviour
     {
         // Tham chiếu đến Text component trên UI (gán trong Inspector)
@@ -36,7 +39,7 @@ namespace Wargency.UI
             if (GameLoopController.Instance != null)
                 GameLoopController.Instance.OnBudgetChanged -= UpdateBudget;  // Hủy đăng ký event khi object bị xóa
         }
-        /// Hàm được gọi khi Budget thay đổi
+        // Hàm được gọi khi Budget thay đổi
         private void UpdateBudget(int newBudget)
         {
             budgetText.text = $"${newBudget}";

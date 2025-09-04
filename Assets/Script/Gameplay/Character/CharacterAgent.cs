@@ -35,8 +35,11 @@ namespace Wargency.Gameplay
         [Header("Tỷ lệ Working / Resting (fallback nếu chưa có WaveManager)")]
         [Min(0f)][SerializeField] private float baseEnergyDrainPerSecWorking = 6f; //mỗi giây tốn đây sức
         [Min(0f)][SerializeField] private float baseStressGainPerSecWorking = 3f;
-        [Min(0f)][SerializeField] private float restEnergyPerSec = 12f; // mỗi giây nghỉ tăng nhiêu đây
-        [Min(0f)][SerializeField] private float restStressRecoverPerSec = 8f;
+        [Min(0f)][SerializeField] private float restEnergyPerSec = 2f; // mỗi giây nghỉ tăng nhiêu đây
+        [Min(0f)][SerializeField] private float restStressRecoverPerSec = 2f;
+
+        private float _restEnergyAcc;
+        private float _restStressAcc;
 
         // UPDATE 2408: Tùy chọn tự động đăng ký với TaskManager
         [Header("TaskManager Auto-Register")]
@@ -53,12 +56,17 @@ namespace Wargency.Gameplay
         public event Action<CharacterAgent> OnStatsChanged;           // Dính dáng được gọi forward từ CharacterStats.StatsChanged
 
         //Public API = getters
-        public CharacterDefinition Definition => definition; 
+        public CharacterDefinition Definition => definition;
         public TaskInstance CurrentTask => currentTask;
         public AgentState State => state;
         public string DisplayName => Definition != null ? Definition.DisplayName : name;
         public CharacterRole Role => Definition != null ? Definition.Role : CharacterRole.Planner;
         public Sprite IconSprite => portraitIcon != null ? portraitIcon : (Definition != null && Definition.Body ? Definition.Body : null);
+        public TaskInstance CurrentAssignment { get; private set; } // dành cho kiểm soát assign
+
+        // fix: cờ nhỏ để tránh đăng ký TaskManager 2 lần dẫn tới KPI đếm đôi
+        private bool _isRegisteredToTM = false; // sẽ set true khi gọi RegisterAgent thành công
+
 
         private void Awake()
         {
@@ -91,14 +99,18 @@ namespace Wargency.Gameplay
             if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
             if (autoRegisterToTaskManager && taskManager != null)
             {
-                taskManager.RegisterAgent(this);
+                if (!_isRegisteredToTM)
+                {
+                    taskManager.RegisterAgent(this);
+                    _isRegisteredToTM = true; // fix: đánh dấu đã đăng ký để không bị đếm đôi
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log($"[Agent] OnEnable → RegisterAgent: {name} (Role: {Role}) TM id={taskManager.GetInstanceID()}"); // UPDATE 2408
+                    Debug.Log($"[Agent] OnEnable → RegisterAgent: {name} (Role: {Role}) TM id={taskManager.GetInstanceID()}");
 #endif
+                }
             }
         }
 
-    
+
         private void Update()
         {
             // Sắp xếp sprite theo Y để đúng thứ tự hiển thị isometric/topdown. Viết thêm lần nữa cho chắc thôi
@@ -123,22 +135,45 @@ namespace Wargency.Gameplay
         {
             if (autoRegisterToTaskManager && taskManager != null)
             {
-                taskManager.UnregisterAgent(this);
+                if (_isRegisteredToTM)
+                {
+                    taskManager.UnregisterAgent(this);
+                    _isRegisteredToTM = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                Debug.Log($"[Agent] OnDisable → UnregisterAgent: {name}"); // UPDATE 2408
+                    Debug.Log($"[Agent] OnDisable → UnregisterAgent: {name}");
 #endif
+                }
             }
         }
 
         // đang làm việc: đóng góp tiến độ + tiêu hao
+        // Thêm 2 biến private ở đầu class (ngay sau currentTask):
+        // Tích lũy phần lẻ để tránh FloorToInt về 0 liên tục
+        private float _energyAcc;  // âm dần (tiêu hao)
+        private float _stressAcc;  // dương dần (tăng stress)
+
+        // 
+
         private void TickWorking(float deltatime)
         {
-            // Đọc modifier từ difficulty (nếu không có, dùng base)
+            // 1) Lấy base từ difficulty hoặc fallback
             float speedMultiplier = difficultyProvider?.TaskSpeedMultiplier ?? 1f;
             float drain = difficultyProvider?.EnergyDrainPerSec ?? baseEnergyDrainPerSecWorking;
             float stressGain = difficultyProvider?.StressGainPerSec ?? baseStressGainPerSecWorking;
 
-            // Đóng góp tiến độ task theo Productivity (0..1), nhân multiplier theo thời gian
+            // 2) Bổ sung modifier theo task (per-second)
+            if (currentTask != null)
+            {
+                // energyCost → tiêu hao thêm mỗi giây
+                int extraEnergyPerSec = currentTask.Definition != null ? currentTask.Definition.energyCost : 0;
+                if (extraEnergyPerSec > 0) drain += extraEnergyPerSec;
+
+                // stressImpact → đã được nhồi vào task.stressCost khi Spawn
+                int extraStressPerSec = currentTask.stressCost >= 0 ? currentTask.stressCost : 0;
+                if (extraStressPerSec > 0) stressGain += extraStressPerSec;
+            }
+
+            // 3) Đóng góp tiến độ (như cũ)
             if (currentTask != null)
             {
                 float productivity = stats.Productivity01();
@@ -146,29 +181,65 @@ namespace Wargency.Gameplay
                 taskManager?.ContributeProgress(currentTask, delta01);
             }
 
-            // Tiêu hao/hấp thụ stress (đi qua ApplyDelta để clamp + bắn event)
-            int drainEnergy = Mathf.FloorToInt(-drain * deltatime); //-drain để chắc chắn giảm energy, làm tròn xuống thành số nguyên
-            int drainStress = Mathf.FloorToInt(+stressGain * deltatime); //+stress để tăng stress trong frame này
-            stats.ApplyDelta(drainEnergy, drainStress);
+            // 4) TÍCH LŨY PHẦN LẺ → chỉ khi đủ 1 điểm mới trừ/cộng vào int
+            _energyAcc += -drain * deltatime;      // âm dần
+            _stressAcc += +stressGain * deltatime; // dương dần
 
-            // Điều kiện kiệt sức hết năng luộng or quá stress -> về Resting
+            int dEnergy = 0;
+            int dStress = 0;
+
+            // energy: khi phần lẻ <= -1 thì trừ bấy nhiêu và giữ lại phần dư
+            if (_energyAcc <= -1f)
+            {
+                dEnergy = Mathf.FloorToInt(_energyAcc); // ví dụ -1, -2, ...
+                _energyAcc -= dEnergy;                  // trừ đi phần đã dùng (dEnergy âm nên -(-n) = +n)
+            }
+
+            // stress: khi phần lẻ >= +1 thì cộng bấy nhiêu và giữ lại phần dư
+            if (_stressAcc >= +1f)
+            {
+                dStress = Mathf.FloorToInt(_stressAcc); // 1,2,3,...
+                _stressAcc -= dStress;
+            }
+
+            if (dEnergy != 0 || dStress != 0)
+                stats.ApplyDelta(dEnergy, dStress);
+
+            // 5) Điều kiện kiệt sức/quá tải → Resting
             if (stats.Energy <= 0 || stats.Stress >= stats.MaxStress)
             {
-                ReleaseTask();          // hạ state Working về rest
+                ReleaseTask();
                 state = AgentState.Resting;
             }
         }
 
+
         //Hàm nghỉ ngơi
         private void TickResting(float dt)
         {
-            int dEnergy = Mathf.CeilToInt(restEnergyPerSec * dt);
-            int dStress = -Mathf.CeilToInt(restStressRecoverPerSec * dt);
-            stats.ApplyDelta(dEnergy, dStress);
+            _restEnergyAcc += restEnergyPerSec * dt;
+            _restStressAcc += restStressRecoverPerSec * dt;
 
-            // Hồi “đủ tốt” -> về Idle (ngưỡng 90%/10% là con số dễ hiểu ở M3)
+            int dEnergy = 0;
+            int dStress = 0;
+
+            if (_restEnergyAcc >= 1f)
+            {
+                dEnergy = Mathf.FloorToInt(_restEnergyAcc);
+                _restEnergyAcc -= dEnergy;
+            }
+
+            if (_restStressAcc >= 1f)
+            {
+                dStress = -Mathf.FloorToInt(_restStressAcc); // giảm stress
+                _restStressAcc -= -dStress;
+            }
+
+            if (dEnergy != 0 || dStress != 0)
+                stats.ApplyDelta(dEnergy, dStress);
+
             if (stats.Energy >= stats.MaxEnergy * 0.9f && stats.Stress <= stats.MaxStress * 0.1f)
-                state = AgentState.Idle; // nghỉ đủ rồi cho về lại idle
+                state = AgentState.Idle;
         }
 
         // Thiết lập nhanh sau khi dùng Instantiate tạo prefab
@@ -182,11 +253,12 @@ namespace Wargency.Gameplay
             if (autoRegisterToTaskManager)
             {
                 if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
-                if (taskManager != null)
+                if (taskManager != null && !_isRegisteredToTM)
                 {
-                    taskManager.RegisterAgent(this); // Register nhiều lần cũng OK vì TaskManager đã chặn trùng
+                    taskManager.RegisterAgent(this); // fix: chỉ đăng ký khi chưa đăng ký để khỏi đếm gấp đôi
+                    _isRegisteredToTM = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                    Debug.Log($"[Agent] SetupCharacter → RegisterAgent: {name} (Role: {Role}) TM id={taskManager.GetInstanceID()}"); // UPDATE 2408
+                    Debug.Log($"[Agent] SetupCharacter → RegisterAgent: {name} (Role: {Role}) TM id={taskManager.GetInstanceID()}");
 #endif
                 }
             }
@@ -249,6 +321,12 @@ namespace Wargency.Gameplay
         {
             if (task != null && task == currentTask)
                 ReleaseTask();
+        }
+
+        // internal để chỉ TaskInstance gọi
+        internal void __SetAssignment(TaskInstance task)
+        {
+            CurrentAssignment = task;
         }
     }
 }

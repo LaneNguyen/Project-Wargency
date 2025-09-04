@@ -13,9 +13,10 @@ namespace Wargency.Core
             float y = Mathf.Round(worldPos.y / cellHeight) * cellHeight;
             return new Vector3(x, y, 0f); //trả lại giá trị x y với z =0f vì 2d
         }
-        public static int OrderFromY(float y, float scale = 100f)
-        {   //tính sorting order cho sprite dựa vào Y → đảm bảo object thấp hơn sẽ vẽ đè lên object cao hơn hệt isometric thực
-            return Mathf.RoundToInt(-y * scale ); //-y để object nào có y thấp hơn => sorting order lớn hơn 
+        public static int OrderFromY(float y, float scale = 100f, int bias = 0)
+        {   //tính sorting order cho sprite dựa vào Y => đảm bảo object thấp hơn sẽ vẽ đè lên object cao hơn hệt isometric thực
+            //Update 2808:  Cộng bias để tinh chỉnh thủ công nữa tại chưa đủ
+            return Mathf.RoundToInt(-y * scale )+bias; //-y để object nào có y thấp hơn => sorting order lớn hơn 
         }
 
         //Object có collider,
