@@ -27,6 +27,12 @@ namespace Wargency.UI
         // Snapshot startBudget để tính nhanh khi chỉ có earnedDelta
         public static int LastStartBalance { get; private set; }
 
+        private void Start()
+        {
+            AudioManager.Instance.PlaySE(AUDIO.SE_CHILDWOOHOO);
+        }
+
+
         // Gọi ở WaveManager.StartWave để lưu mốc so sánh
         public static void SetStartBalance(int startBalance)
         {

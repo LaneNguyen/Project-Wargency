@@ -61,10 +61,23 @@ namespace Wargency.UI
             if (objectiveToggleBadge && objectivePanelRoot)
             {
                 objectiveToggleBadge.onClick.RemoveAllListeners();
+                //objectiveToggleBadge.onClick.AddListener(() =>
+                //{
+                //    objectivePanelRoot.SetActive(!objectivePanelRoot.activeSelf);
+
+                //});
+
                 objectiveToggleBadge.onClick.AddListener(() =>
                 {
-                    objectivePanelRoot.SetActive(!objectivePanelRoot.activeSelf);
+                    bool toActive = !objectivePanelRoot.activeSelf;
+                    objectivePanelRoot.SetActive(toActive);
+
+                    if (toActive)
+                        AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+                    else
+                        AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
                 });
+
             }
         }
 

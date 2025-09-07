@@ -3,13 +3,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wargency.Gameplay;
 
-// panel này đại diện cho 1 task trên UI
-// hiện tên, role cần, ai nhận, progress bar chạy mượt
-// có hiệu ứng spawn in và icon cảnh báo khi role sai
-// UI => Manager => Gameplay truyền dữ liệu task vào
-
 namespace Wargency.UI
 {
+    // Panel hiển thị 1 task trên UI (View thuần)
+    // - Không tự trigger VFX khi hoàn thành; UITaskBoardController sẽ gọi PlayEffect(...)
+    // - Có anchor an toàn cho VFX trong UI, kèm tùy chọn "normalize" để hiệu ứng không bị quá to
     [DisallowMultipleComponent]
     public class UITaskPanel : MonoBehaviour
     {
@@ -17,12 +15,12 @@ namespace Wargency.UI
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI requiredRoleText;
         public TextMeshProUGUI assigneeText;
-        public TextMeshProUGUI roleCountText; //update 2908: hiển thị 0/1 hoặc 1/1
+        public TextMeshProUGUI roleCountText; // update 2908: hiển thị 0/1 hoặc 1/1
         public Slider progressBar;
-        [SerializeField] private GameObject warningIconSmall;   // icon nhỏ khi thiếu/mismatch role
+        [SerializeField] private GameObject warningIconSmall;
 
         [Header("Gameplay")]
-        [SerializeField] private TaskManager taskManager;
+        [SerializeField] private TaskManager taskManager; // không bắt event ở đây nữa
 
         [Header("Smooth Progress")]
         public bool smoothProgress = true;
@@ -30,22 +28,34 @@ namespace Wargency.UI
         public float smoothSpeed = 8f;
         private float visualProgress = 0f;
 
+        // ===== Effects Anchor & Auto-size =====
         [Header("Effects Anchor & Auto-size")]
-        [SerializeField] private RectTransform effectAnchor;
+        [SerializeField] private RectTransform effectAnchor;                    // UPDATE 2025-09-05: anchor cho VFX
         [SerializeField] private float autoDestroyEffectAfter = 1f;
         [SerializeField] private bool compensateParentScale = true;
-        [SerializeField] private Vector2 effectPixelSize = new(300, 300);
+        [SerializeField] private Vector2 effectPixelSize = new(240, 240);      // GIẢM size mặc định một chút
+        public RectTransform EffectAnchor => effectAnchor;
+
+        // ===== Particle Normalize (để VFX không quá to trong UI) =====
+        [Header("Effect Normalize (UI)")]
+        [Tooltip("Bật để tự co nhỏ particle khi spawn vào UI")]
+        [SerializeField] private bool normalizeParticleForUI = true;           // UPDATE 2025-09-05
+        [Tooltip("Nhân vào Start Size/Speed/Shape Radius/Scale của tất cả ParticleSystem con")]
+        [SerializeField, Range(0.05f, 3f)] private float particleScaleMultiplier = 0.35f; // 0.35 = nhỏ lại còn ~35%
+        [Tooltip("Ép Particle dùng Local để scale ổn định trong UI")]
+        [SerializeField] private bool forceLocalScalingMode = true;
+        [Tooltip("Áp multiplier vào Shape.radius & Shape.scale (nếu bật)")]
+        [SerializeField] private bool applyToShape = true;
 
         [Header("Spawn In Animation")]
-        [SerializeField] private CanvasGroup cg;        // NEW: CanvasGroup để fade
-        [SerializeField] private RectTransform rt;      // cache
+        [SerializeField] private CanvasGroup cg;
+        [SerializeField] private RectTransform rt;
         [SerializeField] private float spawnDuration = 0.18f;
         [SerializeField] private Vector2 spawnOffset = new(0f, -18f);
 
-
+        // Trạng thái ràng buộc dữ liệu
         private TaskInstance lastBound;
         public TaskInstance Current { get; private set; }
-        public RectTransform EffectAnchor => effectAnchor;
         private bool playedSpawnAnim;
 
         private void Awake()
@@ -53,31 +63,47 @@ namespace Wargency.UI
             if (!rt) rt = transform as RectTransform;
             if (!cg) cg = GetComponent<CanvasGroup>();
             EnsureEffectAnchor();
+
+            Current = null;
+            lastBound = null;
+            visualProgress = 0f;
         }
 
         private void OnEnable()
         {
             EnsureEffectAnchor();
-            // panel lấy từ pool -> chạy spawn anim nhẹ
             playedSpawnAnim = false;
+
+            // Làm sạch UI progress khi vừa bật (an toàn khi dùng pool)
+            if (progressBar) progressBar.value = 0f;
+            visualProgress = 0f;
+        }
+
+        private void OnDisable()
+        {
+            // Reset nhẹ để lần reuse sau không mang “bóng ma” dữ liệu cũ
+            Current = null;
+            lastBound = null;
+            visualProgress = 0f;
+            if (progressBar) progressBar.value = 0f;
         }
 
         private void Update()
         {
-            if (progressBar == null) return;
+            // Panel KHÔNG tự phát VFX khi progress == 1 nữa.
             float target = (Current != null) ? Current.progress01 : 0f;
 
             if (!smoothProgress)
             {
-                progressBar.value = target;
+                if (progressBar) progressBar.value = target;
             }
-            else if (!Mathf.Approximately(visualProgress, target))
+            else if (progressBar && !Mathf.Approximately(visualProgress, target))
             {
                 visualProgress = Mathf.MoveTowards(visualProgress, target, smoothSpeed * Time.deltaTime);
                 progressBar.value = visualProgress;
             }
 
-            // Lần đầu xuất hiện sau SetActive(true) -> chạy anim 1 lần
+            // Spawn-in anim 1 lần khi enable
             if (!playedSpawnAnim && cg != null && rt != null)
             {
                 playedSpawnAnim = true;
@@ -127,7 +153,7 @@ namespace Wargency.UI
                 roleCountText.text = $"{assigned}/{required}";
             }
 
-            // Optional - ẩn text dài để tránh đè tùm lum la
+            // Ẩn text dài để tránh đè
             if (requiredRoleText) requiredRoleText.gameObject.SetActive(false);
             if (assigneeText) assigneeText.gameObject.SetActive(false);
 
@@ -144,7 +170,7 @@ namespace Wargency.UI
                 else requiredRoleText.gameObject.SetActive(false);
             }
 
-            RefreshAssignee(); // sẽ tự xử lý warning icon
+            RefreshAssignee();
 
             if (!ReferenceEquals(lastBound, inst))
             {
@@ -188,8 +214,6 @@ namespace Wargency.UI
                 }
             }
 
-            // Hiện icon cảnh báo khi:
-            // - Task yêu cầu Role, và (chưa ai nhận) hoặc (agent hiện tại không đúng role)
             bool needWarn = false;
             if (def != null && def.HasRoleRestriction(out var reqRole))
             {
@@ -198,7 +222,7 @@ namespace Wargency.UI
             if (warningIconSmall) warningIconSmall.SetActive(needWarn);
         }
 
-        // ====== Effect spawning (giữ y như bản cũ, thêm anchor safe) ======
+        // ====== Effect API (để Board gọi) ======
         public void PlayEffect(GameObject effectPrefab)
         {
             if (!effectPrefab) return;
@@ -227,33 +251,74 @@ namespace Wargency.UI
                 go.transform.localScale = Vector3.Scale(go.transform.localScale, inv);
             }
 
+            // UPDATE 2025-09-05: co nhỏ particle nếu cần
+            if (normalizeParticleForUI)
+                NormalizeParticlesForUI(go);
+
             var ps = go.GetComponentInChildren<ParticleSystem>();
             if (ps != null && !ps.main.playOnAwake) ps.Play();
 
             if (autoDestroyEffectAfter > 0f) Destroy(go, autoDestroyEffectAfter);
         }
 
+        private void NormalizeParticlesForUI(GameObject root)
+        {
+            var systems = root.GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < systems.Length; i++)
+            {
+                var ps = systems[i];
+                var main = ps.main;
+                if (forceLocalScalingMode) main.scalingMode = ParticleSystemScalingMode.Local;
+
+                // Nhân nhỏ kích thước & tốc độ để hợp UI
+                main.startSizeMultiplier *= particleScaleMultiplier;
+                main.startSpeedMultiplier *= particleScaleMultiplier;
+
+                if (applyToShape)
+                {
+                    var shape = ps.shape;
+                    if (shape.enabled)
+                    {
+                        shape.radius *= particleScaleMultiplier;
+                        shape.scale = shape.scale * particleScaleMultiplier;
+                    }
+                }
+            }
+        }
+
         private void OnTransformParentChanged() => EnsureEffectAnchor();
 
+        // ===== Ensure / Create Anchor =====
         private void EnsureEffectAnchor()
         {
             if (effectAnchor) return;
 
+            // 1) Ưu tiên marker component
             var marker = GetComponentInChildren<UIEffectAnchor>(true);
             if (marker && marker.transform is RectTransform rtFromMarker)
             {
                 effectAnchor = rtFromMarker;
                 return;
             }
+
+            // 2) Tìm child tên "EffectAnchor"
             var t = transform.Find("EffectAnchor");
             if (t is RectTransform rtFromName)
             {
                 effectAnchor = rtFromName;
                 return;
             }
-            effectAnchor = transform as RectTransform;
+
+            // 3) Không có thì tự tạo 1 node
+            var go = new GameObject("EffectAnchor", typeof(RectTransform));
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(transform, false);
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = effectPixelSize;     // để particle UI dễ nhìn
+            effectAnchor = rt;
         }
-
-
     }
 }

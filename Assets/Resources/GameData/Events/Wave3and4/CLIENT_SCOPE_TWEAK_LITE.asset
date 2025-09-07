@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: CLIENT_SCOPE_TWEAK_LITE
+  m_EditorClassIdentifier: 
+  id: CLIENT_SCOPE_TWEAK_LITE
+  title: "Client \u0111\u1ED5i brief (nh\u1EB9)"
+  description: "Th\xEAm v\xE0i slide/b\u1EA3n th\u1EC3 hi\u1EC7n, chi ph\xED \u0111\u1ED9i
+    nh\u1EB9."
+  kind: 0
+  unlockAtWave: 2
+  budgetChange: -120
+  scoreChange: 0
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 7
+  optionA:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 9
+  maxIntervalSec: 16

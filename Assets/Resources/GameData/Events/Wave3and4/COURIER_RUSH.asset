@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: COURIER_RUSH
+  m_EditorClassIdentifier: 
+  id: COURIER_RUSH
+  title: "Ship g\u1EA5p b\u1ED9 h\u1ED3 s\u01A1"
+  description: "Kh\xE1ch y\xEAu c\u1EA7u nh\u1EADn b\u1EA3n c\u1EE9ng trong ng\xE0y,
+    ph\u1EA3i ship h\u1ECFa t\u1ED1c."
+  kind: 0
+  unlockAtWave: 2
+  budgetChange: -120
+  scoreChange: 0
+  teamEnergyTextDelta: -2
+  teamStressTextDelta: 3
+  optionA:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 8
+  maxIntervalSec: 15

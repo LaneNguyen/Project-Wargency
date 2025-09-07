@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using Wargency.Core;
+using Wargency.Systems;
 
 namespace Wargency.Gameplay
 {
@@ -8,7 +9,7 @@ namespace Wargency.Gameplay
     // có tick để test, ai cần nghe gì thì có event hết
     public enum GameLoopState { None, Init, Run, End }
 
-    public class GameLoopController : MonoBehaviour
+    public class GameLoopController : MonoBehaviour, IResettable
     {
         public static GameLoopController Instance { get; private set; }
 
@@ -27,6 +28,28 @@ namespace Wargency.Gameplay
         [SerializeField] private float teamEnergyValue = 100f;
         public float TeamStressValue => teamStressValue;
         public float TeamEnergyValue => teamEnergyValue;
+
+        // Extremes for objective checks
+        [SerializeField] private float teamStressMax = 0f;
+        [SerializeField] private float teamEnergyMin = 100f;
+        public float TeamStressMax => teamStressMax;
+        public float TeamEnergyMin => teamEnergyMin;
+
+        // Update extremes fast from any system
+        public void SetTeamExtremes(float stressMax, float energyMin)
+        {
+            teamStressMax = stressMax;
+            teamEnergyMin = energyMin;
+            OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
+        }
+
+        // (NEW) Update averages (không mở setter property ra ngoài)
+        public void SetTeamAverages(float stressAvg, float energyAvg)
+        {
+            teamStressValue = stressAvg;
+            teamEnergyValue = energyAvg;
+            OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
+        }
 
         // get nhanh cho mấy chỗ khác
         public GameLoopState State => state;
@@ -85,6 +108,11 @@ namespace Wargency.Gameplay
             tickTimer = 0f;
             SetState(GameLoopState.Init);
             SetState(GameLoopState.Run);
+            // đẩy event cho UI đồng bộ ngay sau boot
+            OnBudgetChanged?.Invoke(budget);
+            OnWaveChanged?.Invoke(wave);
+            OnScoreChanged?.Invoke(score);
+            OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
         }
 
         public void End()
@@ -145,6 +173,7 @@ namespace Wargency.Gameplay
             OnBudgetChanged?.Invoke(budget);
             OnWaveChanged?.Invoke(wave);
             OnScoreChanged?.Invoke(score);
+            OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
         }
 
         public void SetTeamStats(float stress, float energy)
@@ -152,6 +181,34 @@ namespace Wargency.Gameplay
             teamStressValue = stress;
             teamEnergyValue = energy;
             OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
+        }
+
+        // === ResetState không gán vào property read-only nữa ===
+        public void ResetState()
+        {
+            // trạng thái tổng
+            SetState(GameLoopState.Init);
+
+            // số liệu cơ bản về mặc định (không gọi setter read-only)
+            budget = config ? config.initialBudget : 1000;
+            score = 0;
+            wave = 1;
+            tickTimer = 0f;
+
+            // team stats
+            teamStressValue = 0f;
+            teamEnergyValue = 0f;
+            teamStressMax = 0f;
+            teamEnergyMin = 0f;
+
+            // bắn event để UI cập nhật ngay
+            OnBudgetChanged?.Invoke(budget);
+            OnWaveChanged?.Invoke(wave);
+            OnScoreChanged?.Invoke(score);
+            OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
+
+            // nếu có danh sách agent/event bus… hãy đặt lại tại chính script này
+            // Unsubscribe từ sự kiện bên ngoài nếu script này từng subscribe
         }
     }
 }

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: PRINT_OVERAGE
+  m_EditorClassIdentifier: 
+  id: PRINT_OVERAGE
+  title: "L\u1ED1 ph\xED in \u1EA5n"
+  description: "B\u1EA3n in m\xE0u v\u01B0\u1EE3t \u0111\u1ECBnh m\u1EE9c, nh\xE0
+    in b\xE1o th\xEAm ph\xED."
+  kind: 0
+  unlockAtWave: 3
+  budgetChange: -180
+  scoreChange: 0
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 6
+  optionA:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 9
+  maxIntervalSec: 16

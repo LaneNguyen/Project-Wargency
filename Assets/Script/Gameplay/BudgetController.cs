@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Wargency.Systems;
 
 namespace Wargency.Gameplay
 {
@@ -7,7 +8,7 @@ namespace Wargency.Gameplay
     // TrySpend sẽ tự kiểm tra đủ tiền chưa, cho an toàn
     [DefaultExecutionOrder(-200)]
     [DisallowMultipleComponent]
-    public class BudgetController : MonoBehaviour
+    public class BudgetController : MonoBehaviour, IResettable
     {
         public static BudgetController I { get; private set; }
 
@@ -51,5 +52,10 @@ namespace Wargency.Gameplay
         }
 
         public bool CanAfford(int amount) => Balance >= amount; // hỏi nhanh: đủ tiền hông
+
+        public void ResetState()
+        {
+            Balance = startBalance;
+        }
     }
 }

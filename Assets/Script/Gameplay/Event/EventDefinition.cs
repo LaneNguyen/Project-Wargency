@@ -4,9 +4,10 @@ namespace Wargency.Gameplay
 {
     // file này định nghĩa data cho Event
     // có 2 kiểu => Instant hoặc Choice
-    // có thể unlock theo wave để lọc lúc random
-    // set được tác động lên budget/score và text energy/stress để UI show
-    // giữ nguyên api để prefab không vỡ
+    // unlockAtWave dùng mốc WAVE 1-BASED (1 = Wave 1, 2 = Wave 2, 3 = Wave 3...)
+    // ***LƯU Ý MỚI: unlockAtWave được hiểu là "xuất hiện Ở ĐÚNG wave đó" theo mặc định mới
+    // (match exact). Hành vi này được điều khiển ở EventManager (matchExactWave = true).
+    // Nếu muốn hành vi "từ wave X trở đi" thì tắt matchExactWave và bật allowCarryOverFromEarlierWaves.
 
     [CreateAssetMenu(fileName = "EventDefinition", menuName = "Wargency/Event Definition")]
     public class EventDefinition : ScriptableObject
@@ -23,9 +24,9 @@ namespace Wargency.Gameplay
         [Header("Kiểu Event")]
         public EventKind kind = EventKind.Instant;
 
-        // thiết lập mở khoá theo wave => 1 là từ wave 1 đã có thể xuất hiện
-        [Header("Unlock")]
-        [Tooltip("Mở khoá event kể từ Wave số mấy (1-based). VD: 1 = luôn có thể xuất hiện từ Wave 1")]
+        // thiết lập mở khoá theo wave => 1 là Wave 1, 2 là Wave 2...
+        [Header("Unlock (1-based)")]
+        [Tooltip("1 = Wave 1, 2 = Wave 2... (mặc định event chỉ spawn ở đúng wave này)")]
         public int unlockAtWave = 1;
 
         // tác động dùng cho Instant => áp thẳng budget/score, còn energy/stress chỉ hiện text
@@ -65,6 +66,6 @@ namespace Wargency.Gameplay
     }
 
     // lưu ý
-    // - set min/max interval hợp lý để timer không quá nhanh hay quá chậm
-    // - unlockAtWave tính theo 1-based => wave đầu tiên là 1
+    // - unlockAtWave là 1-based
+    // - hành vi filter theo wave nằm ở EventManager (matchExactWave / allowCarryOverFromEarlierWaves)
 }

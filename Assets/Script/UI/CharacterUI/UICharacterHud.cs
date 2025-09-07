@@ -54,6 +54,23 @@ namespace Wargency.UI
         [SerializeField] private int spikeThreshold = 10; // tăng >=10/lần → spike
         private int _lastStress = -1;
 
+        // ====== NEW: Hiệu ứng Stress cao (duy trì trong lúc > ngưỡng) ======
+        [Header("High Stress VFX (>=80)")]
+        [Tooltip("Prefab particle sẽ hiển thị khi Stress vượt ngưỡng cao.")]
+        [SerializeField] private GameObject stressOver80Effect;
+        [Tooltip("Ngưỡng phần trăm Stress để bật VFX (0..100).")]
+        [Range(0, 100)][SerializeField] private int stressVfxThreshold = 80;
+        [Tooltip("Hysteresis: chỉ tắt khi Stress tụt xuống dưới (threshold - hysteresis).")]
+        [Range(0, 50)][SerializeField] private int stressVfxHysteresis = 5;
+        [Tooltip("Nếu bật, VFX sẽ được giữ loop tới khi Stress hạ dưới ngưỡng reset. Tắt = chỉ nổ 1 lần có cooldown.")]
+        [SerializeField] private bool stressVfxPersistWhileHigh = true;
+        [Tooltip("Cooldown (giây) cho chế độ không persist (tránh spam khi dao động quanh ngưỡng).")]
+        [Min(0f)][SerializeField] private float stressVfxCooldown = 1.0f;
+
+        private GameObject _activeHighStressFx;     // instance đang chạy (chế độ persist)
+        private bool _overThresholdPlayed = false;  // flag (chế độ không persist)
+        private float _overThresholdCooldownLeft = 0f;
+
         // internal
         private int maxEnergy = 100, maxStress = 100;
         private float vEnergy01, vStress01;
@@ -75,16 +92,25 @@ namespace Wargency.UI
         private void OnDisable()
         {
             BindStats(false);  // hủy đăng ký event khi disable
+            // NEW: đảm bảo dọn VFX đang bật nếu HUD bị tắt
+            if (_activeHighStressFx != null)
+            {
+                Destroy(_activeHighStressFx);
+                _activeHighStressFx = null;
+            }
         }
 
         private void LateUpdate()
         {
             UpdatePositionFollow();
             SmoothUpdateBars();
+
+            // NEW: giảm cooldown mỗi frame (chế độ non-persist)
+            if (_overThresholdCooldownLeft > 0f)
+                _overThresholdCooldownLeft -= Time.deltaTime;
         }
 
         // ================== API CHÍNH ==================
-
 
         public void Bind(CharacterAgent agent, CharacterStats s)
         {
@@ -106,7 +132,6 @@ namespace Wargency.UI
             SnapNow();
         }
 
-
         public void SetWorldTarget(Transform target)
         {
             worldTarget = target;
@@ -124,7 +149,6 @@ namespace Wargency.UI
             if (stats != null)
                 RefreshFromStats(stats);
         }
-
 
         public void OnAgentStatsChanged(CharacterAgent agent)
         {
@@ -203,9 +227,59 @@ namespace Wargency.UI
                 vStress01 = s01;
             }
 
+            // Spike effect khi Stress tăng nhanh (giữ nguyên)
             if (_lastStress >= 0 && (stress - _lastStress) >= spikeThreshold)
                 PlayHudEffect(stressSpikeEffect);
             _lastStress = stress;
+
+            // ====== NEW: High-stress VFX stable (persist hoặc burst có cooldown) ======
+            int thresholdAbs = Mathf.RoundToInt((stressVfxThreshold / 100f) * maxStress);
+            int resetAbs = Mathf.Max(0, thresholdAbs - stressVfxHysteresis);
+
+            if (stressVfxPersistWhileHigh)
+            {
+                // PERSIST MODE: tạo/cất VFX theo trạng thái Stress
+                if (stress >= thresholdAbs)
+                {
+                    if (_activeHighStressFx == null)
+                    {
+                        _activeHighStressFx = SpawnPersistentHudEffect(stressOver80Effect);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        if (_activeHighStressFx) Debug.Log($"[UICharacterHUD] HighStress ON → spawn loop FX (Stress {stress}/{maxStress})");
+#endif
+                    }
+                }
+                else if (stress <= resetAbs)
+                {
+                    if (_activeHighStressFx != null)
+                    {
+                        // Dừng hẳn rồi hủy (để particle tan tự nhiên)
+                        StopAndDestroyParticle(_activeHighStressFx, 0.25f);
+                        _activeHighStressFx = null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        Debug.Log($"[UICharacterHUD] HighStress OFF → stop FX (Stress {stress}/{maxStress})");
+#endif
+                    }
+                }
+                // nếu nằm giữa resetAbs..thresholdAbs thì giữ trạng thái hiện tại (hysteresis)
+            }
+            else
+            {
+                // BURST MODE: nổ một phát khi vượt ngưỡng, có cooldown + hysteresis
+                if (stress >= thresholdAbs)
+                {
+                    if (!_overThresholdPlayed && _overThresholdCooldownLeft <= 0f)
+                    {
+                        PlayHudEffect(stressOver80Effect);
+                        _overThresholdPlayed = true;
+                        _overThresholdCooldownLeft = stressVfxCooldown;
+                    }
+                }
+                else if (stress <= resetAbs)
+                {
+                    _overThresholdPlayed = false;
+                }
+            }
 
             UpdateMoodIcon(e01, s01);
             MaybeAlert(stress);
@@ -282,6 +356,9 @@ namespace Wargency.UI
             }
         }
 
+        // ====== Effect helpers ======
+
+        // Burst effect: nổ 1 cái rồi tự hủy (dùng cho spike hoặc burst mode)
         private void PlayHudEffect(GameObject prefab)
         {
             if (prefab == null) return;
@@ -315,12 +392,96 @@ namespace Wargency.UI
                 go.transform.localScale = Vector3.Scale(go.transform.localScale, inv);
             }
 
+            // Tự động hủy theo tổng thời lượng particle (ổn định hơn hủy cứng 1s)
+            float life = ComputeTotalParticleLifetime(go);
             var ps = go.GetComponentInChildren<ParticleSystem>();
-            if (ps != null && !ps.main.playOnAwake) ps.Play();
-
-            Destroy(go, 1.0f);
+            if (ps != null && !ps.main.playOnAwake) ps.Play(true);
+            Destroy(go, life);
         }
 
+        // PERSIST effect: bật loop khi stress cao và giữ tới khi hạ ngưỡng
+        private GameObject SpawnPersistentHudEffect(GameObject prefab)
+        {
+            if (prefab == null) return null;
+
+            var parent = (Transform)(effectAnchor != null ? effectAnchor : transform);
+            var go = Instantiate(prefab, parent, false);
+
+            if (go.transform is RectTransform rt)
+            {
+                rt.anchoredPosition = Vector2.zero;
+                rt.localRotation = Quaternion.identity;
+                rt.localScale = Vector3.one;
+                if (effectPixelSize.x > 0 && effectPixelSize.y > 0)
+                    rt.sizeDelta = effectPixelSize;
+            }
+            else
+            {
+                go.transform.localPosition = Vector3.zero;
+                go.transform.localRotation = Quaternion.identity;
+                go.transform.localScale = Vector3.one;
+            }
+
+            if (compensateParentScale)
+            {
+                var ls = parent.lossyScale;
+                var inv = new Vector3(
+                    ls.x != 0 ? 1f / ls.x : 1f,
+                    ls.y != 0 ? 1f / ls.y : 1f,
+                    ls.z != 0 ? 1f / ls.z : 1f
+                );
+                go.transform.localScale = Vector3.Scale(go.transform.localScale, inv);
+            }
+
+            // Bật loop cho tất cả ParticleSystem con (đề phòng prefab không loop)
+            var all = go.GetComponentsInChildren<ParticleSystem>(true);
+            foreach (var p in all)
+            {
+                var main = p.main;
+                main.loop = true;
+                // Tránh destroy tự động khi dừng
+#if UNITY_2021_2_OR_NEWER
+                main.stopAction = ParticleSystemStopAction.None;
+#endif
+                if (!main.playOnAwake) p.Play(true);
+            }
+
+            return go;
+        }
+
+        private void StopAndDestroyParticle(GameObject go, float extraDelay)
+        {
+            if (go == null) return;
+            // Cho particle dừng phát, chờ tan rồi hủy
+            float life = 0.15f; // mặc định
+            var all = go.GetComponentsInChildren<ParticleSystem>(true);
+            foreach (var p in all)
+            {
+                var main = p.main;
+                main.loop = false; // tắt loop để nó tự tan
+                p.Stop(true, ParticleSystemStopBehavior.StopEmitting); // ngừng phát thêm hạt
+                // Ước lượng thời gian tan
+                float est = main.duration + main.startLifetime.constantMax;
+                if (est > life) life = est;
+            }
+            Destroy(go, life + Mathf.Max(0f, extraDelay));
+        }
+
+        private float ComputeTotalParticleLifetime(GameObject go)
+        {
+            float maxT = 1.0f; // fallback an toàn
+            var all = go.GetComponentsInChildren<ParticleSystem>(true);
+            foreach (var p in all)
+            {
+                var m = p.main;
+                float startLife = m.startLifetime.mode == ParticleSystemCurveMode.TwoConstants
+                    ? m.startLifetime.constantMax
+                    : (m.startLifetime.mode == ParticleSystemCurveMode.Constant ? m.startLifetime.constant : m.startLifetime.constantMax);
+                float t = m.duration + startLife;
+                if (t > maxT) maxT = t;
+            }
+            return maxT + 0.15f; // thêm 0.15s đệm
+        }
 
         public void SnapNow()
         {
@@ -328,7 +489,6 @@ namespace Wargency.UI
             if (energyBar) energyBar.normalizedValue = vEnergy01;
             if (stressBar) stressBar.normalizedValue = vStress01;
         }
-
 
         public void SetAgent(CharacterAgent a)
         {

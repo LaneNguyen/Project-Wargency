@@ -78,54 +78,89 @@ namespace Wargency.Gameplay
 
             int currentWave = (taskManager && taskManager.gameLoopController) ? taskManager.gameLoopController.Wave : 1;
 
-            // beginner comment: mình ghép global pool + pool riêng của wave hiện tại lại chung nha
-            var filtered = BuildWaveFilteredPool(currentWave);
-
-            if (filtered.Count == 0)
+            if (useEqualChance)
             {
-                Debug.Log($"[Spawner] Pool không có task hợp lệ cho wave {currentWave}.");
-                return;
-            }
+                // beginner comment: chia đều thì chỉ cần danh sách task duy nhất thôi
+                var equalPool = BuildEqualPoolCumulative(currentWave);
+                if (equalPool.Count == 0)
+                {
+                    Debug.Log($"[Spawner] Pool (equal) không có task hợp lệ cho wave {currentWave}.");
+                    return;
+                }
 
-            TaskDefinition def = useEqualChance ? EqualPick(filtered) : WeightedPick(filtered);
-            if (def == null)
-                return;
+                TaskDefinition defEq = EqualPick(equalPool);
+                if (defEq == null) return;
 
-            var inst = taskManager.Spawn(def);
-            if (inst != null)
-            {
-                Debug.Log($"[Spawner] Spawn OK (New): '{inst.DisplayName}' => chờ người chơi kéo agent + Start All.");
+                var instEq = taskManager.Spawn(defEq);
+                if (instEq != null)
+                    Debug.Log($"[Spawner] Spawn OK (Equal): '{instEq.DisplayName}' => chờ người chơi kéo agent + Start All.");
+                else
+                    Debug.Log($"[Spawner] Spawn FAIL for '{defEq.DisplayName}'.");
             }
             else
             {
-                Debug.Log($"[Spawner] Spawn FAIL for '{def.DisplayName}'.");
+                // beginner comment: gacha theo trọng số, nhưng giờ gom các wave <= currentWave nha
+                var weighted = BuildWeightedPoolCumulative(currentWave);
+                var def = WeightedPick(weighted);
+                if (def == null)
+                {
+                    Debug.Log($"[Spawner] Pool (weighted) không có task hợp lệ cho wave {currentWave}.");
+                    return;
+                }
+
+                var inst = taskManager.Spawn(def);
+                if (inst != null)
+                    Debug.Log($"[Spawner] Spawn OK (Weighted): '{inst.DisplayName}' => chờ người chơi kéo agent + Start All.");
+                else
+                    Debug.Log($"[Spawner] Spawn FAIL for '{def.DisplayName}'.");
             }
         }
 
-        private List<WeightedDef> BuildWaveFilteredPool(int wave)
+        // ===== WEIGHTED MODE (cộng dồn pool các wave <= currentWave) =====
+        private List<WeightedDef> BuildWeightedPoolCumulative(int wave)
         {
-            var list = new List<WeightedDef>();
+            // beginner comment: mình gom weight theo task để không bị trùng cộng lần
+            var map = new Dictionary<TaskDefinition, int>();
 
-            // lấy global pool
-            foreach (var it in globalPool)
+            // global
+            for (int i = 0; i < globalPool.Count; i++)
             {
-                if (it != null && it.def != null && it.weight > 0 && it.def.IsAvailableAtWave(wave))
-                    list.Add(it);
+                var it = globalPool[i];
+                if (it != null && it.def != null && it.weight > 0 && it.def.IsAvailableAtWave(wave)
+                    // UPDATE 2025-09-05: lọc theo role hiện có trong đội để tránh spawn task mồ côi
+                    && (!it.def.UseRequiredRole ||
+                        (taskManager != null && taskManager.HasActiveAgentWithRole(it.def.RequiredRole))))
+                {
+                    map[it.def] = (map.TryGetValue(it.def, out var w) ? w : 0) + Mathf.Max(0, it.weight);
+                }
             }
 
-            // lấy pool của wave
-            foreach (var wp in wavePools)
+            // tất cả wave pool có wp.wave <= currentWave
+            for (int wi = 0; wi < wavePools.Count; wi++)
             {
-                if (wp.wave == wave)
+                var wp = wavePools[wi];
+                if (wp != null && wp.pool != null && wp.wave <= wave)
                 {
-                    foreach (var it in wp.pool)
+                    for (int i = 0; i < wp.pool.Count; i++)
                     {
-                        if (it != null && it.def != null && it.weight > 0 && it.def.IsAvailableAtWave(wave))
-                            list.Add(it);
+                        var it = wp.pool[i];
+                        if (it != null && it.def != null && it.weight > 0 && it.def.IsAvailableAtWave(wave)
+                            // UPDATE 2025-09-05: lọc theo role hiện có trong đội để tránh spawn task mồ côi
+                            && (!it.def.UseRequiredRole ||
+                                (taskManager != null && taskManager.HasActiveAgentWithRole(it.def.RequiredRole))))
+                        {
+                            map[it.def] = (map.TryGetValue(it.def, out var w) ? w : 0) + Mathf.Max(0, it.weight);
+                        }
                     }
                 }
             }
 
+            // xuất ra list WeightedDef
+            var list = new List<WeightedDef>(map.Count);
+            foreach (var kv in map)
+            {
+                list.Add(new WeightedDef { def = kv.Key, weight = kv.Value });
+            }
             return list;
         }
 
@@ -149,15 +184,63 @@ namespace Wargency.Gameplay
             return null;
         }
 
-        private TaskDefinition EqualPick(List<WeightedDef> list)
+        // ===== EQUAL MODE (cộng dồn pool các wave <= currentWave) =====
+        private List<TaskDefinition> BuildEqualPoolCumulative(int wave)
         {
-            //cái này random đều nhau, không quan tâm weight
-            int r = UnityEngine.Random.Range(0, list.Count);
-            return list[r].def;
+            // beginner comment: random đều thì chỉ cần 1 lần mỗi task là đủ
+            var set = new HashSet<TaskDefinition>();
+            var result = new List<TaskDefinition>();
+
+            // global
+            for (int i = 0; i < globalPool.Count; i++)
+            {
+                var it = globalPool[i];
+                if (it != null && it.def != null && it.def.IsAvailableAtWave(wave)
+                    // UPDATE 2025-09-05: lọc theo role hiện có trong đội để tránh spawn task mồ côi
+                    && (!it.def.UseRequiredRole ||
+                        (taskManager != null && taskManager.HasActiveAgentWithRole(it.def.RequiredRole))))
+                {
+                    if (set.Add(it.def)) result.Add(it.def);
+                }
+            }
+
+            // tất cả wave pool có wp.wave <= currentWave
+            for (int wi = 0; wi < wavePools.Count; wi++)
+            {
+                var wp = wavePools[wi];
+                if (wp != null && wp.pool != null && wp.wave <= wave)
+                {
+                    for (int i = 0; i < wp.pool.Count; i++)
+                    {
+                        var it = wp.pool[i];
+                        if (it != null && it.def != null && it.def.IsAvailableAtWave(wave)
+                            // UPDATE 2025-09-05: lọc theo role hiện có trong đội để tránh spawn task mồ côi
+                            && (!it.def.UseRequiredRole ||
+                                (taskManager != null && taskManager.HasActiveAgentWithRole(it.def.RequiredRole))))
+                        {
+                            if (set.Add(it.def)) result.Add(it.def);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
+        private TaskDefinition EqualPick(List<TaskDefinition> defs)
+        {
+            // beginner comment: cái này random đều nhau, mỗi task 1 suất => công bằng
+            int idx = UnityEngine.Random.Range(0, defs.Count);
+            return defs[idx];
+        }
+
+        // ===== public setters =====
         public void SetAutoRun(bool on) => autoRun = on;
         public void SetInterval(float min, float max) => intervalRangeSec = new Vector2(min, max);
         public void SetTaskManager(TaskManager tm) => taskManager = tm;
+
+        // (tùy bạn có cần expose thêm không)
+        public Vector2 IntervalRangeSec { get => intervalRangeSec; set => intervalRangeSec = value; }
+        public bool AutoRun => autoRun;
     }
 }

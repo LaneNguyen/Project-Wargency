@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1d730f6991064429e875f047aa8a45, type: 3}
+  m_Name: "Thi\u1EBFt k\u1EBF storyboard"
+  m_EditorClassIdentifier: 
+  id: b2cfa894-3354-4d2a-81ff-a86190a2881b
+  displayName: "Thi\u1EBFt k\u1EBF storyboard"
+  baseDuration: 5
+  useRequiredRole: 1
+  requiredRole: 0
+  durationSecond: 5
+  RewardMoney: 200
+  RewardScore: 0
+  energyCost: 18
+  stressImpact: 16
+  availableAllWaves: 0
+  allowedWaves: 03000000

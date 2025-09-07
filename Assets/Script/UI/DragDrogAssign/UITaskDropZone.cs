@@ -97,7 +97,8 @@ namespace Wargency.UI
                 if (alerts) alerts.Push($"⚠️ Không thể giao \"{task.DisplayName}\" cho {agent.DisplayName} (role mismatch?)");
                 SpawnEffect(failEffectPrefab);
             }
-
+            AudioManager.Instance.PlaySE(AUDIO.SE_PLOPEFFECT);
+            AudioManager.Instance.PlaySE("FlopEffect");
             // UI ⇄ Manager: thả xong thì trả con trỏ về mặc định để khỏi bị nhầm
             if (CursorManager.Instance != null) CursorManager.Instance.SetDefaultCursor();
         }

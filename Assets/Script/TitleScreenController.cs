@@ -1,173 +1,178 @@
-﻿using System;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
+using Wargency.UI;
 
 public class TitleScreenController : MonoBehaviour
 {
-    [Header("UI (màn start)")]
-    [SerializeField] private Canvas canvasStart;          // // cái canvas của màn hình Start nè
-    [SerializeField] private CanvasGroup startGroup;      // // chỉnh mờ mờ cho sang chảnh, hông có cũng sống được
-    [SerializeField] private Button btnStart;             // // bấm cái này để vô game nhe
+    [Header("UI (Start Screen)")]
+    [SerializeField] private Canvas canvasStart;
+    [SerializeField] private CanvasGroup startGroup;
+    [SerializeField] private Button btnStart;
 
-    [Header("Cameras (đừng rờ mấy camera khác)")]
-    [SerializeField] private Camera uiCamera;             // // camera cho UI title, có thì bật khi ở title
-    [SerializeField] private Camera gameplayCamera;       // // camera gameplay, bật khi vô game
+    [Header("Cameras")]
+    [SerializeField] private Camera uiCamera;
+    [SerializeField] private Camera gameplayCamera;
 
-    [Header("Panels ở canvas khác (bật/tắt cho đúng cảnh)")]
-    [SerializeField] private GameObject[] panelsEnableOnTitle;     // // đang ở title thì mấy cái này bật (VD: title HUD)
-    [SerializeField] private GameObject[] panelsEnableOnGameplay;  // // vô game rồi thì mấy cái này bật (VD: gameplay HUD)
+    [Header("Panels Toggle")]
+    [SerializeField] private GameObject[] panelsEnableOnTitle;
+    [SerializeField] private GameObject[] panelsEnableOnGameplay; // include MainUICanvas root
 
-    [Header("Fade (cho đẹp tí)")]
-    [SerializeField, Range(0f, 2f)] private float fadeDuration = 0.25f;  // // cho có hiệu ứng, hông thích thì để 0 nha
+    [Header("Audio IDs")]
+    [SerializeField] private string bgmTitle = "BGM_TITLE";
+    [SerializeField] private string bgmStoryboard = "BGM_STORY";
+    [SerializeField] private string bgmGameplay = "BGM_GAME";
 
-    // ===== Flag toàn cục (đi đường dài) =====
-    public static bool IsGameStarted { get; private set; }
-    public static event Action OnGameStarted;
+    [Header("Fade Overlay")]
+    [SerializeField] private Image fadeOverlay;          // full-screen black Image (alpha 0)
+    [SerializeField] private float fadeDuration = 0.6f;  // thời gian fade in/out
 
-    private bool isFading;
+    [Header("Storyboard")]
+    [SerializeField] private StoryboardPanel storyboardPanelPrefab; // prefab StoryboardPanel mới
+    [SerializeField] private Transform uiOverlayParent; // Canvas để đặt storyboard
+
+    private StoryboardPanel activeStoryboard;
 
     private void Awake()
     {
-        // // nối nút Start, bấm là đi luôn
-        if (btnStart) btnStart.onClick.AddListener(HandleStartGame);
-
-        // // mấy nút kia (Continue/Settings/Quit/First Selected) hông xài… để sau tính
-        // // script trước tính sau :v (em ghi chú vậy cho nhớ)
-
-        // // Nếu canvas đang kiểu Screen Space - Camera mà chưa set Camera → lấy uiCamera
-        if (canvasStart && canvasStart.renderMode == RenderMode.ScreenSpaceCamera && canvasStart.worldCamera == null)
-            canvasStart.worldCamera = uiCamera;
-
-        // // tránh 2 AudioListener đánh nhau (UI camera hổng cần nghe ngóng gì đâu)
-        if (uiCamera)
-        {
-            var al = uiCamera.GetComponent<AudioListener>();
-            if (al) al.enabled = false;
-        }
-
-        IsGameStarted = false;
-
-        // // bật màn title lúc đầu (cho chắc), làm liền hông cần fade
-        SetTitleActive(true, instant: true);
-
-        // // FirstSelected để sau hẵng tính nhe (giờ bấm chuột/enter vẫn ok)
-        // // script trước tính sau ^^
+        if (btnStart) btnStart.onClick.AddListener(StartGameFromTitle);
+        SetTitleActive(true, true);
     }
 
     private void Start()
     {
-        // // mở nhạc title cho có mood (xài AudioManager chung nha)
-        // // nếu thiếu AUDIO.BGM_POSITIVESTART thì đừng chửi em, thêm giùm cái name vô AUDIO.cs nhe :")
-        AudioManager.Instance.PlayBGM(AUDIO.BGM_POSITIVESTART);
+        TryPlayBGM(bgmTitle);
+        // đảm bảo overlay trong suốt lúc đầu
+        if (fadeOverlay)
+        {
+            var c = fadeOverlay.color; c.a = 0f; fadeOverlay.color = c;
+        }
     }
 
-    // ==== Bật/tắt Title + chuyển camera + bật/tắt panel liên quan ====
-    private void SetTitleActive(bool active, bool instant = false)
+    public void StartGameFromTitle()
     {
-        // // camera: title thì bật uiCamera, gameplay thì bật gameplayCamera (chỉ 2 đứa này thôi nha)
-        if (uiCamera) uiCamera.enabled = active;
-        if (gameplayCamera) gameplayCamera.enabled = !active;
+        // chuyển nhạc sang storyboard
+        TryPlayBGM(bgmStoryboard);
+        // chạy chuỗi fade → storyboard → fade in
+        StartCoroutine(StartSequence());
+    }
 
-        // // bật/tắt mấy panel ở canvas khác cho đúng cảnh
+    private IEnumerator StartSequence()
+    {
+        // 1) Fade to black
+        yield return StartCoroutine(FadeScreen(true));
+
+        // 2) Tắt title UI, tắt gameplay panels để chuẩn bị vào storyboard
+        SetTitleActive(false, true);
+        TogglePanels(panelsEnableOnGameplay, false);
+
+        // 3) Bật storyboard
+        ShowStoryboard();
+
+        // 4) Fade in
+        yield return StartCoroutine(FadeScreen(false));
+    }
+
+    private void ShowStoryboard()
+    {
+        if (!storyboardPanelPrefab)
+        {
+            // không có storyboard → vào gameplay luôn
+            TogglePanels(panelsEnableOnGameplay, true);
+            TryPlayBGM(bgmGameplay);
+            return;
+        }
+
+        Transform parent = GetActiveOverlayParent();
+        activeStoryboard = Instantiate(storyboardPanelPrefab, parent);
+        var rt = activeStoryboard.transform as RectTransform;
+        if (rt != null)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+        }
+        activeStoryboard.transform.SetAsLastSibling();
+        activeStoryboard.gameObject.SetActive(true);
+
+        // Khi storyboard chạy xong
+        activeStoryboard.OnFinished += () =>
+        {
+            TogglePanels(panelsEnableOnGameplay, true);
+            TryPlayBGM(bgmGameplay);
+            // đảm bảo title đã off, camera gameplay on
+            SetTitleActive(false, true);
+        };
+
+        // Bắt đầu storyboard
+        activeStoryboard.Play();
+    }
+
+    private Transform GetActiveOverlayParent()
+    {
+        if (uiOverlayParent && uiOverlayParent.gameObject.activeInHierarchy)
+            return uiOverlayParent;
+
+        var canvases = GameObject.FindObjectsOfType<Canvas>(true);
+        foreach (var c in canvases)
+            if (c.isActiveAndEnabled) return c.transform;
+
+        var go = new GameObject("StoryboardOverlayCanvas",
+            typeof(Canvas),
+            typeof(UnityEngine.UI.CanvasScaler),
+            typeof(UnityEngine.UI.GraphicRaycaster));
+        var canvas = go.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        return canvas.transform;
+    }
+
+    // === Public để gọi từ UnityEvent/Inspector ===
+    public void SetTitleActive(bool active) => SetTitleActive(active, false);
+
+    public void SetTitleActive(bool active, bool instant)
+    {
         TogglePanels(panelsEnableOnTitle, active);
         TogglePanels(panelsEnableOnGameplay, !active);
 
-        // // canvas + fade nhẹ
-        if (!canvasStart) return;
-        canvasStart.enabled = true; // // để còn fade, tắt gameObject sau
-
-        if (instant || startGroup == null || fadeDuration <= 0f)
-        {
-            if (startGroup != null)
-            {
-                startGroup.alpha = active ? 1f : 0f;
-                startGroup.interactable = active;
-                startGroup.blocksRaycasts = active;
-            }
-            canvasStart.gameObject.SetActive(active);
-
-            if (!active) MarkStartedIfNeeded(); // // tắt title xong thì coi như đã bắt đầu game
-        }
-        else
-        {
-            if (!isFading) StartCoroutine(FadeRoutine(active));
-        }
-    }
-
-    private System.Collections.IEnumerator FadeRoutine(bool toActive)
-    {
-        isFading = true;
-
-        if (canvasStart) canvasStart.gameObject.SetActive(true);
-        if (startGroup)
-        {
-            // // đang fade thì đừng cho bấm bậy bạ
-            startGroup.interactable = false;
-            startGroup.blocksRaycasts = false;
-        }
-
-        float t = 0f;
-        float from = startGroup ? startGroup.alpha : (toActive ? 0f : 1f);
-        float to = toActive ? 1f : 0f;
-
-        while (t < fadeDuration)
-        {
-            t += Time.unscaledDeltaTime; // // timeScale = 0 vẫn fade ok nha
-            float k = Mathf.Clamp01(t / fadeDuration);
-            if (startGroup) startGroup.alpha = Mathf.Lerp(from, to, k);
-            yield return null;
-        }
+        if (canvasStart) canvasStart.gameObject.SetActive(active);
+        if (uiCamera) uiCamera.enabled = active;
+        if (gameplayCamera) gameplayCamera.enabled = !active;
 
         if (startGroup)
         {
-            startGroup.alpha = to;
-            startGroup.interactable = toActive;
-            startGroup.blocksRaycasts = toActive;
+            startGroup.alpha = active ? 1f : 0f;
+            startGroup.interactable = active;
+            startGroup.blocksRaycasts = active;
         }
-
-        if (!toActive)
-        {
-            if (canvasStart) canvasStart.gameObject.SetActive(false);
-            // // đảm bảo camera đang đúng phe
-            if (gameplayCamera) gameplayCamera.enabled = true;
-            if (uiCamera) uiCamera.enabled = false;
-
-            MarkStartedIfNeeded(); // // xong rồi, vào game thôi
-        }
-
-        isFading = false;
     }
 
-    private void TogglePanels(GameObject[] arr, bool enable)
+    private void TogglePanels(GameObject[] arr, bool on)
     {
         if (arr == null) return;
         for (int i = 0; i < arr.Length; i++)
+            if (arr[i]) arr[i].SetActive(on);
+    }
+
+    private IEnumerator FadeScreen(bool toBlack)
+    {
+        if (!fadeOverlay) yield break;
+        float start = fadeOverlay.color.a;
+        float end = toBlack ? 1f : 0f;
+        float t = 0f;
+        while (t < 1f)
         {
-            if (!arr[i]) continue;
-            // // bật tắt dịu dàng, không đập phá :v
-            arr[i].SetActive(enable);
+            t += Time.unscaledDeltaTime / Mathf.Max(0.01f, fadeDuration);
+            float a = Mathf.Lerp(start, end, t);
+            var c = fadeOverlay.color; c.a = a; fadeOverlay.color = c;
+            yield return null;
         }
+        // chốt alpha
+        var cc = fadeOverlay.color; cc.a = end; fadeOverlay.color = cc;
     }
 
-    private void MarkStartedIfNeeded()
+    private void TryPlayBGM(string id)
     {
-        if (IsGameStarted) return;
-        IsGameStarted = true;
-        OnGameStarted?.Invoke();
+        try { AudioManager.Instance?.PlayBGM(id); } catch { }
     }
-
-    // ====== Nút bấm ======
-    private void HandleStartGame()
-    {
-        // // bấm cái là vô game liền, có tiếng tách nghe đã tai
-        AudioManager.Instance.PlaySE(AUDIO.SE_FANTASYSOUND);
-
-        // // Không chơi saveKey/continue gì hết, để sau tính nghe
-        SetTitleActive(false);
-        // // TODO: GameLoopController.StartNewGame(); (để dành bài nâng cao)
-    }
-
-    // // Continue/Settings/Quit/FirstSelected: chưa xài, để đây làm kỉ niệm
-    // // script trước tính sau :")
 }

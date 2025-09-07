@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: COFFEE_MACHINE_DOWN
+  m_EditorClassIdentifier: 
+  id: COFFEE_MACHINE_DOWN
+  title: "M\xE1y pha c\xE0 ph\xEA h\u1ECFng"
+  description: "Kh\xF4ng c\xF3 caffeine, tinh th\u1EA7n team xu\u1ED1ng."
+  kind: 0
+  unlockAtWave: 2
+  budgetChange: -80
+  scoreChange: 0
+  teamEnergyTextDelta: 6
+  teamStressTextDelta: -2
+  optionA:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 8
+  maxIntervalSec: 14

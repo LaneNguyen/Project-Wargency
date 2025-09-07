@@ -69,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -113,10 +113,10 @@ TextureImporter:
       name: Congratulation_Icon_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1536
-        height: 1024
+        x: 30
+        y: 248
+        width: 1481
+        height: 548
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,7 +125,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 30d4cee081d06de4f8c66ecef4ec1794
+      spriteID: 965e698f8c8454840af82ac5d972d6b1
       internalID: 1577646531
       vertices: []
       indices: 
@@ -145,11 +145,24 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceOnImport
-        value: True
+        value: False
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":true,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":372.0,"y":316.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":372.0,"y":316.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Congratulation_Icon_0: 1577646531
+      Congratulation_Icon_1: -597926186
+      Congratulation_Icon_10: 1175267957
+      Congratulation_Icon_11: 1906407456
+      Congratulation_Icon_12: -369954844
+      Congratulation_Icon_13: 1670698448
+      Congratulation_Icon_2: -2066604335
+      Congratulation_Icon_3: 1322799479
+      Congratulation_Icon_4: -638451502
+      Congratulation_Icon_5: 1170148931
+      Congratulation_Icon_6: 870245202
+      Congratulation_Icon_7: -48297550
+      Congratulation_Icon_8: -676795163
+      Congratulation_Icon_9: 523393328
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,42 +1,57 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using Wargency.Systems;
 using Random = UnityEngine.Random;
 
 namespace Wargency.Gameplay
 {
-    // file này quản lý random event trong lúc chơi
-    // lọc theo wave nếu có WaveManager
-    // có 2 flow => Instant áp ngay, Choice chờ người chơi chọn rồi mới xử lý
-    // bắn event cho UI => OnEventTrigger để mở popup, OnEventText để show text, OnChoiceEvent để hiển thị lựa chọn
-    // đừng để 2 EventManager cùng lúc trong scene nha
-
-    public class EventManager : MonoBehaviour
+    // Quản lý random event trong lúc chơi.
+    // Lọc theo wave nếu có WaveManager.
+    // Hai flow: Instant (áp ngay), Choice (đợi người chơi chọn).
+    // Bắn event cho UI: OnEventTrigger, OnEventText, OnChoiceEvent, OnEventResolved.
+    public class EventManager : MonoBehaviour, IResettable
     {
-        // danh sách event nguồn => kéo vào trong inspector
         [Header("Config")]
         public EventDefinition[] availableEvents;
 
-        // tham chiếu sang controller khác => áp budget/score và biết wave
         [Header("Refs")]
-        public GameLoopController gameLoopController; // áp budget/score
-        [Tooltip("Để lọc event theo wave (unlockAtWave). Không bắt buộc, nếu trống thì không lọc.")]
-        public WaveManager waveManager;               // dùng GetCurrentWaveIndex()+1
+        public GameLoopController gameLoopController;
+        [Tooltip("Dùng để lọc event theo wave (unlockAtWave). Nếu trống thì không lọc.")]
+        public WaveManager waveManager;
 
-        // các event để UI lắng nghe => mở popup, text feed, và choice
-        // OnEventResolved để đếm objective ResolveEvents
-        public event Action<EventDefinition> OnEventTrigger; // popup tiêu đề/mô tả
-        public event Action<string> OnEventText;             // hiển thị “+Energy/-Stress ...”
-        public event Action<ChoiceEventData> OnChoiceEvent;  // hiển thị 2 lựa chọn
-        public event Action OnEventResolved;                 // báo đã xử lý xong 1 event
+        // [PATCH OBJECTIVE] Áp delta Energy/Stress lên từng agent
+        public TaskManager taskManager;
 
-        // trạng thái chạy bên trong
+        public event Action<EventDefinition> OnEventTrigger;
+        public event Action<string> OnEventText;
+        public event Action<ChoiceEventData> OnChoiceEvent;
+        public event Action OnEventResolved;
+
+        // ====== Dev QoL (test nhanh) ======
+        [Header("Dev Overrides (test)")]
+        [SerializeField] bool useOverrideInterval = false;
+        [SerializeField, Min(0.1f)] float overrideMin = 3f;
+        [SerializeField, Min(0.1f)] float overrideMax = 6f;
+        [SerializeField, Tooltip("Giới hạn thời gian chờ Choice (giây). 0 = vô hạn")]
+        float choiceTimeout = 20f;
+
+        //reset
+        [SerializeField] private Transform runtimeEventRoot; // nếu có
+
+        // ====== Objective Bridge (optional) ======
+        [Header("Objective Bridge (optional)")]
+        [SerializeField] private WaveObjectiveDef resolveEventsObjective;
+        [SerializeField] private bool autoCountResolveEvents = false; // [PATCH OBJECTIVE] tránh double nếu WaveManager cũng đếm
+
+        // ====== Runtime state ======
         float timer;
         float min;
         float max;
         bool isWaitingChoice = false;
+        float waitingChoiceTimer = 0f;
+        EventDefinition _lastChoiceRoot;
 
-        // khởi động => tính min/max interval, tìm ref nếu để trống, reset timer
         void Start()
         {
             if (availableEvents == null || availableEvents.Length == 0)
@@ -46,22 +61,43 @@ namespace Wargency.Gameplay
                 return;
             }
 
-            // lấy min/max từ list event để làm khoảng random timer
+            // Lấy min/max từ list event để random timer
             min = Mathf.Max(0.1f, availableEvents.Min(e => e != null ? e.minIntervalSec : 999f));
             max = Mathf.Max(min + 0.1f, availableEvents.Max(e => e != null ? e.maxIntervalSec : 0.1f));
 
+            // Dev override cho giai đoạn test
+            if (useOverrideInterval)
+            {
+                min = Mathf.Max(0.1f, overrideMin);
+                max = Mathf.Max(min + 0.1f, overrideMax);
+            }
+
             if (!gameLoopController) gameLoopController = FindFirstObjectByType<GameLoopController>();
             if (!waveManager) waveManager = FindFirstObjectByType<WaveManager>();
+            if (!taskManager) taskManager = FindFirstObjectByType<TaskManager>(); // [PATCH OBJECTIVE]
 
             ResetTimer();
         }
 
-        // đếm ngược timer => hết giờ thì bắn event mới
-        // nếu đang chờ choice thì không spawn thêm
         void Update()
         {
-            if (isWaitingChoice) return;
+            // Nếu đang chờ Choice
+            if (isWaitingChoice)
+            {
+                if (choiceTimeout > 0f)
+                {
+                    // dùng unscaled để vẫn đếm khi UI pause
+                    waitingChoiceTimer += Time.unscaledDeltaTime;
+                    if (waitingChoiceTimer >= choiceTimeout && _lastChoiceRoot != null)
+                    {
+                        Debug.LogWarning("[EventManager] Choice timeout → auto chọn A.");
+                        ApplyChoice(_lastChoiceRoot, true);
+                    }
+                }
+                return;
+            }
 
+            // Đếm timer bình thường
             timer -= Time.deltaTime;
             if (timer <= 0f)
             {
@@ -70,8 +106,13 @@ namespace Wargency.Gameplay
             }
         }
 
-        // chọn 1 event đang unlock theo wave và bắn ra cho UI
-        // nếu là Instant => xử lý ngay, nếu là Choice => bật UI chờ chọn
+        [ContextMenu("Debug/Trigger Now")]
+        public void DebugTriggerNow()
+        {
+            TriggerRandomEvent();
+            ResetTimer();
+        }
+
         public void TriggerRandomEvent()
         {
             var pool = availableEvents?.Where(e => e != null).ToArray();
@@ -83,7 +124,12 @@ namespace Wargency.Gameplay
                 .Where(e => Mathf.Max(1, e.unlockAtWave) <= currentWaveOneBased)
                 .ToArray();
 
-            if (unlockedPool.Length == 0) return;
+            if (unlockedPool.Length == 0)
+            {
+                Debug.LogWarning($"[EventManager] Không có event unlock ở Wave {currentWaveOneBased}. " +
+                                 $"Hãy đặt unlockAtWave ≤ {currentWaveOneBased} cho vài event để kiểm tra.");
+                return;
+            }
 
             var chosen = unlockedPool[Random.Range(0, unlockedPool.Length)];
             if (chosen == null) return;
@@ -97,12 +143,12 @@ namespace Wargency.Gameplay
             else
             {
                 isWaitingChoice = true;
-                var payload = ChoiceEventData.From(chosen);
-                OnChoiceEvent?.Invoke(payload);
+                waitingChoiceTimer = 0f;
+                _lastChoiceRoot = chosen;
+                OnChoiceEvent?.Invoke(ChoiceEventData.From(chosen));
             }
         }
 
-        // flow Instant => áp budget/score ngay, đẩy text UI, báo đã resolve
         void ApplyInstant(EventDefinition e)
         {
             if (gameLoopController != null)
@@ -120,10 +166,14 @@ namespace Wargency.Gameplay
                 if (feed != null) feed.Push(text);
             }
 
-            OnEventResolved?.Invoke(); // đếm xong 1 event
+            // [PATCH OBJECTIVE] Áp delta lên team thật sự
+            ApplyTeamDeltas(e.teamEnergyTextDelta, e.teamStressTextDelta);
+
+            // ✅ Đếm vào objective (nếu bật)
+            IncResolveEvents(1f);
+            OnEventResolved?.Invoke();
         }
 
-        // flow Choice với event gốc => người chơi chọn A/B xong thì xử lý tác động, báo resolve và chạy tiếp
         public void ApplyChoice(EventDefinition root, bool chooseA)
         {
             if (root == null || root.kind != EventDefinition.EventKind.Choice)
@@ -154,13 +204,17 @@ namespace Wargency.Gameplay
                 if (feed != null) feed.Push(text);
             }
 
-            OnEventResolved?.Invoke(); // đếm xong 1 event
+            // [PATCH OBJECTIVE] Áp delta lên team thật sự
+            ApplyTeamDeltas(opt.teamEnergyTextDelta, opt.teamStressTextDelta);
+
+            // ✅ Đếm vào objective (nếu bật)
+            IncResolveEvents(1f);
+            OnEventResolved?.Invoke();
 
             isWaitingChoice = false;
             ResetTimer();
         }
 
-        // flow Choice overload => đưa thẳng 1 option vào để áp
         public void ApplyChoice(EventDefinition.ChoiceOption option)
         {
             if (option == null)
@@ -183,16 +237,19 @@ namespace Wargency.Gameplay
                 if (feed != null) feed.Push(text);
             }
 
-            OnEventResolved?.Invoke(); // đếm xong 1 event
+            // [PATCH OBJECTIVE] Áp delta lên team thật sự
+            ApplyTeamDeltas(option.teamEnergyTextDelta, option.teamStressTextDelta);
+
+            // ✅ Đếm vào objective (nếu bật)
+            IncResolveEvents(1f);
+            OnEventResolved?.Invoke();
 
             isWaitingChoice = false;
             ResetTimer();
         }
 
-        // random lại khoảng thời gian cho lần event kế tiếp
         void ResetTimer() => timer = Random.Range(min, max);
 
-        // ghép text Energy/Stress để show UI feed => trả chuỗi rỗng nếu không có gì
         static string BuildTeamText(int energyDelta, int stressDelta)
         {
             string e = energyDelta == 0 ? "" : (energyDelta > 0 ? $"+{energyDelta} Energy team" : $"{energyDelta} Energy team");
@@ -203,7 +260,105 @@ namespace Wargency.Gameplay
             return string.IsNullOrEmpty(e) ? s : e;
         }
 
-        // gói dữ liệu gọn cho UI Choice => gom text và giữ trỏ về event gốc
+        // ===== Objective helper (nội bộ) =====
+        private void IncResolveEvents(float amount = 1f)
+        {
+            if (!autoCountResolveEvents || resolveEventsObjective == null) return;
+
+            resolveEventsObjective.currentValue += amount;
+
+            if (resolveEventsObjective.targetValue > 0 &&
+                resolveEventsObjective.currentValue >= resolveEventsObjective.targetValue)
+            {
+                resolveEventsObjective.currentValue = resolveEventsObjective.targetValue;
+                resolveEventsObjective.completed = true;
+            }
+        }
+
+        // [PATCH OBJECTIVE] Áp delta Energy/Stress lên từng agent + (tùy) cập nhật cực trị cho GLC
+        private void ApplyTeamDeltas(int energyDelta, int stressDelta)
+        {
+            if (taskManager == null || taskManager.ActiveAgents == null) return;
+
+            float maxStress = 0f;
+            float minEnergy = float.MaxValue;
+
+            for (int i = 0; i < taskManager.ActiveAgents.Count; i++)
+            {
+                var a = taskManager.ActiveAgents[i];
+                if (a == null) continue;
+
+                var stats = a.GetComponent<CharacterStats>();
+                if (stats == null) continue;
+
+                // Energy dương = tăng năng lượng; Stress dương = tăng stress
+                stats.ApplyDelta(energyDelta, stressDelta);
+                stats.Notify();
+
+                // Thử đọc trị số hiện tại bằng reflection để không phụ thuộc API cụ thể
+                float s = ReadFloat(stats, "CurrentStress", "Stress", "stress");
+                float e = ReadFloat(stats, "CurrentEnergy", "Energy", "energy");
+
+                if (s > maxStress) maxStress = s;
+                if (e < minEnergy) minEnergy = e;
+            }
+
+            // (Tùy) cập nhật cực trị lại cho GameLoopController nếu có SetTeamExtremes
+            if (gameLoopController != null)
+            {
+                var mi = gameLoopController.GetType().GetMethod("SetTeamExtremes",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if (mi != null)
+                {
+                    if (minEnergy == float.MaxValue) minEnergy = 0f;
+                    try { mi.Invoke(gameLoopController, new object[] { maxStress, minEnergy }); }
+                    catch { /* ignore */ }
+                }
+                else
+                {
+                    // Không có API → bỏ qua, WaveManager sẽ tự sample lại bằng TaskManager vào frame sau
+                }
+            }
+        }
+
+        private static float ReadFloat(object obj, params string[] names)
+        {
+            if (obj == null) return 0f;
+            var t = obj.GetType();
+
+            // ưu tiên property
+            foreach (var n in names)
+            {
+                var p = t.GetProperty(n, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if (p != null && p.PropertyType == typeof(int)) return (int)p.GetValue(obj);
+                if (p != null && p.PropertyType == typeof(float)) return (float)p.GetValue(obj);
+            }
+            // fallback field
+            foreach (var n in names)
+            {
+                var f = t.GetField(n, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if (f != null && f.FieldType == typeof(int)) return (int)f.GetValue(obj);
+                if (f != null && f.FieldType == typeof(float)) return (float)f.GetValue(obj);
+            }
+            return 0f;
+        }
+
+        public void ResetState()
+        {
+            StopAllCoroutines();
+
+            var root = runtimeEventRoot != null ? runtimeEventRoot : transform;
+            for (int i = root.childCount - 1; i >= 0; i--)
+            {
+                var child = root.GetChild(i);
+                if (child != null) Destroy(child.gameObject);
+            }
+
+            // (tuỳ chọn) reset biến đơn giản nếu có
+            // nextSpawnTime = 0f;
+        }
+
+        // ===== Dữ liệu cho UI Choice =====
         [Serializable]
         public struct ChoiceEventData
         {
@@ -232,9 +387,4 @@ namespace Wargency.Gameplay
             }
         }
     }
-
-    // lưu ý
-    // - component này chạy ở runtime => không lưu file
-    // - nếu muốn tắt event tạm thời thì disable component
-    // - đổi wave xong mà muốn làm mới nhịp event => gọi ResetTimer
 }

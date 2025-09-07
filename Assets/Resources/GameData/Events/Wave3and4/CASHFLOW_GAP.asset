@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: CASHFLOW_GAP
+  m_EditorClassIdentifier: 
+  id: CASHFLOW_GAP
+  title: "D\xF2ng ti\u1EC1n t\u1EAFc t\u1EA1m th\u1EDDi"
+  description: "Thu ch\u01B0a v\u1EC1 k\u1ECBp, c\xF3 n\xEAn \u1EE9ng ti\u1EC1n?"
+  kind: 1
+  unlockAtWave: 3
+  budgetChange: 0
+  scoreChange: 0
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 0
+  optionA:
+    optionTitle: "\u1EE8ng ti\u1EC1n "
+    optionDescription: "Gi\u1EA3i quy\u1EBFt tr\u01B0\u1EDBc m\u1EAFt nh\u01B0ng
+      \u0111au v\xED."
+    budgetChange: -200
+    scoreChange: 0
+    teamEnergyTextDelta: -4
+    teamStressTextDelta: 2
+  optionB:
+    optionTitle: "Ch\u1EDD (ch\u1EADm)"
+    optionDescription: "Kh\xF4ng t\u1ED1n ti\u1EC1n, c\u1EA3 team stress"
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: -5
+    teamStressTextDelta: 10
+  minIntervalSec: 10
+  maxIntervalSec: 18

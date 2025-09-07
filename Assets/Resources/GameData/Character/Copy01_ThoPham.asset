@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 425aab5a11183af47b47586ab5900c52, type: 3}
+  m_Name: Copy01_ThoPham
+  m_EditorClassIdentifier: 
+  id: copy_01
+  displayName: "Th\u01A1 Ph\u1EA1m"
+  avatar: {fileID: -885330790, guid: 69e6261c076d1544fadf729fceda5e49, type: 3}
+  body: {fileID: -885330790, guid: 69e6261c076d1544fadf729fceda5e49, type: 3}
+  role: 1
+  baseEnergy: 115
+  baseStress: 0
+  moveSpeed: 3.5
+  HireCost: 500
+  description: "N\u1EEF Content, tuy m\u1EB7t c\u1ECDc m\xE0 \u0111\u01B0\u1EE3c
+    c\xE1i vi\u1EBFt nhanh"
+  agentPrefabs: []

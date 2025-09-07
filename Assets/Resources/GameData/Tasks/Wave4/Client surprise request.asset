@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1d730f6991064429e875f047aa8a45, type: 3}
+  m_Name: Client surprise request
+  m_EditorClassIdentifier: 
+  id: bf4c9021-a0ee-4c9e-8c44-aa01c975ca92
+  displayName: Client surprise request
+  baseDuration: 5
+  useRequiredRole: 1
+  requiredRole: 3
+  durationSecond: 5
+  RewardMoney: 300
+  RewardScore: 0
+  energyCost: 20
+  stressImpact: 20
+  availableAllWaves: 0
+  allowedWaves: 04000000

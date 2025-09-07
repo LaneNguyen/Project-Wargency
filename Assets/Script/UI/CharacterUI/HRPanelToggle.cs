@@ -43,13 +43,14 @@ namespace Wargency.UI
             // 3) Ẩn/hiện mặc định
             if (targetPanel != null && startHidden) targetPanel.SetActive(false);
 
-            // 4) Nếu có backdrop (nút full-screen mờ), set hành vi đóng panel
+            // 4) Nếu có backdrop, set hành vi đóng panel
             if (backdropCloseButton != null)
             {
                 backdropCloseButton.onClick.RemoveAllListeners();
                 backdropCloseButton.onClick.AddListener(() =>
                 {
                     if (targetPanel != null) targetPanel.SetActive(false);
+                    AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
                 });
             }
         }
@@ -64,6 +65,7 @@ namespace Wargency.UI
 
             bool toActive = !targetPanel.activeSelf;
             targetPanel.SetActive(toActive);
+            AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
             // Bật/tắt backdrop nếu có
             if (backdropCloseButton != null)
                 backdropCloseButton.gameObject.SetActive(toActive);

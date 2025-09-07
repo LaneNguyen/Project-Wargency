@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: EV_BriefChange
+  m_EditorClassIdentifier: 
+  id: brief_change
+  title: "Kh\xE1ch \u0111\u1ED5i brief"
+  description: "Y\xEAu c\u1EA7u c\u1EE7a kh\xE1ch thay \u0111\u1ED5i, c\u1EA3 team
+    ph\u1EA3i quy\u1EBFt \u0111\u1ECBnh c\xE1ch x\u1EED l\xFD."
+  kind: 1
+  unlockAtWave: 3
+  budgetChange: 0
+  scoreChange: 0
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 0
+  optionA:
+    optionTitle: "H\u1ECDp ch\u1ED1t ngay"
+    optionDescription: "C\u1EA3 team Stress +20, -20 Energy"
+    budgetChange: 100
+    scoreChange: 20
+    teamEnergyTextDelta: -20
+    teamStressTextDelta: 20
+  optionB:
+    optionTitle: "Xin l\xF9i deadline"
+    optionDescription: "\u0110i\u1EC3m c\u1ED9ng \xEDt x\u1EC9n"
+    budgetChange: 0
+    scoreChange: 5
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 3
+  maxIntervalSec: 6

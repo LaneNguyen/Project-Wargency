@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6381cfaee749508449de1c77262eae2e, type: 3}
+  m_Name: LS_Milktea
+  m_EditorClassIdentifier: 
+  skillName: "MUA TR\xC0 S\u1EEEA"
+  description: -$50,+20 Energy,-20 Stress
+  icon: {fileID: 0}
+  deltaEnergy: 20
+  deltaStress: -20
+  deltaBudget: -50
+  affectAllAgents: 1
+  cooldownSeconds: 10

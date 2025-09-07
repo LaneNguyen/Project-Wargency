@@ -96,6 +96,9 @@ namespace Wargency.Gameplay
         // UPDATE 2408: Auto-register với TaskManager khi bật
         private void OnEnable() // UPDATE 2408
         {
+            var tm = FindObjectOfType<TaskManager>();
+            if (tm) tm.RegisterAgent(this);
+
             if (!taskManager) taskManager = FindAnyObjectByType<TaskManager>();
             if (autoRegisterToTaskManager && taskManager != null)
             {
@@ -133,6 +136,8 @@ namespace Wargency.Gameplay
         // UPDATE 2408: Unregister khi tắt
         private void OnDisable() // UPDATE 2408
         {
+            var tm = FindObjectOfType<TaskManager>();
+            if (tm) tm.UnregisterAgent(this);
             if (autoRegisterToTaskManager && taskManager != null)
             {
                 if (_isRegisteredToTM)

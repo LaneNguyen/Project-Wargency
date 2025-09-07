@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: INTERN_OOPS
+  m_EditorClassIdentifier: 
+  id: INTERN_OOPS
+  title: "Intern xo\xE1 file"
+  description: "File PSD quan tr\u1ECDng v\u1EEBa bi\u1EBFn m\u1EA5t \u2013 c\u1EA7n
+    kh\xF4i ph\u1EE5c."
+  kind: 0
+  unlockAtWave: 2
+  budgetChange: -150
+  scoreChange: 0
+  teamEnergyTextDelta: 0
+  teamStressTextDelta: 8
+  optionA:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 10
+  maxIntervalSec: 16

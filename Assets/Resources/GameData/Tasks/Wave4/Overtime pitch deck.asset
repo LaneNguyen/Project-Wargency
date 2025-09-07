@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1d730f6991064429e875f047aa8a45, type: 3}
+  m_Name: Overtime pitch deck
+  m_EditorClassIdentifier: 
+  id: 735a2f0a-9eea-40b5-aee2-4745f1f8b984
+  displayName: "L\xE0m Pitch Deck "
+  baseDuration: 5
+  useRequiredRole: 1
+  requiredRole: 0
+  durationSecond: 5
+  RewardMoney: 300
+  RewardScore: 0
+  energyCost: 18
+  stressImpact: 20
+  availableAllWaves: 0
+  allowedWaves: 04000000

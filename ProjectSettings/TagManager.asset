@@ -6,6 +6,10 @@ TagManager:
   tags:
   - EnemyDemo
   - Office Map - Wall
+  - SeatAnchor
+  - TitleCamera
+  - MainCanvas
+  - TitleCanvas
   layers:
   - Default
   - TransparentFX
@@ -16,7 +20,7 @@ TagManager:
   - Object - Player
   - Wall
   - 
-  - 
+  - UI-Popup
   - 
   - 
   - 

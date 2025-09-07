@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455d6625ea53fa647ba93b72b0dfc526, type: 3}
+  m_Name: QA_REVISION_LOOP
+  m_EditorClassIdentifier: 
+  id: QA_REVISION_LOOP
+  title: "V\xF2ng s\u1EEDa QA b\u1EA5t t\u1EADn"
+  description: "S\u1EEDa t\u1EDBi s\u1EEDa lui, ph\u1EA3i thu\xEA QC ngo\xE0i 1 phi\xEAn."
+  kind: 0
+  unlockAtWave: 3
+  budgetChange: -130
+  scoreChange: 0
+  teamEnergyTextDelta: -1
+  teamStressTextDelta: 4
+  optionA:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  optionB:
+    optionTitle: 
+    optionDescription: 
+    budgetChange: 0
+    scoreChange: 0
+    teamEnergyTextDelta: 0
+    teamStressTextDelta: 0
+  minIntervalSec: 8
+  maxIntervalSec: 15

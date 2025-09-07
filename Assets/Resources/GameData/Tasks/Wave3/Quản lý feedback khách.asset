@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1d730f6991064429e875f047aa8a45, type: 3}
+  m_Name: "Qu\u1EA3n l\xFD feedback kh\xE1ch"
+  m_EditorClassIdentifier: 
+  id: 072c50b4-9d57-4a16-9706-de9b917e1d8c
+  displayName: "Qu\u1EA3n l\xFD feedback kh\xE1ch"
+  baseDuration: 5
+  useRequiredRole: 1
+  requiredRole: 3
+  durationSecond: 5
+  RewardMoney: 200
+  RewardScore: 0
+  energyCost: 16
+  stressImpact: 16
+  availableAllWaves: 0
+  allowedWaves: 03000000

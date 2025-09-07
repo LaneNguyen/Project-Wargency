@@ -59,18 +59,13 @@ namespace Wargency.UI
             // Subcribe event
             if (eventManager != null)
             {
-                // Cũ: popup mô tả event (instant)
                 eventManager.OnEventTrigger += HandleEventTrigger;
-
-                // Mới: text +-Energy/+-Stress team”
                 eventManager.OnEventText += HandleEventText;
-
-                // Mới: sự kiện có 2 lựa chọn
                 eventManager.OnChoiceEvent += HandleChoiceEvent;
             }
             else
             {
-                Debug.LogWarning("[UIEventPopupStub] eventManager chưa gán.");
+                Debug.LogWarning("[UIEventPopupStub] eventManager chưa gán (UI sẽ không nhận được event).");
             }
         }
 
@@ -87,8 +82,6 @@ namespace Wargency.UI
 
         // =============== Instant flow (OK) ===============
 
-        // Khi EventManager báo sự kiện (dù instant hay choice), ta chỉ hiện panel instant
-        // nếu KHÔNG phải choice (choice sẽ có OnChoiceEvent ngay sau đó).
         private void HandleEventTrigger(EventDefinition ev)
         {
             if (ev == null) return;

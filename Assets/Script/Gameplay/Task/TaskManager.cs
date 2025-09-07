@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Wargency.UI;
+using Wargency.Systems;
 
 namespace Wargency.Gameplay
 {
@@ -11,7 +12,7 @@ namespace Wargency.Gameplay
         Fail
     }
 
-    public class TaskManager : MonoBehaviour
+    public partial class TaskManager : MonoBehaviour, IResettable
     {
         [Header("Definitions (tạo trong editor)")]
         public TaskDefinition[] availableDefinitions;
@@ -30,6 +31,9 @@ namespace Wargency.Gameplay
 
         [Header("Limits")]
         public int maxConcurrentTasks = 3;
+
+        [SerializeField] private Transform runtimeTaskRoot; // Kéo parent chứa toàn bộ task spawn
+
 
         private readonly List<TaskInstance> active = new List<TaskInstance>();
         public IReadOnlyList<TaskInstance> Active => active;
@@ -50,6 +54,10 @@ namespace Wargency.Gameplay
         private readonly Dictionary<TaskInstance, CharacterAgent> rememberedAssignee = new Dictionary<TaskInstance, CharacterAgent>();
         private readonly HashSet<TaskInstance> completionProcessed = new HashSet<TaskInstance>();
 
+        //Update 0905
+        [Header("Spawn Rules")]
+        [SerializeField] private bool blockSpawnWithoutRequiredRole = true;
+
         public TaskInstance Spawn(TaskDefinition definition)
         {
             if (definition == null) return null;
@@ -60,6 +68,16 @@ namespace Wargency.Gameplay
                 Debug.Log($"[TaskManager] Skip spawn '{definition.DisplayName}' => không thuộc wave {currentWave}.");
                 return null;
             }
+
+            // Update 0910: chặn spawn nếu task đòi role mà đội chưa có agent role đó
+            if (blockSpawnWithoutRequiredRole
+                && definition.UseRequiredRole
+                && !HasActiveAgentWithRole(definition.RequiredRole))
+            {
+                Debug.Log($"[TaskManager] Skip spawn '{definition.DisplayName}' => thiếu agent role {definition.RequiredRole}.");
+                return null;
+            }
+            // <<<
 
             if (CountActiveEffectiveTasks() >= maxConcurrentTasks)
             {
@@ -162,6 +180,7 @@ namespace Wargency.Gameplay
             instanceOut = task;
 
             Debug.Log($"[TaskManager] Assigned '{definition.DisplayName}' => Agent: {chosen.name} (Role: {chosen.Role})");
+            AudioManager.Instance.PlaySE("FlopEffect");
             return true;
         }
 
@@ -374,6 +393,29 @@ namespace Wargency.Gameplay
                 if (a != null && a.Role == role) return true;
             }
             return false;
+        }
+
+        public void ResetState()
+        {
+            StopAllCoroutines();
+
+            if (runtimeTaskRoot != null)
+            {
+                for (int i = runtimeTaskRoot.childCount - 1; i >= 0; i--)
+                {
+                    var child = runtimeTaskRoot.GetChild(i);
+                    if (child != null) Destroy(child.gameObject);
+                }
+            }
+            else
+            {
+                // fallback: xóa mọi child dưới chính TaskManager 
+                for (int i = transform.childCount - 1; i >= 0; i--)
+                {
+                    var child = transform.GetChild(i);
+                    if (child != null) Destroy(child.gameObject);
+                }
+            }
         }
     }
 }

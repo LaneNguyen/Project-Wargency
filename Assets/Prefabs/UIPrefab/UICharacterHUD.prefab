@@ -1089,7 +1089,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_TargetDisplay: 0
 --- !u!114 &6122997876456206267
 MonoBehaviour:
@@ -1155,7 +1155,7 @@ MonoBehaviour:
   nameText: {fileID: 9078982598761531053}
   smooth: 1
   smoothSpeed: 6
-  stressWarn: 55
+  stressWarn: 60
   stressDanger: 80
   moodHappy: {fileID: -556587708, guid: a41e6fd5ac0b35441925726b3894ce52, type: 3}
   moodOk: {fileID: 1166857522, guid: a41e6fd5ac0b35441925726b3894ce52, type: 3}
@@ -1166,6 +1166,11 @@ MonoBehaviour:
   compensateParentScale: 1
   effectPixelSize: {x: 160, y: 160}
   spikeThreshold: 10
+  stressOver80Effect: {fileID: 8375285564781859021, guid: 83552596be5154248a54b57ffebeb406, type: 3}
+  stressVfxThreshold: 80
+  stressVfxHysteresis: 50
+  stressVfxPersistWhileHigh: 1
+  stressVfxCooldown: 1
   logAutoBindIssues: 1
 --- !u!225 &1550994784292973303
 CanvasGroup:

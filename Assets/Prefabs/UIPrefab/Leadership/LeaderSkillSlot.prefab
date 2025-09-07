@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 8050426907534673742}
   - component: {fileID: 8339526899062834496}
   m_Layer: 5
-  m_Name: SkillCost
+  m_Name: SkillDescribe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1215833390072654142}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -350,8 +350,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 0}
   titleText: {fileID: 1545088482271044878}
-  costOrRewardText: {fileID: 8339526899062834496}
+  costOrRewardText: {fileID: 0}
   applyButton: {fileID: 5552797210375543920}
+  descriptionText: {fileID: 8339526899062834496}
   cooldownFill: {fileID: 4360021239041129198}
 --- !u!1 &6076372032713627684
 GameObject:

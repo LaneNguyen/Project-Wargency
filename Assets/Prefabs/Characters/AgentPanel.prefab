@@ -26,7 +26,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1830718748553369951}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -3471.428}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -102,6 +102,11 @@ MonoBehaviour:
   hireButton: {fileID: 5867807917579928522}
   spawnPoint: {fileID: 0}
   waveManager: {fileID: 0}
+  budgetController: {fileID: 0}
+  confettiPrefab: {fileID: 2497967060133708804, guid: 004be39f134c8fb48ab3facd11024eda, type: 3}
+  vfxOffset: {x: 0, y: 2, z: 0}
+  vfxLifetime: 2
+  parentVfxToAgent: 1
 --- !u!1 &3386344806577707833
 GameObject:
   m_ObjectHideFlags: 0

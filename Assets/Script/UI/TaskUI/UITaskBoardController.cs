@@ -4,11 +4,15 @@ using UnityEngine.UI;
 using TMPro;
 using Wargency.Gameplay;
 
-// quản lý cả bảng task luôn á, gồm pool, filter sort và mấy hiệu ứng
-// nghe TaskManager đổi task thì update danh sách liền tay
-// có slide in từ bên phải nhìn vui mắt khi task mới hiện ra
-// UI => Manager => Gameplay liên tục nên test kỹ kẻo trễ nhịp
-
+//
+// UITaskBoardController — Stable mapping edition
+// - Giữ mapping TaskInstance ↔ UITaskPanel trong suốt vòng đời của task (không clear mỗi frame)
+// - Chỉ gán sibling lần đầu khi panel xuất hiện (hoặc khi lấp slot trống do complete/failed)
+// - Panel của task đã xong sẽ được giữ lại để chơi effect, mapping được release ngay khi effect bắt đầu
+// - Tránh case panel mới “đè” lên panel cũ đang chạy
+//
+// Lưu ý: UITaskPanel.Current cần public getter (đã có sẵn trong file của bạn)
+//
 namespace Wargency.UI
 {
     public class UITaskBoardController : MonoBehaviour
@@ -45,10 +49,12 @@ namespace Wargency.UI
         [Tooltip("Tên child để animate (nếu rỗng sẽ animate chính RectTransform của panel).")]
         [SerializeField] private string slideContentChildName = "Content";
 
-        // Mapping
+        // Stable mapping & state
         private readonly Dictionary<TaskInstance, UITaskPanel> taskToPanel = new();
         private readonly HashSet<UITaskPanel> panelsInEffect = new();
         private readonly List<UITaskPanel> pool = new();
+        private readonly HashSet<UITaskPanel> _usedThisFrame = new();
+        private readonly HashSet<TaskInstance> _seenThisFrame = new();
 
         // --- Hooks mở rộng ---
         public System.Func<TaskInstance, bool> Filter;
@@ -57,9 +63,8 @@ namespace Wargency.UI
 
         private static readonly List<TaskInstance> _tmp = new(64);
 
-        // ===== NEW: theo dõi additions & vị trí trống sau khi complete =====
-        private readonly HashSet<TaskInstance> _shownOnce = new();   // những task đã từng hiện
-        private int _pendingVacancyIndex = -1;                       // slot index vừa trống do complete/failed
+        // Vị trí trống ưu tiên cho slide-in khi có task mới xuất hiện ngay sau khi một task kết thúc
+        private int _pendingVacancyIndex = -1;
 
         private void Awake()
         {
@@ -76,9 +81,6 @@ namespace Wargency.UI
             if (!taskManager) return;
             taskManager.OnTaskCompleted += HandleTaskCompleted;
             taskManager.OnTaskFailed += HandleTaskFailed;
-
-            // Nếu TaskManager có OnTaskSpawned/Cancelled, có thể nghe ở đây để force refresh tức thời.
-            // taskManager.OnTaskSpawned += _ => ForceRefresh(); ...
         }
 
         private void OnDisable()
@@ -92,144 +94,202 @@ namespace Wargency.UI
         {
             if (!taskManager) return;
 
-            // 1) Lấy danh sách active
+            // Build danh sách task đang active (lọc New/Running / không lấy Completed/Failed)
             var active = taskManager.Active; // IReadOnlyList<TaskInstance>
-
-            // 2) Chuyển sang _tmp và áp Filter/Sort (tránh alloc mỗi frame), loại Completed/Failed
             _tmp.Clear();
             for (int i = 0; i < active.Count; i++)
             {
                 var t = active[i];
+                if (t == null) continue;
                 if (t.state == TaskInstance.TaskState.Completed || t.state == TaskInstance.TaskState.Failed) continue;
                 if (Filter != null && !Filter(t)) continue;
                 _tmp.Add(t);
             }
             if (Sort != null) _tmp.Sort(Sort);
 
-            // 2.5) Áp giới hạn UI nếu cần
             int logicalCount = _tmp.Count;
             if (maxVisibleSlots > 0 && logicalCount > maxVisibleSlots)
                 logicalCount = maxVisibleSlots;
 
-            // 3) Số panel cần = task còn hiển thị (đã giới hạn) + panel đang playing effect
-            int requiredCount = logicalCount + panelsInEffect.Count;
-            EnsurePool(requiredCount);
+            // Số panel cần = số task hiển thị (không cộng panel effect — effect giữ panel cũ riêng)
+            EnsurePool(logicalCount);
 
-            // 4) Bind
-            int vi = 0;
-            taskToPanel.Clear();
+            // Reset marks
+            _usedThisFrame.Clear();
+            _seenThisFrame.Clear();
 
-            // Mảng tạm giữ mapping slot index -> panel (để xác định siblingIndex)
+            // 1) Unbind mapping của các task không còn active (nếu panel không đang effect)
+            //    (Không tắt panel ở đây nếu nó đang chạy effect; effect coroutine tự xử lý)
+            var toRemove = ListPool<TaskInstance>.Get();
+            foreach (var kv in taskToPanel)
+            {
+                var inst = kv.Key;
+                var panel = kv.Value;
+                // Nếu task này không còn trong active list -> release nếu panel không effect
+                bool stillActive = false;
+                for (int i = 0; i < _tmp.Count; i++)
+                {
+                    if (ReferenceEquals(_tmp[i], inst)) { stillActive = true; break; }
+                }
+                if (!stillActive && panel && !panelsInEffect.Contains(panel))
+                {
+                    if (panel.gameObject.activeSelf) panel.gameObject.SetActive(false);
+                    toRemove.Add(inst);
+                }
+            }
+            for (int i = 0; i < toRemove.Count; i++) taskToPanel.Remove(toRemove[i]);
+            ListPool<TaskInstance>.Release(toRemove);
+
+            // 2) Bind/Giữ panel cho các task theo thứ tự (không shuffle panel đã hiện trừ lần đầu)
             for (int i = 0; i < logicalCount; i++)
             {
                 var inst = _tmp[i];
+                _seenThisFrame.Add(inst);
 
-                // lấy một panel rảnh
-                var item = pool[vi++];
-
-                if (panelsInEffect.Contains(item))
+                if (!taskToPanel.TryGetValue(inst, out var panel) || panel == null)
                 {
-                    vi--; // trả slot
-                    // tìm panel khác rảnh
-                    bool found = false;
-                    for (int seek = vi; seek < pool.Count; seek++)
-                    {
-                        if (!panelsInEffect.Contains(pool[seek]))
-                        {
-                            item = pool[seek];
-                            pool[seek] = pool[vi];
-                            pool[vi] = item;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) continue;
-                    vi++;
+                    // Tạo/bốc panel rảnh
+                    panel = GetFreePanel();
+                    if (panel == null) continue;
+
+                    // Lần đầu hiện: đặt sibling theo _pendingVacancyIndex hoặc theo index i
+                    int desiredSibling = (_pendingVacancyIndex >= 0) ? Mathf.Clamp(_pendingVacancyIndex, 0, logicalCount - 1) : i;
+                    panel.transform.SetSiblingIndex(desiredSibling);
+
+                    // Bật panel và gán data
+                    if (!panel.gameObject.activeSelf) panel.gameObject.SetActive(true);
+                    panel.SetData(inst);
+                    var dz = panel.GetComponent<UITaskDropZone>();
+                    if (dz != null) dz.Bind(inst);
+
+                    // Lưu mapping
+                    taskToPanel[inst] = panel;
+
+                    // Slide-in nhẹ khi lần đầu xuất hiện
+                    PlaySlideInFromRight(panel);
+                }
+                else
+                {
+                    // Panel đã có sẵn cho task này: đảm bảo đang bật và update data (nếu cần)
+                    if (!panel.gameObject.activeSelf) panel.gameObject.SetActive(true);
+                    panel.SetData(inst);
+                    var dz = panel.GetComponent<UITaskDropZone>();
+                    if (dz != null) dz.Bind(inst);
                 }
 
-                if (!item.gameObject.activeSelf) item.gameObject.SetActive(true);
-
-                // === Slide-in logic: task mới xuất hiện ===
-                bool isNewAppearance = !_shownOnce.Contains(inst);
-                int desiredSibling = i; // vị trí mục tiêu theo sort/filter
-
-                // Nếu có slot trống do task vừa hoàn thành → đặt sibling vào đó, slide-in từ phải
-                if (isNewAppearance && _pendingVacancyIndex >= 0)
-                {
-                    desiredSibling = Mathf.Clamp(_pendingVacancyIndex, 0, logicalCount - 1);
-                    _pendingVacancyIndex = -1; // dùng xong reset
-                }
-
-                item.transform.SetSiblingIndex(desiredSibling);
-
-                // Gán data trước để panel layout đúng kích thước
-                item.SetData(inst);
-                var dz = item.GetComponent<UITaskDropZone>();
-                if (dz != null) dz.Bind(inst);
-
-                taskToPanel[inst] = item;
-
-                // Nếu là lần đầu xuất hiện → chạy slide-in
-                if (isNewAppearance)
-                {
-                    _shownOnce.Add(inst);
-                    PlaySlideInFromRight(item);
-                }
+                _usedThisFrame.Add(panel);
             }
 
-            // 5) Ẩn panel thừa (tránh đụng panel đang chạy effect)
-            for (int j = vi; j < pool.Count; j++)
+            // 3) Ẩn các panel rảnh (không dùng frame này và không đang effect)
+            for (int j = 0; j < pool.Count; j++)
             {
                 var p = pool[j];
-                if (!panelsInEffect.Contains(p) && p.gameObject.activeSelf)
-                    p.gameObject.SetActive(false);
+                if (!p) continue;
+                if (_usedThisFrame.Contains(p)) continue;
+                if (panelsInEffect.Contains(p)) continue; // để effect tự ẩn
+                if (p.gameObject.activeSelf) p.gameObject.SetActive(false);
             }
 
-            // 6) Placeholder
+            // 4) Placeholder
             bool empty = (logicalCount == 0);
             if (noTasksPlaceholder) noTasksPlaceholder.SetActive(empty);
 
-            // Nút Start All: sáng nếu có ít nhất một task startable
+            // 5) Nút Start All: sáng nếu có ít nhất một task startable
             if (startAllButton != null)
                 startAllButton.interactable = HasAnyStartableTask();
 
-            // Debug list
+            // 6) Debug
             if (listText) RenderDebugList(_tmp);
         }
 
+        // ==== Helpers ====
         private void EnsurePool(int need)
         {
             while (pool.Count < need)
             {
                 var item = Instantiate(itemPrefab, panelContainer);
-                // Khuyến nghị: prefab chứa CanvasGroup để spawn-in animation hoạt động
+                item.gameObject.SetActive(false); // tạo ở trạng thái tắt để không lóe
                 pool.Add(item);
             }
+        }
+
+        private UITaskPanel GetFreePanel()
+        {
+            // Ưu tiên panel đang tắt hoặc không bị effect và không dùng trong frame này
+            for (int i = 0; i < pool.Count; i++)
+            {
+                var p = pool[i];
+                if (!p) continue;
+                if (panelsInEffect.Contains(p)) continue;
+                if (_usedThisFrame.Contains(p)) continue;
+
+                // Nếu panel đang hiển thị 1 task mà task đó vẫn đang active ở frame này -> không dùng
+                if (p.Current != null && _seenThisFrame.Contains(p.Current)) continue;
+
+                return p;
+            }
+
+            // Không đủ -> tạo mới
+            var item = Instantiate(itemPrefab, panelContainer);
+            item.gameObject.SetActive(false);
+            pool.Add(item);
+            return item;
         }
 
         // ===== Handlers =====
         private void HandleTaskCompleted(TaskInstance inst)
         {
             if (inst == null) return;
-            if (!taskToPanel.TryGetValue(inst, out var panel) || !panel) return;
 
-            // Ghi nhận vị trí trống (sibling index) để task mới lấp vào
-            _pendingVacancyIndex = panel.transform.GetSiblingIndex();
+            // Tìm panel theo mapping, nếu không thấy (mapping đã release) thì fallback quét pool
+            if (!taskToPanel.TryGetValue(inst, out var panel) || !panel)
+            {
+                panel = FindPanelByTask(inst);
+            }
 
-            if (alerts) alerts.Push($"✅ Hoàn thành: \"{inst.DisplayName}\"");
-            StartCoroutine(PlayEffectAndRelease(panel, effectCompletedPrefab));
+            if (panel)
+            {
+                // Ghi nhận vị trí trống để task mới lấp vào
+                _pendingVacancyIndex = panel.transform.GetSiblingIndex();
+
+                AudioManager.Instance.PlaySE(AUDIO.SE_COINPICKUP);
+                if (alerts) alerts.Push($"✅ Hoàn thành: \"{inst.DisplayName}\"");
+
+                // Release mapping ngay để slot coi như trống cho lượt bind tiếp theo,
+                // nhưng vẫn giữ panel hiển thị effect cho đẹp
+                taskToPanel.Remove(inst);
+                StartCoroutine(PlayEffectAndRelease(panel, effectCompletedPrefab));
+            }
         }
 
         private void HandleTaskFailed(TaskInstance inst)
         {
             if (inst == null) return;
-            if (!taskToPanel.TryGetValue(inst, out var panel) || !panel) return;
 
-            // Ghi nhận vị trí trống cho case fail (cũng dùng slide-in)
-            _pendingVacancyIndex = panel.transform.GetSiblingIndex();
+            if (!taskToPanel.TryGetValue(inst, out var panel) || !panel)
+            {
+                panel = FindPanelByTask(inst);
+            }
 
-            if (alerts) alerts.Push($"❌ Thất bại: \"{inst.DisplayName}\"");
-            StartCoroutine(PlayEffectAndRelease(panel, effectFailedPrefab));
+            if (panel)
+            {
+                _pendingVacancyIndex = panel.transform.GetSiblingIndex();
+
+                if (alerts) alerts.Push($"❌ Thất bại: \"{inst.DisplayName}\"");
+
+                taskToPanel.Remove(inst);
+                StartCoroutine(PlayEffectAndRelease(panel, effectFailedPrefab));
+            }
+        }
+
+        private UITaskPanel FindPanelByTask(TaskInstance inst)
+        {
+            for (int i = 0; i < pool.Count; i++)
+            {
+                var p = pool[i];
+                if (p && ReferenceEquals(p.Current, inst)) return p;
+            }
+            return null;
         }
 
         private System.Collections.IEnumerator PlayEffectAndRelease(UITaskPanel panel, GameObject effectPrefab)
@@ -316,7 +376,6 @@ namespace Wargency.UI
                 var inst = taskManager.Spawn(defs[0]); // New, chưa có assignee
                 if (inst == null)
                     Debug.LogWarning("[UI] Spawn thất bại (đạt giới hạn concurrent tasks?)");
-                // Người chơi sẽ kéo avatar vào panel để Assign, rồi bấm Start All để chạy.
             }
             else
             {
@@ -378,6 +437,23 @@ namespace Wargency.UI
                     return true;
             }
             return false;
+        }
+    }
+
+    // ===== Lightweight ListPool to avoid GC in loops =====
+    internal static class ListPool<T>
+    {
+        private static readonly Stack<List<T>> _pool = new Stack<List<T>>();
+
+        public static List<T> Get()
+        {
+            return _pool.Count > 0 ? _pool.Pop() : new List<T>(8);
+        }
+
+        public static void Release(List<T> list)
+        {
+            list.Clear();
+            _pool.Push(list);
         }
     }
 }
