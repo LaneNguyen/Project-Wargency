@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Year-end campaign wrap
   m_EditorClassIdentifier: 
   id: dc28deba-2d3e-4a7c-9d98-2660430c8d6f
-  displayName: Year-end campaign wrap
+  displayName: "Year-end campaign wrap (Ai l\xE0m c\u0169ng \u0111\u01B0\u1EE3c)"
   baseDuration: 5
   useRequiredRole: 0
   requiredRole: 2

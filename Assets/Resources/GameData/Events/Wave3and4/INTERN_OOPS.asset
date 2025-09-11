@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "File PSD quan tr\u1ECDng v\u1EEBa bi\u1EBFn m\u1EA5t \u2013 c\u1EA7n
     kh\xF4i ph\u1EE5c."
   kind: 0
-  unlockAtWave: 2
+  unlockAtWave: 3
   budgetChange: -150
   scoreChange: 0
   teamEnergyTextDelta: 0

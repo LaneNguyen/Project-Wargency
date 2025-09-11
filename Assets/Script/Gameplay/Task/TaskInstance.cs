@@ -30,6 +30,9 @@ namespace Wargency.Gameplay
 
         private bool _completionApplied = false; // đảm bảo chỉ cộng thưởng/ảnh hưởng 1 lần
 
+        // 0909 Update: Sự kiện bắn ra khi task hoàn thành (money, score)
+        public event System.Action<TaskInstance, int, int> OnCompletedWithRewards;
+
         public TaskInstance(TaskDefinition definition)
         {
             this.definition = definition;
@@ -80,30 +83,27 @@ namespace Wargency.Gameplay
 
         private void Complete()
         {
+            // chặn spam
             if (_completionApplied && state == TaskState.Completed) return;
 
             int money = 0, score = 0;
+
             if (Definition != null)
             {
-                // lấy reward từ def
+                // lấy reward bằng reflection
                 var piMoney = Definition.GetType().GetField("RewardMoney");
                 var piScore = Definition.GetType().GetField("RewardScore");
-                if (piMoney != null) money = (int)piMoney.GetValue(Definition);
-                if (piScore != null) score = (int)piScore.GetValue(Definition);
+                if (piMoney != null)
+                    money = (int)piMoney.GetValue(Definition);
+                if (piScore != null)
+                    score = (int)piScore.GetValue(Definition);
 
-                // fallback cũ
-                if (money == 0)
+                // Cộng vào hệ thống
+                if (BudgetController.I != null)
                 {
-                    var f = Definition.GetType().GetField("budgetReward");
-                    if (f != null) money = (int)f.GetValue(Definition);
+                    AudioManager.Instance.PlaySE(AUDIO.SE_MOMOSOUND);
+                    BudgetController.I.Add(money); 
                 }
-                if (score == 0)
-                {
-                    var f = Definition.GetType().GetField("scoreReward");
-                    if (f != null) score = (int)f.GetValue(Definition);
-                }
-
-                if (BudgetController.I != null) BudgetController.I.Add(money);
                 else Debug.LogError("[TaskInstance] BudgetController.I null!");
 
                 if (AgencyScoreController.I != null) AgencyScoreController.I.AddScore(score);
@@ -114,9 +114,22 @@ namespace Wargency.Gameplay
                 Debug.LogError("[TaskInstance] Definition null!");
             }
 
+            // Áp các hiệu ứng 1 lần (stress/energy + trả agent)
             TryApplyCompletionEffectsOnce();
+
             state = TaskState.Completed;
+
+            // 0909 Update: BẮN SỰ KIỆN một lần duy nhất cho UI, VFX...
+            try
+            {
+                OnCompletedWithRewards?.Invoke(this, money, score);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
+
 
         // Energy giảm, Stress tăng
         private void TryApplyCompletionEffectsOnce()

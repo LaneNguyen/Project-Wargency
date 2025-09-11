@@ -80,7 +80,7 @@ namespace Wargency.Gameplay
 
             if (useEqualChance)
             {
-                // beginner comment: chia đều thì chỉ cần danh sách task duy nhất thôi
+                //chia đều thì chỉ cần danh sách task duy nhất thôi
                 var equalPool = BuildEqualPoolCumulative(currentWave);
                 if (equalPool.Count == 0)
                 {
@@ -99,7 +99,7 @@ namespace Wargency.Gameplay
             }
             else
             {
-                // beginner comment: gacha theo trọng số, nhưng giờ gom các wave <= currentWave nha
+                //  gacha theo trọng số, nhưng giờ gom các wave <= currentWave 
                 var weighted = BuildWeightedPoolCumulative(currentWave);
                 var def = WeightedPick(weighted);
                 if (def == null)
@@ -119,7 +119,7 @@ namespace Wargency.Gameplay
         // ===== WEIGHTED MODE (cộng dồn pool các wave <= currentWave) =====
         private List<WeightedDef> BuildWeightedPoolCumulative(int wave)
         {
-            // beginner comment: mình gom weight theo task để không bị trùng cộng lần
+            // gom weight theo task để không bị trùng cộng lần
             var map = new Dictionary<TaskDefinition, int>();
 
             // global
@@ -166,7 +166,7 @@ namespace Wargency.Gameplay
 
         private TaskDefinition WeightedPick(List<WeightedDef> list)
         {
-            // beginner comment: random theo trọng số, giống gacha đó
+            // random theo trọng số, giống gacha đó
             int total = 0;
             for (int i = 0; i < list.Count; i++)
                 total += (list[i].def != null) ? Mathf.Max(0, list[i].weight) : 0;
@@ -187,7 +187,7 @@ namespace Wargency.Gameplay
         // ===== EQUAL MODE (cộng dồn pool các wave <= currentWave) =====
         private List<TaskDefinition> BuildEqualPoolCumulative(int wave)
         {
-            // beginner comment: random đều thì chỉ cần 1 lần mỗi task là đủ
+            // random đều thì chỉ cần 1 lần mỗi task là đủ
             var set = new HashSet<TaskDefinition>();
             var result = new List<TaskDefinition>();
 
@@ -229,7 +229,7 @@ namespace Wargency.Gameplay
 
         private TaskDefinition EqualPick(List<TaskDefinition> defs)
         {
-            // beginner comment: cái này random đều nhau, mỗi task 1 suất => công bằng
+            // cái này random đều nhau, mỗi task 1 suất => công bằng
             int idx = UnityEngine.Random.Range(0, defs.Count);
             return defs[idx];
         }
@@ -239,8 +239,10 @@ namespace Wargency.Gameplay
         public void SetInterval(float min, float max) => intervalRangeSec = new Vector2(min, max);
         public void SetTaskManager(TaskManager tm) => taskManager = tm;
 
-        // (tùy bạn có cần expose thêm không)
+        // (tùy có cần expose thêm không)
         public Vector2 IntervalRangeSec { get => intervalRangeSec; set => intervalRangeSec = value; }
+
+        //chức năng auto assign sau này potentially nhỉ?
         public bool AutoRun => autoRun;
     }
 }

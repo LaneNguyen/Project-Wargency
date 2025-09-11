@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Marathon brainstorm
   m_EditorClassIdentifier: 
   id: 79c2ad8c-33b0-4cf5-ba90-18a114379a28
-  displayName: Marathon Brainstorm
+  displayName: "Brainstorm (Ai c\u0169ng \u0111\u01B0\u1EE3c)"
   baseDuration: 5
   useRequiredRole: 0
   requiredRole: 0

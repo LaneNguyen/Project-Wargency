@@ -28,6 +28,11 @@ namespace Wargency.Gameplay
         public event Action<ChoiceEventData> OnChoiceEvent;
         public event Action OnEventResolved;
 
+        // 0909 Update: Sự kiện mới kèm delta áp dụng thực tế
+        // int moneyDeltaApplied: số tiền thực sự đã cộng/trừ (ÂM nếu trừ)
+        // int teamStressDelta: delta stress áp cho team (dương = tăng)
+        public event Action<int, int> OnEventResolvedMoneyStress;
+
         // ====== Dev QoL (test nhanh) ======
         [Header("Dev Overrides (test)")]
         [SerializeField] bool useOverrideInterval = false;
@@ -151,12 +156,31 @@ namespace Wargency.Gameplay
 
         void ApplyInstant(EventDefinition e)
         {
-            if (gameLoopController != null)
+            int appliedBudget = 0;
+
+            if (BudgetController.I != null)
             {
-                if (e.budgetChange != 0) gameLoopController.AddBudget(e.budgetChange);
-                if (e.scoreChange != 0) gameLoopController.AddScore(e.scoreChange);
+                if (e.budgetChange > 0)
+                {
+                    BudgetController.I.Add(e.budgetChange);
+                    appliedBudget = e.budgetChange;
+                }
+                else if (e.budgetChange < 0)
+                {
+                    int spend = -e.budgetChange;
+                    int canSpend = Mathf.Min(spend, BudgetController.I.Balance);
+                    if (canSpend > 0)
+                    {
+                        BudgetController.I.TrySpend(canSpend);
+                        appliedBudget = -canSpend;
+                    }
+                }
             }
-            else Debug.LogWarning("[EventManager] gameLoopController null.");
+
+            if (gameLoopController != null && appliedBudget != 0)
+                gameLoopController.AddBudget(appliedBudget);
+            else if (gameLoopController == null)
+                Debug.LogWarning("[EventManager] gameLoopController null.");
 
             var text = BuildTeamText(e.teamEnergyTextDelta, e.teamStressTextDelta);
             if (!string.IsNullOrEmpty(text))
@@ -166,12 +190,14 @@ namespace Wargency.Gameplay
                 if (feed != null) feed.Push(text);
             }
 
-            // [PATCH OBJECTIVE] Áp delta lên team thật sự
             ApplyTeamDeltas(e.teamEnergyTextDelta, e.teamStressTextDelta);
 
-            // ✅ Đếm vào objective (nếu bật)
+            //Objective + sự kiện cũ
             IncResolveEvents(1f);
             OnEventResolved?.Invoke();
+
+            // 0909 Update: BẮN money, stress
+            OnEventResolvedMoneyStress?.Invoke(appliedBudget, e.teamStressTextDelta);
         }
 
         public void ApplyChoice(EventDefinition root, bool chooseA)
@@ -189,9 +215,30 @@ namespace Wargency.Gameplay
                 return;
             }
 
+            int appliedBudget = 0;
+
+            if (BudgetController.I != null)
+            {
+                if (opt.budgetChange > 0)
+                {
+                    BudgetController.I.Add(opt.budgetChange);
+                    appliedBudget = opt.budgetChange;
+                }
+                else if (opt.budgetChange < 0)
+                {
+                    int spend = -opt.budgetChange;
+                    int canSpend = Mathf.Min(spend, BudgetController.I.Balance);
+                    if (canSpend > 0)
+                    {
+                        BudgetController.I.TrySpend(canSpend);
+                        appliedBudget = -canSpend;
+                    }
+                }
+            }
+
             if (gameLoopController != null)
             {
-                if (opt.budgetChange != 0) gameLoopController.AddBudget(opt.budgetChange);
+                if (appliedBudget != 0) gameLoopController.AddBudget(appliedBudget);
                 if (opt.scoreChange != 0) gameLoopController.AddScore(opt.scoreChange);
             }
             else Debug.LogWarning("[EventManager] gameLoopController null.");
@@ -204,12 +251,14 @@ namespace Wargency.Gameplay
                 if (feed != null) feed.Push(text);
             }
 
-            // [PATCH OBJECTIVE] Áp delta lên team thật sự
             ApplyTeamDeltas(opt.teamEnergyTextDelta, opt.teamStressTextDelta);
 
-            // ✅ Đếm vào objective (nếu bật)
+            // objective + sự kiện
             IncResolveEvents(1f);
             OnEventResolved?.Invoke();
+
+            // 0909 Update: BẮN money, stress
+            OnEventResolvedMoneyStress?.Invoke(appliedBudget, opt.teamStressTextDelta);
 
             isWaitingChoice = false;
             ResetTimer();
@@ -223,9 +272,30 @@ namespace Wargency.Gameplay
                 return;
             }
 
+            int appliedBudget = 0;
+
+            if (BudgetController.I != null)
+            {
+                if (option.budgetChange > 0)
+                {
+                    BudgetController.I.Add(option.budgetChange);
+                    appliedBudget = option.budgetChange;
+                }
+                else if (option.budgetChange < 0)
+                {
+                    int spend = -option.budgetChange;
+                    int canSpend = Mathf.Min(spend, BudgetController.I.Balance);
+                    if (canSpend > 0)
+                    {
+                        BudgetController.I.TrySpend(canSpend);
+                        appliedBudget = -canSpend;
+                    }
+                }
+            }
+
             if (gameLoopController != null)
             {
-                if (option.budgetChange != 0) gameLoopController.AddBudget(option.budgetChange);
+                if (appliedBudget != 0) gameLoopController.AddBudget(appliedBudget);
                 if (option.scoreChange != 0) gameLoopController.AddScore(option.scoreChange);
             }
 
@@ -237,12 +307,14 @@ namespace Wargency.Gameplay
                 if (feed != null) feed.Push(text);
             }
 
-            // [PATCH OBJECTIVE] Áp delta lên team thật sự
             ApplyTeamDeltas(option.teamEnergyTextDelta, option.teamStressTextDelta);
 
-            // ✅ Đếm vào objective (nếu bật)
+            // Objective + sự kiện cũ
             IncResolveEvents(1f);
             OnEventResolved?.Invoke();
+
+            // 0909 Update: BẮN money, stress
+            OnEventResolvedMoneyStress?.Invoke(appliedBudget, option.teamStressTextDelta);
 
             isWaitingChoice = false;
             ResetTimer();

@@ -41,6 +41,7 @@ namespace Wargency.Gameplay
             if (Balance < amount) return false; // thiếu tiền thì chịu
             Balance -= amount;
             OnBudgetChanged?.Invoke(Balance);
+
             return true;
         }
 
@@ -49,6 +50,16 @@ namespace Wargency.Gameplay
             if (amount <= 0) return; // cộng số lạ thì thôi
             Balance += amount;
             OnBudgetChanged?.Invoke(Balance);
+
+            // Phát SE khi cộng tiền
+            try
+            {
+                 AudioManager.Instance.PlaySE(AUDIO.SE_MOMOSOUND);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[BudgetController] PlaySE add failed: {e.Message}");
+            }
         }
 
         public bool CanAfford(int amount) => Balance >= amount; // hỏi nhanh: đủ tiền hông

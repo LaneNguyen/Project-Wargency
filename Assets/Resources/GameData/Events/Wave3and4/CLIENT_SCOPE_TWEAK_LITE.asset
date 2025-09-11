@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "Th\xEAm v\xE0i slide/b\u1EA3n th\u1EC3 hi\u1EC7n, chi ph\xED \u0111\u1ED9i
     nh\u1EB9."
   kind: 0
-  unlockAtWave: 2
+  unlockAtWave: 3
   budgetChange: -120
   scoreChange: 0
   teamEnergyTextDelta: 0

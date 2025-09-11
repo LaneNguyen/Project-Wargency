@@ -17,7 +17,7 @@ MonoBehaviour:
   description: "Kh\xE1ch y\xEAu c\u1EA7u nh\u1EADn b\u1EA3n c\u1EE9ng trong ng\xE0y,
     ph\u1EA3i ship h\u1ECFa t\u1ED1c."
   kind: 0
-  unlockAtWave: 2
+  unlockAtWave: 3
   budgetChange: -120
   scoreChange: 0
   teamEnergyTextDelta: -2

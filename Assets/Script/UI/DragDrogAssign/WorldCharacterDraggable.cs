@@ -31,6 +31,15 @@ namespace Wargency.UI
         [SerializeField] private Color highlightColor = new Color(1f, 1f, 0.85f, 1f);
         [SerializeField] private float highlightScale = 1.05f;
 
+        [Header("Sprite Hit Test (Optional)")]
+        [Tooltip("Bật để chỉ cho kéo khi trỏ chuột đúng vào pixel có alpha > threshold của sprite (pixel-perfect).")]
+        [SerializeField] private bool usePixelPerfectHit = true;
+        [Range(0f, 1f)]
+        [SerializeField] private float alphaThreshold = 0.1f;
+
+        [Tooltip("Nếu texture không bật Read/Write (không readable) thì vẫn cho phép kéo để không chặn nhầm.")]
+        [SerializeField] private bool allowDragIfTextureNotReadable = true;
+
         // runtime
         private RectTransform ghost;
         private Image ghostImg;
@@ -42,20 +51,26 @@ namespace Wargency.UI
         private void Awake()
         {
             renderers = GetComponentsInChildren<SpriteRenderer>(true);
-            if (agent == null) agent = GetComponent<CharacterAgent>(); // fix: cố gắng tự bám agent gần nhất cho tiện
+            if (agent == null) agent = GetComponent<CharacterAgent>(); // cố gắng tự bám agent gần nhất cho tiện
         }
 
         // bắt đầu kéo từ world => bật ghost trên canvas và highlight nhân vật
-        // UI ⇄ Gameplay: BeginDrag để vùng UI biết đang kéo ai
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (eventData.button != PointerEventData.InputButton.Left) return;
-            if (agent == null) { Debug.LogWarning("[WorldCharacterDraggable] Missing agent nè"); return; }
+            if (agent == null) { Debug.LogWarning("[WorldCharacterDraggable] Missing agent"); return; }
+
+            //nếu bật pixel-perfect thì kiểm tra vị trí có nằm đúng pixel hiển thị không
+            if (usePixelPerfectHit && !IsPointerOnVisiblePixel(eventData))
+            {
+                if (logDebug) Debug.Log("[WorldCharacterDraggable] Skip BeginDrag: pointer không trúng pixel hiển thị");
+                return;
+            }
 
             if (logDebug) Debug.Log("[WorldCharacterDraggable] BeginDrag world");
 
             UIDragContext.BeginDrag(agent);
-            if (CursorManager.Instance != null) CursorManager.Instance.SetDraggingCursor(); // UI ⇄ Manager
+            if (CursorManager.Instance != null) CursorManager.Instance.SetDraggingCursor();
 
             var canvas = ResolveGhostCanvas();
             if (canvas == null) { Debug.LogWarning("[WorldCharacterDraggable] No canvas found để đặt ghost"); return; }
@@ -97,40 +112,34 @@ namespace Wargency.UI
             }
         }
 
-        // kéo thì ghost chạy theo chuột
         public void OnDrag(PointerEventData eventData)
         {
             if (ghost != null) ghost.position = eventData.position;
         }
 
-        // thả chuột thì hủy kéo
         public void OnEndDrag(PointerEventData eventData) { CancelDrag(); }
 
-        // phòng hờ người chơi buông chuột mà không gọi EndDrag
         public void OnPointerUp(PointerEventData eventData)
         {
             if (isHighlighted || ghost != null || UIDragContext.CurrentAgent != null) CancelDrag();
         }
 
-        // disable object cũng hủy kéo cho sạch sẽ
         private void OnDisable() { CancelDrag(); }
 
-        // gom chỗ dọn dẹp kéo vào một nơi cho đỡ sót
         private void CancelDrag()
         {
-            UIDragContext.EndDrag(); // UI ⇄ Gameplay
-            if (CursorManager.Instance != null) CursorManager.Instance.FlashReleasedCursor(); // UI ⇄ Manager
+            UIDragContext.EndDrag();
+            if (CursorManager.Instance != null) CursorManager.Instance.FlashReleasedCursor();
 
             if (ghost != null)
             {
                 Destroy(ghost.gameObject);
                 ghost = null; ghostImg = null;
             }
-            StopAllCoroutines(); // fix: nếu có coroutine hiệu ứng thì ngắt để không rò rỉ
+            StopAllCoroutines();
             RestoreHighlight();
         }
 
-        // trả màu và scale về như ban đầu
         private void RestoreHighlight()
         {
             if (!isHighlighted) return;
@@ -145,7 +154,6 @@ namespace Wargency.UI
             origColors.Clear();
         }
 
-        // tìm canvas tốt nhất để đặt ghost cho nó ăn raycast UI chuẩn chỉnh
         private Canvas ResolveGhostCanvas()
         {
             Canvas best = null;
@@ -167,6 +175,63 @@ namespace Wargency.UI
                 }
             }
             return best;
+        }
+
+        // ===== Pixel-perfect sprite hit test =====
+        private bool IsPointerOnVisiblePixel(PointerEventData eventData)
+        {
+            if (renderers == null || renderers.Length == 0) return true; // không có renderer thì cho qua
+            Camera cam = Camera.main;
+            if (cam == null) return true; // không có camera → không block
+
+            Vector3 screenPos = eventData.position;
+            float z = Mathf.Abs(cam.transform.position.z - transform.position.z);
+            Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, z));
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var r = renderers[i];
+                if (r == null || r.sprite == null) continue;
+
+                Vector3 local = r.transform.InverseTransformPoint(worldPoint);
+
+                Sprite s = r.sprite;
+                float ppu = s.pixelsPerUnit;
+                Vector2 pivotPx = s.pivot;
+                float px = local.x * ppu + pivotPx.x;
+                float py = local.y * ppu + pivotPx.y;
+
+                Rect rect = s.rect;
+                if (px < 0f || py < 0f || px >= rect.width || py >= rect.height)
+                    continue; // ngoài khung sprite
+
+                // map sang toạ độ texture thực (atlas)
+                int texX = Mathf.FloorToInt(s.textureRect.x + px);
+                int texY = Mathf.FloorToInt(s.textureRect.y + py);
+
+                Texture2D tex = s.texture;
+                if (tex == null) continue;
+
+                // nếu texture không readable → cho phép kéo (tránh chặn nhầm)
+                if (!tex.isReadable)
+                {
+                    if (logDebug) Debug.LogWarning("[WorldCharacterDraggable] Texture không readable → cho phép kéo (fallback).");
+                    return allowDragIfTextureNotReadable;
+                }
+
+                try
+                {
+                    Color c = tex.GetPixel(texX, texY); // yêu cầu Read/Write Enabled
+                    if (c.a > alphaThreshold) return true; // trúng pixel hiển thị
+                }
+                catch
+                {
+                    //nếu GetPixel lỗi → cũng cho phép kéo
+                    if (logDebug) Debug.LogWarning("[WorldCharacterDraggable] GetPixel() fail → cho phép kéo (fallback).");
+                    return allowDragIfTextureNotReadable;
+                }
+            }
+            return false; // không trúng pixel hiển thị nào
         }
     }
 }

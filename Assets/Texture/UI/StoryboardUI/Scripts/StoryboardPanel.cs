@@ -25,6 +25,10 @@ namespace Wargency.UI
         [SerializeField] private Image nextImage;                 // lớp ảnh kế (alpha 0)
         [SerializeField] private TextMeshProUGUI captionUI;       // caption hiển thị
 
+
+        [Header("Controls")]
+        [SerializeField] private Button skipButton;   // 🔹 thêm reference button
+
         [Header("Transition")]
         // thêm config
         [SerializeField][Min(0f)] private float firstFadeTime = 0.5f;
@@ -40,6 +44,14 @@ namespace Wargency.UI
         private void Awake()
         {
             EnsureUI();
+
+            // 🔹 nếu có gán skipButton thì add listener
+            if (skipButton != null)
+            {
+                skipButton.onClick.RemoveAllListeners();
+                skipButton.onClick.AddListener(Skip);
+            }
+
             if (autoPlayOnAwake) Play();
         }
 
@@ -61,6 +73,21 @@ namespace Wargency.UI
         {
             frames ??= new List<Frame>();
             frames.Add(new Frame { image = sprite, caption = caption, duration = Mathf.Max(0.1f, duration) });
+        }
+
+        // 🔹 Hàm Skip
+        public void Skip()
+        {
+            if (_routine != null)
+            {
+                StopCoroutine(_routine);
+                _routine = null;
+            }
+
+            OnFinished?.Invoke();
+
+            if (hideOnFinish)
+                gameObject.SetActive(false);
         }
 
         private void AttachCoverMode(Image img)

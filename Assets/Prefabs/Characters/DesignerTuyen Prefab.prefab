@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 4716715941283493095}
   - component: {fileID: 4129789311415969908}
   - component: {fileID: 6925209376564617492}
+  - component: {fileID: 5934445785222905367}
   m_Layer: 6
   m_Name: DesignerTuyen Prefab
   m_TagString: Player
@@ -177,8 +178,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.03880167, y: 1.2871902}
-  m_Size: {x: 2.0311604, y: 2.5743804}
+  m_Offset: {x: -0.03880167, y: 1.5960388}
+  m_Size: {x: 2.0311604, y: 3.1920776}
   m_Direction: 0
 --- !u!114 &1376528791116059119
 MonoBehaviour:
@@ -215,7 +216,7 @@ MonoBehaviour:
   portraitIcon: {fileID: 0}
   taskManager: {fileID: 0}
   difficultyProviderObj: {fileID: 0}
-  baseEnergyDrainPerSecWorking: 6
+  baseEnergyDrainPerSecWorking: 3
   baseStressGainPerSecWorking: 3
   restEnergyPerSec: 12
   restStressRecoverPerSec: 8
@@ -277,7 +278,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 246936027034512954}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b8d377d7ecdf0647a5f0a562976821c, type: 3}
   m_Name: 
@@ -289,3 +290,28 @@ MonoBehaviour:
   highlightColorOnly: 1
   highlightColor: {r: 1, g: 1, b: 0.6, a: 1}
   highlightScale: 2
+  usePixelPerfectHit: 1
+  alphaThreshold: 0.1
+  allowDragIfTextureNotReadable: 1
+--- !u!114 &5934445785222905367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246936027034512954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dd88bf94a7ea704286883e64f899c26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agent: {fileID: 0}
+  logDebug: 0
+  usePixelPerfectHit: 1
+  alphaThreshold: 0.05
+  allowDragIfTextureNotReadable: 1
+  ghostTintGray: {r: 0.65, g: 0.65, b: 0.65, a: 0.9}
+  ghostFallbackSize: {x: 96, y: 96}
+  highlightColorOnly: 1
+  highlightColor: {r: 1, g: 1, b: 0.85, a: 1}
+  highlightScale: 1.05

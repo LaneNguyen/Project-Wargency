@@ -59,7 +59,7 @@ namespace Wargency.Gameplay
         public int BaseEnergy => baseEnergy;
         public int BaseStress => baseStress;
         public float MoveSpeed => moveSpeed;
-        public string Description => description; // [NEW] bổ sung theo [TODO]
+        public string Description => description; 
         public IReadOnlyList<CharacterAgent> AgentPrefabs => agentPrefabs;
 
         // Có prefab không?

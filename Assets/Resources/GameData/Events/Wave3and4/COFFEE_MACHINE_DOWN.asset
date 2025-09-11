@@ -16,7 +16,7 @@ MonoBehaviour:
   title: "M\xE1y pha c\xE0 ph\xEA h\u1ECFng"
   description: "Kh\xF4ng c\xF3 caffeine, tinh th\u1EA7n team xu\u1ED1ng."
   kind: 0
-  unlockAtWave: 2
+  unlockAtWave: 3
   budgetChange: -80
   scoreChange: 0
   teamEnergyTextDelta: 6

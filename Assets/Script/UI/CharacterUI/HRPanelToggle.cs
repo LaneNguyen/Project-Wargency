@@ -65,6 +65,7 @@ namespace Wargency.UI
 
             bool toActive = !targetPanel.activeSelf;
             targetPanel.SetActive(toActive);
+
             AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
             // Bật/tắt backdrop nếu có
             if (backdropCloseButton != null)

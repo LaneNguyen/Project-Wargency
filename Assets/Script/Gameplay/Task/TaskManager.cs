@@ -12,7 +12,7 @@ namespace Wargency.Gameplay
         Fail
     }
 
-    public partial class TaskManager : MonoBehaviour, IResettable
+    public partial class TaskManager : BaseManager<TaskManager>, IResettable
     {
         [Header("Definitions (tạo trong editor)")]
         public TaskDefinition[] availableDefinitions;
@@ -32,6 +32,11 @@ namespace Wargency.Gameplay
         [Header("Limits")]
         public int maxConcurrentTasks = 3;
 
+
+        [Header("Auto Assign")]
+        [SerializeField] public bool autoAssignUnlocked = false;
+        [SerializeField] public bool autoAssignEnabled = false;
+        [SerializeField] public bool autoStartOnAssign = true;
         [SerializeField] private Transform runtimeTaskRoot; // Kéo parent chứa toàn bộ task spawn
 
 
@@ -417,5 +422,91 @@ namespace Wargency.Gameplay
                 }
             }
         }
+        private void OnEnable()
+        {
+            OnTaskSpawned += HandleAutoAssignOnSpawn;
+        }
+
+        private void OnDisable()
+        {
+            OnTaskSpawned -= HandleAutoAssignOnSpawn;
+        }
+
+        public void UnlockAutoAssignFeature()
+        {
+            autoAssignUnlocked = true;
+        }
+
+        public void SetAutoAssignEnabled(bool enabled)
+        {
+            if (enabled && !autoAssignUnlocked) return;
+            autoAssignEnabled = enabled;
+            if (autoAssignEnabled) AutoAssignExistingOpenTasks(true);
+        }
+
+        public int AutoAssignExistingOpenTasks(bool onlyUnassigned = true)
+        {
+            int count = 0;
+            for (int i = 0; i < active.Count; i++)
+            {
+                var tsk = active[i];
+                if (tsk == null) continue;
+                if (tsk.state != TaskInstance.TaskState.New) continue;
+                if (onlyUnassigned && tsk.Assignee != null) continue;
+                if (AutoAssign(tsk)) count++;
+            }
+            return count;
+        }
+
+        private void HandleAutoAssignOnSpawn(TaskInstance task)
+        {
+            if (!autoAssignEnabled || task == null) return;
+            AutoAssign(task);
+        }
+
+        public bool AutoAssign(TaskInstance task)
+        {
+            if (task == null) return false;
+            var def = task.Definition;
+            if (def == null) return false;
+
+            // pick agent similar to AssignTask
+            CharacterAgent chosen = null;
+
+            if (def.UseRequiredRole)
+            {
+                var req = def.RequiredRole;
+                for (int i = 0; i < activeAgents.Count; i++)
+                {
+                    var a = activeAgents[i];
+                    if (a != null && a.Role == req) { chosen = a; break; }
+                }
+
+                if (chosen == null)
+                {
+                    if (fallbackMode == AssignmentFallback.Fail) return false;
+                    for (int i = 0; i < activeAgents.Count; i++)
+                    {
+                        if (activeAgents[i] != null) { chosen = activeAgents[i]; break; }
+                    }
+                    if (chosen == null) return false;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < activeAgents.Count; i++)
+                {
+                    if (activeAgents[i] != null) { chosen = activeAgents[i]; break; }
+                }
+                if (chosen == null) return false;
+            }
+
+            var res = task.AssignCharacter(chosen);
+            if (res != AssignResult.Success) return false;
+
+            if (autoStartOnAssign) StartTask(task);
+            return true;
+        }
+
     }
 }

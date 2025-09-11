@@ -17,8 +17,8 @@ namespace Wargency.Gameplay
 
         [Header("Config")]
         [Min(1)][SerializeField] private int picksPerRoll = 3;  // Số skill hiển thị mỗi lần
-        [SerializeField] private bool closeOnApply = false;     // ⬅ mới: KHÔNG đóng panel sau apply (mặc định false)
-        [SerializeField] private bool rerollOnApply = false;    // ⬅ mới: có reroll sau apply không (mặc định false)
+        [SerializeField] private bool closeOnApply = false;     //KHÔNG đóng panel sau apply (mặc định false)
+        [SerializeField] private bool rerollOnApply = false;    //có reroll sau apply không (mặc định false)
 
         private readonly List<UILeaderSkillSlot> _spawned = new();
 
@@ -48,10 +48,10 @@ namespace Wargency.Gameplay
 
         public void OnSkillApplied()
         {
-            // ⬇ Hành vi sau khi chọn skill: do bạn quyết định bằng 2 flag
+            // Hành vi sau khi chọn skill: quyết định bằng 2 flag
             if (rerollOnApply) BuildSlots();
             if (closeOnApply) gameObject.SetActive(false);
-            // Nếu cả 2 đều false ⇒ panel ở nguyên, slot tự hiển thị cooldown.
+            // Nếu cả 2 đều false => panel ở nguyên, slot tự hiển thị cooldown.
         }
 
         private void DoReroll()

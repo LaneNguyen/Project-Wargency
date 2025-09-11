@@ -43,7 +43,7 @@ namespace Wargency.Gameplay
             OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
         }
 
-        // (NEW) Update averages (không mở setter property ra ngoài)
+        //Update averages (không mở setter property ra ngoài)
         public void SetTeamAverages(float stressAvg, float energyAvg)
         {
             teamStressValue = stressAvg;
@@ -207,7 +207,7 @@ namespace Wargency.Gameplay
             OnScoreChanged?.Invoke(score);
             OnTeamStatsChanged?.Invoke(teamStressValue, teamEnergyValue);
 
-            // nếu có danh sách agent/event bus… hãy đặt lại tại chính script này
+            // nếu có danh sách agent/event bus… đặt lại sau ở script này
             // Unsubscribe từ sự kiện bên ngoài nếu script này từng subscribe
         }
     }

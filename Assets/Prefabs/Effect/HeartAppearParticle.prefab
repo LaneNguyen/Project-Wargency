@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5585625118657297496}
   - component: {fileID: 1100298413673798951}
   m_Layer: 0
-  m_Name: HeartParticle
+  m_Name: HeartAppearParticle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -678621709
-  m_SortingLayer: 7
+  m_SortingLayerID: 28779529
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: 3057583489318305567, guid: f877fe507e5ce694586932a5b38ee0cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

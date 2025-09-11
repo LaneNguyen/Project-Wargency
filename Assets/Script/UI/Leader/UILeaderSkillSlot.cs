@@ -19,7 +19,7 @@ namespace Wargency.Gameplay
         [SerializeField] private Button applyButton;
 
         [Header("Details UI")]
-        [SerializeField] private TMP_Text descriptionText; // // NEW: mô tả auto từ dữ liệu skill
+        [SerializeField] private TMP_Text descriptionText; //mô tả auto từ dữ liệu skill
 
         [Header("Cooldown UI")]
         [SerializeField] private Image cooldownFill;   // Image type=Filled (Radial/Horizontal) dùng làm progress cooldown
@@ -49,7 +49,7 @@ namespace Wargency.Gameplay
                     costOrRewardText.text = "0$";
             }
 
-            // // NEW: mô tả tự sinh tổng hợp các hiệu ứng (budget/energy/stress + scope + cooldown)
+            //mô tả tự sinh tổng hợp các hiệu ứng (budget/energy/stress + scope + cooldown)
             if (descriptionText)
             {
                 descriptionText.text = skill != null ? skill.AutoEffectDescription : "";

@@ -34,6 +34,9 @@ namespace Wargency.UI
         [Header("Badge Toggle (tùy chọn)")]
         [SerializeField] private Button objectiveToggleBadge;      // nếu gán → bấm để bật/tắt panel
 
+        [Header("Close Button)")]
+        [SerializeField] private Button objectiveCloseButton;      // nếu gán → bấm để tắt panel
+
         [Header("Timer (tùy chọn)")]
         [SerializeField] private GameObject timerRoot;
         [SerializeField] private UISlider timerSlider;
@@ -64,7 +67,6 @@ namespace Wargency.UI
                 //objectiveToggleBadge.onClick.AddListener(() =>
                 //{
                 //    objectivePanelRoot.SetActive(!objectivePanelRoot.activeSelf);
-
                 //});
 
                 objectiveToggleBadge.onClick.AddListener(() =>
@@ -77,7 +79,16 @@ namespace Wargency.UI
                     else
                         AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
                 });
+            }
 
+            if (objectiveCloseButton && objectivePanelRoot)
+            {
+                objectiveCloseButton.onClick.RemoveAllListeners();
+                objectiveCloseButton.onClick.AddListener(() =>
+                {
+                    objectivePanelRoot.SetActive(false);
+                    AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+                });
             }
         }
 
@@ -355,6 +366,22 @@ namespace Wargency.UI
                 waveText.text = label;
                 _cachedWave = w;
             }
+        }
+
+        // 0909 Update: thêm API đóng panel thủ công
+        public void CloseObjectivePanel()
+        {
+            if (objectivePanelRoot != null)
+            {
+                objectivePanelRoot.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning("[UIWaveStub] objectivePanelRoot chưa gán — không thể Close");
+            }
+
+            // SE là tùy chọn
+            try { AudioManager.Instance?.PlaySE(AUDIO.SE_BUTTONCLICK); } catch { }
         }
 
         // ================== HELPERS ==================

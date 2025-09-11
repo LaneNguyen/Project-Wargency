@@ -26,11 +26,16 @@ namespace Wargency.Gameplay
         [SerializeField] private TaskManager taskManager;
         [SerializeField] private CharacterHiringService hiringService;
 
-        // [PATCH OBJECTIVE] Nghe Event resolve để cộng KPI
+        // Liên quan đến KPI: Nghe Event resolve để cộng KPI
         [SerializeField] private EventManager eventManager;
 
         [Header("Objective Settings")]
         [SerializeField] private bool accumulateToAllSameKind = false;
+
+        // HƯỚNG B: dùng số dư tuyệt đối cho ReachBudget
+        [Header("ReachBudget Mode")]
+        [Tooltip("Bật = dùng số dư tuyệt đối (Balance >= target). Tắt = dùng delta của wave (Balance - StartBalance >= target).")]
+        [SerializeField] private bool reachBudgetUseAbsolute = true;
 
         [Header("Audio (via AudioManager)")]
         [Tooltip("SE phát khi mở các panel (WaveEnd/Endgame).")]
@@ -500,15 +505,21 @@ namespace Wargency.Gameplay
                                 : (glc != null ? glc.Budget : 0);
                             int delta = bal - _waveStartBudget;
 
-                            if ((debugSubscriptions || debugBudgetTrace) &&
-                                (bal != _dbgLastBal || delta != _dbgLastDelta))
+                            if (debugSubscriptions || debugBudgetTrace)
                             {
-                                Debug.Log($"[WaveManager][ReachBudget] bal={bal}, start={_waveStartBudget}, delta={delta}, target={obj.targetValue}");
-                                _dbgLastBal = bal;
-                                _dbgLastDelta = delta;
+                                // log cả 2 để dễ debug
+                                if (bal != _dbgLastBal || delta != _dbgLastDelta)
+                                {
+                                    Debug.Log($"[WaveManager][ReachBudget] (mode={(reachBudgetUseAbsolute ? "ABS" : "DELTA")}) bal={bal}, start={_waveStartBudget}, delta={delta}, target={obj.targetValue}");
+                                    _dbgLastBal = bal;
+                                    _dbgLastDelta = delta;
+                                }
                             }
 
-                            bool newCompleted = (delta >= obj.targetValue);
+                            bool newCompleted = reachBudgetUseAbsolute
+                                ? (bal >= obj.targetValue)     // tuyệt đối
+                                : (delta >= obj.targetValue);  // legacy: delta theo wave
+
                             if (obj.completed != newCompleted) { obj.completed = newCompleted; changed = true; }
                             break;
                         }

@@ -31,9 +31,9 @@ MonoBehaviour:
     teamStressTextDelta: 20
   optionB:
     optionTitle: "Xin l\xF9i deadline"
-    optionDescription: "\u0110i\u1EC3m c\u1ED9ng \xEDt x\u1EC9n"
-    budgetChange: 0
-    scoreChange: 5
+    optionDescription: "Ti\u1EC1n c\u1ED9ng \xEDt x\u1EC9n"
+    budgetChange: 100
+    scoreChange: 0
     teamEnergyTextDelta: 0
     teamStressTextDelta: 0
   minIntervalSec: 3

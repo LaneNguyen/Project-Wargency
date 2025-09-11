@@ -68,7 +68,7 @@ namespace Wargency.UI
                     ResumeGameIfPausedByMe();
                     _onExit?.Invoke();
 
-                    // ✅ Thoát ứng dụng hẳn
+                    // Thoát ứng dụng hẳn
                     Application.Quit();
 #if UNITY_EDITOR
                     EditorApplication.isPlaying = false;
@@ -104,7 +104,7 @@ namespace Wargency.UI
                     ResumeGameIfPausedByMe();
                     _onExit?.Invoke();
 
-                    // ✅ Thoát ứng dụng hẳn
+                    // thoát ứng dụng hẳn
                     Application.Quit();
 #if UNITY_EDITOR
                     EditorApplication.isPlaying = false;

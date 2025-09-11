@@ -54,7 +54,7 @@ namespace Wargency.UI
         [SerializeField] private int spikeThreshold = 10; // tăng >=10/lần → spike
         private int _lastStress = -1;
 
-        // ====== NEW: Hiệu ứng Stress cao (duy trì trong lúc > ngưỡng) ======
+        // Hiệu ứng Stress cao (duy trì trong lúc > ngưỡng) 
         [Header("High Stress VFX (>=80)")]
         [Tooltip("Prefab particle sẽ hiển thị khi Stress vượt ngưỡng cao.")]
         [SerializeField] private GameObject stressOver80Effect;
@@ -92,7 +92,7 @@ namespace Wargency.UI
         private void OnDisable()
         {
             BindStats(false);  // hủy đăng ký event khi disable
-            // NEW: đảm bảo dọn VFX đang bật nếu HUD bị tắt
+            // đảm bảo dọn VFX đang bật nếu HUD bị tắt
             if (_activeHighStressFx != null)
             {
                 Destroy(_activeHighStressFx);
@@ -105,7 +105,7 @@ namespace Wargency.UI
             UpdatePositionFollow();
             SmoothUpdateBars();
 
-            // NEW: giảm cooldown mỗi frame (chế độ non-persist)
+            //giảm cooldown mỗi frame (chế độ non-persist)
             if (_overThresholdCooldownLeft > 0f)
                 _overThresholdCooldownLeft -= Time.deltaTime;
         }
@@ -232,7 +232,7 @@ namespace Wargency.UI
                 PlayHudEffect(stressSpikeEffect);
             _lastStress = stress;
 
-            // ====== NEW: High-stress VFX stable (persist hoặc burst có cooldown) ======
+            //High-stress VFX stable (persist hoặc burst có cooldown) 
             int thresholdAbs = Mathf.RoundToInt((stressVfxThreshold / 100f) * maxStress);
             int resetAbs = Mathf.Max(0, thresholdAbs - stressVfxHysteresis);
 

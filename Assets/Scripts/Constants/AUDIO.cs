@@ -11,6 +11,8 @@
 	  public const string SE_FANTASYSOUND = "FantasySound";
 	  public const string SE_GOODRESULT = "GoodResult";
 	  public const string SE_KIDYEAH = "KidYeah";
+	  public const string SE_MOMOSOUND = "MomoSound";
 	  public const string SE_MONITORBUTTON = "MonitorButton";
 	  public const string SE_PLOPEFFECT = "PlopEffect";
+	  public const string SE_WRONG = "Wrong";
 }

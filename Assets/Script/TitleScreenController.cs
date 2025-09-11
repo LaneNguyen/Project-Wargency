@@ -37,6 +37,7 @@ public class TitleScreenController : MonoBehaviour
     {
         if (btnStart) btnStart.onClick.AddListener(StartGameFromTitle);
         SetTitleActive(true, true);
+        KillAnyDragArtifacts(); // dọn sạch drag ghost khi vào Title lần đầu
     }
 
     private void Start()
@@ -145,6 +146,15 @@ public class TitleScreenController : MonoBehaviour
             startGroup.interactable = active;
             startGroup.blocksRaycasts = active;
         }
+
+        if (active)
+        {
+            KillAnyDragArtifacts(); // TEST: mỗi lần bật Title -> reset kéo + xoá ghost
+        }
+
+        // Khi ở Title: khóa drag; Khi vào Gameplay: mở lại
+        try { Wargency.UI.WorldCharacterSpriteDrag.GlobalEnable = !active; } catch { }
+        if (active) KillAnyDragArtifacts();
     }
 
     private void TogglePanels(GameObject[] arr, bool on)
@@ -174,5 +184,27 @@ public class TitleScreenController : MonoBehaviour
     private void TryPlayBGM(string id)
     {
         try { AudioManager.Instance?.PlayBGM(id); } catch { }
+    }
+
+    private void KillAnyDragArtifacts()
+    {
+        // 1) Kết thúc kéo (nếu còn)
+        try { UIDragContext.EndDrag(); } catch { }
+
+        // 2) Trả con trỏ về default
+        try { CursorManager.Instance?.SetDefaultCursor(); } catch { }
+
+        // 3) Xoá mọi ghost UI còn sót
+        var all = Resources.FindObjectsOfTypeAll<RectTransform>();
+        for (int i = 0; i < all.Length; i++)
+        {
+            var rt = all[i];
+            if (rt && rt.name == "DragGhost")
+            {
+                // dùng DestroyImmediate nếu object đang ở scene ẩn/không active
+                if (Application.isPlaying) Destroy(rt.gameObject);
+                else DestroyImmediate(rt.gameObject);
+            }
+        }
     }
 }

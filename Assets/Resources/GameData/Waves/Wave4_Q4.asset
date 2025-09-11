@@ -22,16 +22,16 @@ MonoBehaviour:
   - displayName: "Ho\xE0n th\xE0nh 15 task"
     kind: 0
     targetValue: 15
-    currentValue: 1
+    currentValue: 4
     completed: 0
-  - displayName: "\u0110\u1EA0T 5000 MONEY!"
-    kind: 5
-    targetValue: 5000
-    currentValue: 0
-    completed: 1
-  - displayName: "\u0110\u1EA0T 5000 MONEY!"
+  - displayName: "GI\u1EA2I QUY\u1EBET 10 S\u1EF0 KI\u1EC6N"
     kind: 2
     targetValue: 10
-    currentValue: 0
-    completed: 1
+    currentValue: 2
+    completed: 0
+  - displayName: "KI\u1EBEM 5000$"
+    kind: 5
+    targetValue: 5000
+    currentValue: 2
+    completed: 0
   targetScore: 300

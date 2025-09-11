@@ -1,34 +1,26 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using Wargency.Gameplay;
 using Wargency.Systems;
 
 namespace Wargency.UI
 {
-    // UI Manager tinh gọn:
-    // - KHÔNG còn dev hotkeys (B/N/[/])... chỉ giữ lại Pause (Esc)
-    // - WaveIntro mặc định pause theo TimeScale để "đóng băng" toàn bộ game (giống Startup Intro)
-    // - UIOnlyStrategy vẫn giữ để ai cần khóa UI thay vì dừng game thì bật lại trong Inspector
-
-    public class UIManager : MonoBehaviour, IResettable
+    public class UIManager : BaseManager<UIManager>, IResettable
     {
         public static UIManager instance { get; private set; }
 
-        // ===== Pause mode =====
         public enum PauseMode { UIOnly, TimeScale }
 
-        [Header("Pause (chung)")]
-        [SerializeField] private GameObject pausePanel;                 // panel pause (nếu muốn)
-        private bool isTimeScalePaused = false;                         // trạng thái pause kiểu TimeScale
-        private bool isUiPaused = false;                                // trạng thái pause kiểu UIOnly
+        [Header("Pause")]
+        [SerializeField] private GameObject pausePanel;
+        private bool isTimeScalePaused = false;
+        private bool isUiPaused = false;
 
         [Header("UIOnly Lock")]
-        [Tooltip("CanvasGroup của MainCanvas. Nếu có, sẽ toggle interactable/blocksRaycasts (tùy chiến lược).")]
-        [SerializeField] private CanvasGroup mainCanvasGroup;           // drag CanvasGroup root vào đây
-        [Tooltip("Blocker (Image full screen Raycast Target) nếu bạn không dùng CanvasGroup.")]
-        [SerializeField] private GameObject uiBlocker;                  // bật/tắt để chặn click UI
-
-        // Chiến lược khi PauseMode == UIOnly
+        [SerializeField] private CanvasGroup mainCanvasGroup;
+        [SerializeField] private GameObject uiBlocker;
         public enum UIOnlyStrategy { CanvasGroupOnly, BlockerOnly, Both }
         [SerializeField] private UIOnlyStrategy uiOnlyStrategy = UIOnlyStrategy.Both;
 
@@ -36,27 +28,48 @@ namespace Wargency.UI
         [SerializeField] private bool enablePauseHotkey = true;
         [SerializeField] private KeyCode keyPauseToggle = KeyCode.Escape;
 
-        // ===== Startup Intro (tùy chọn) =====
-        [Header("Startup Intro (optional)")]
-        [SerializeField] private GameObject startupIntroPanel;          // panel intro lúc vào game
-        [SerializeField] private bool showStartupIntro = true;          // bật/tắt intro
+        [Header("Startup Intro")]
+        [SerializeField] private GameObject startupIntroPanel;
+        [SerializeField] private bool showStartupIntro = true;
         [SerializeField] private PauseMode startupIntroPauseMode = PauseMode.TimeScale;
         private bool startupShown = false;
 
-        // ===== Wave Intro & Wave Gates =====
-        [Header("Wave Intro (theo wave)")]
-        // Quan trọng: mặc định TimeScale để đảm bảo game "đứng hình" giống Startup Intro
+        [Header("Wave Intro")]
         [SerializeField] private PauseMode waveIntroPauseMode = PauseMode.TimeScale;
-        [SerializeField] private WaveIntroEntry[] waveIntros;           // mảng panel intro cho từng wave
+        [SerializeField] private WaveIntroEntry[] waveIntros;
 
-        [Header("Wave Gates (mở/tắt UI theo wave)")]
-        [SerializeField] private WaveGateEntry[] waveGates;             // mỗi entry bật root khi wave >= entry.wave
+        [Header("Wave Gates")]
+        [SerializeField] private WaveGateEntry[] waveGates;
 
-        //Reset
-        [SerializeField] private Canvas gameplayCanvas; 
-        [SerializeField] private Transform uiRuntimeRoot; // parent chứa popup/panel runtime
-
+        [SerializeField] private Canvas gameplayCanvas;
+        [SerializeField] private Transform uiRuntimeRoot;
         private int lastKnownWave = int.MinValue;
+
+        [Header("Settings")]
+        [SerializeField] private GameObject settingPanel;
+        [SerializeField] private bool pauseWhenSettingsOpen = true;
+
+        // -------- Auto Assign (toggle 2-state) --------
+        [Header("Feature: Auto Assign")]
+        [SerializeField] private int autoAssignUnlockWave = 2;
+        [SerializeField] private GameObject autoAssignFeatureRoot;
+        [SerializeField] private Button autoAssignButton;
+        [SerializeField] private CanvasGroup autoAssignButtonCanvasGroup;
+
+        [Header("Cost")]
+        [SerializeField] private int autoAssignUnlockCost = 500;
+        [SerializeField] private bool enableAutoAssignAfterUnlock = true;
+
+        [Header("State Animator (2-state)")]
+        [SerializeField] private Animator autoAssignStateAnimator;
+        [SerializeField] private string stateBoolName = "AutoAssignOn";
+
+        private bool autoAssignUnlocked = false;
+
+        // chặn double-click cùng frame
+        private bool autoAssignClickGuard = false;
+        private Coroutine autoAssignGuardCR;
+        // ----------------------------------------------
 
         private void Awake()
         {
@@ -67,29 +80,42 @@ namespace Wargency.UI
 
         private void Start()
         {
-            // BGM nhẹ nhàng
             AudioManager.Instance.PlayBGM(AUDIO.BGM_CHILDHOODPLAY);
 
             if (pausePanel) pausePanel.SetActive(false);
+            if (settingPanel) settingPanel.SetActive(false);
 
-            // Mở UI ban đầu theo wave hiện tại
+            if (autoAssignButton != null)
+            {
+                autoAssignButton.onClick.RemoveAllListeners();
+                autoAssignButton.onClick.AddListener(OnClick_AutoAssignButton);
+                autoAssignButton.transition = Selectable.Transition.ColorTint;
+                autoAssignButton.navigation = new Navigation { mode = Navigation.Mode.None };
+            }
+
+            if (autoAssignStateAnimator == null && autoAssignButton != null)
+            {
+                autoAssignStateAnimator = autoAssignButton.GetComponent<Animator>();
+                if (autoAssignStateAnimator == null)
+                    autoAssignStateAnimator = autoAssignButton.GetComponentInChildren<Animator>(true);
+            }
+
             ApplyWaveState(GetWave());
 
-            // Startup intro (tùy chọn)
             if (showStartupIntro && !startupShown && startupIntroPanel != null)
             {
                 startupShown = true;
                 startupIntroPanel.SetActive(true);
                 ApplyPause(startupIntroPauseMode, true);
             }
+
+            SyncAutoAssignUIFromState();
         }
 
         private void Update()
         {
-            // Chỉ còn phím Pause
             HandlePauseHotkey();
 
-            // Theo dõi wave thay đổi
             var current = GetWave();
             if (lastKnownWave != current)
             {
@@ -97,7 +123,6 @@ namespace Wargency.UI
             }
         }
 
-        // ===== Helpers =====
         private int GetWave()
         {
             var loop = GameLoopController.Instance;
@@ -107,19 +132,15 @@ namespace Wargency.UI
         private void ApplyWaveState(int wave)
         {
             lastKnownWave = wave;
-
-            // 1) Mở/tắt các UI gate theo wave
             ApplyWaveGates(wave);
-
-            // 2) Tự hiện intro của wave (mỗi wave chỉ hiện 1 lần)
             TryShowWaveIntro(wave);
+            ApplyAutoAssignGate(wave);
+            RefreshAutoAssignButtonVisual();
         }
 
-        // ===== Wave Gates: bật UI khi wave đủ lớn =====
         private void ApplyWaveGates(int wave)
         {
             if (waveGates == null) return;
-
             for (int i = 0; i < waveGates.Length; i++)
             {
                 var g = waveGates[i];
@@ -129,34 +150,33 @@ namespace Wargency.UI
             }
         }
 
-        // ===== Wave Intro =====
+        private void ApplyAutoAssignGate(int wave)
+        {
+            if (autoAssignFeatureRoot == null) return;
+            bool canShow = wave >= autoAssignUnlockWave;
+            autoAssignFeatureRoot.SetActive(canShow);
+        }
+
         private void TryShowWaveIntro(int wave)
         {
             if (waveIntros == null) return;
-
             for (int i = 0; i < waveIntros.Length; i++)
             {
                 var e = waveIntros[i];
                 if (e == null || e.panel == null) continue;
                 if (e.wave == wave && e.autoShowOnEnter && !e.shown)
                 {
-                    e.shown = true; // chỉ hiện một lần
+                    e.shown = true;
                     e.panel.SetActive(true);
                     ApplyPause(waveIntroPauseMode, true);
-                    Debug.Log($"[UIManager] Show Wave Intro (wave {wave}) with pause = {waveIntroPauseMode} / strategy = {uiOnlyStrategy}");
-                    break; // chỉ show 1 panel intro cho wave
+                    break;
                 }
             }
         }
 
         public void CloseWaveIntro(int wave)
         {
-            if (waveIntros == null)
-            {
-                ApplyPause(waveIntroPauseMode, false);
-                return;
-            }
-
+            if (waveIntros == null) { ApplyPause(waveIntroPauseMode, false); return; }
             for (int i = 0; i < waveIntros.Length; i++)
             {
                 var e = waveIntros[i];
@@ -165,102 +185,89 @@ namespace Wargency.UI
                 {
                     e.panel.SetActive(false);
                     ApplyPause(waveIntroPauseMode, false);
-                    Debug.Log($"[UIManager] Close Wave Intro (wave {wave})");
                     break;
                 }
             }
         }
 
-        // ===== Startup Intro close =====
         public void CloseStartupIntro()
         {
-            if (startupIntroPanel != null)
-                startupIntroPanel.SetActive(false);
+            if (startupIntroPanel != null) startupIntroPanel.SetActive(false);
             ApplyPause(startupIntroPauseMode, false);
         }
 
-        // ===== Pause logic =====
         private void ApplyPause(PauseMode mode, bool pause)
         {
             if (mode == PauseMode.TimeScale) SetTimeScalePause(pause);
             else SetUiOnlyPause(pause);
         }
 
-        // Dừng game bằng Time.timeScale (đóng băng toàn bộ gameplay)
         private void SetTimeScalePause(bool pause)
         {
             if (isTimeScalePaused == pause) return;
             isTimeScalePaused = pause;
             Time.timeScale = pause ? 0f : 1f;
             if (pausePanel) pausePanel.SetActive(pause);
-            Debug.Log(pause ? "UIManager: PAUSED (TimeScale)" : "UIManager: Resumed (TimeScale)");
         }
 
-        // Khóa thao tác UI, game vẫn chạy
         private void SetUiOnlyPause(bool pause)
         {
             if (isUiPaused == pause) return;
             isUiPaused = pause;
-
             bool useCG = (uiOnlyStrategy == UIOnlyStrategy.CanvasGroupOnly || uiOnlyStrategy == UIOnlyStrategy.Both);
             bool useBlocker = (uiOnlyStrategy == UIOnlyStrategy.BlockerOnly || uiOnlyStrategy == UIOnlyStrategy.Both);
-
             if (useCG && mainCanvasGroup)
             {
                 mainCanvasGroup.interactable = !pause;
                 mainCanvasGroup.blocksRaycasts = !pause;
             }
-
             if (useBlocker && uiBlocker)
             {
                 uiBlocker.SetActive(pause);
             }
-
-            Debug.Log(pause
-                ? $"UIManager: PAUSED (UIOnly, {uiOnlyStrategy})"
-                : $"UIManager: Resumed (UIOnly, {uiOnlyStrategy})");
         }
 
-        // ===== Only Pause hotkey =====
         private void HandlePauseHotkey()
         {
             if (!enablePauseHotkey) return;
-            if (Input.GetKeyDown(keyPauseToggle))
-            {
-                // Toggle pause theo TimeScale để nhất quán
-                SetTimeScalePause(!isTimeScalePaused);
-            }
+            if (Input.GetKeyDown(keyPauseToggle)) ToggleSettings();
         }
 
-        // ===== Data structs =====
+        public void OpenSettingsFromButton() => ToggleSettings();
+
+        public void ToggleSettings()
+        {
+            if (!settingPanel) return;
+            bool toActive = !settingPanel.activeSelf;
+            settingPanel.SetActive(toActive);
+            if (pauseWhenSettingsOpen) SetTimeScalePause(toActive);
+            AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+        }
+
+        public void CloseSettings()
+        {
+            if (!settingPanel) return;
+            settingPanel.SetActive(false);
+            if (pauseWhenSettingsOpen) SetTimeScalePause(false);
+        }
+
         [Serializable]
         public class WaveIntroEntry
         {
-            [Header("Wave")]
             public int wave = 1;
-
-            [Header("UI Panel hiển thị khi vào wave")]
             public GameObject panel;
-
-            [Header("Tự động hiện khi vừa vào wave")]
             public bool autoShowOnEnter = true;
-
             [NonSerialized] public bool shown = false;
         }
 
         [Serializable]
         public class WaveGateEntry
         {
-            [Header("Mở root này khi wave >= value")]
             public int wave = 1;
             public GameObject root;
         }
 
-        // ===== Compatibility cũ =====
-        public void SetPause(bool pause)
-        {
-            SetTimeScalePause(pause);
-        }
+        public void SetPause(bool pause) => SetTimeScalePause(pause);
 
         public void ResetState()
         {
@@ -270,9 +277,87 @@ namespace Wargency.UI
                 var child = root.GetChild(i);
                 if (child != null) Destroy(child.gameObject);
             }
-
             SetPause(false);
+        }
+
+        // -------- Auto Assign: click to toggle + set Animator bool (debounced) --------
+        public void OnClick_AutoAssignButton()
+        {
+            if (autoAssignClickGuard) return; // double-call guard
+            autoAssignClickGuard = true;
+            if (autoAssignGuardCR != null) StopCoroutine(autoAssignGuardCR);
+            autoAssignGuardCR = StartCoroutine(CoClearAutoAssignGuard());
+
+            var tm = TaskManager.Instance != null ? TaskManager.Instance : FindObjectOfType<TaskManager>(true);
+            if (tm == null) return;
+
+            if (GetWave() < autoAssignUnlockWave)
+            {
+                AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+                return;
+            }
+
+            if (!autoAssignUnlocked && !tm.autoAssignUnlocked)
+            {
+                if (BudgetController.I == null) return;
+
+                bool paid = BudgetController.I.TrySpend(autoAssignUnlockCost);
+                if (!paid)
+                {
+                    AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+                    return;
+                }
+
+                autoAssignUnlocked = true;
+                tm.UnlockAutoAssignFeature();
+                AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+                RefreshAutoAssignButtonVisual();
+
+                if (enableAutoAssignAfterUnlock)
+                {
+                    tm.SetAutoAssignEnabled(true);
+                }
+
+                ApplyAutoAssignVisualState(tm.autoAssignEnabled);
+                return;
+            }
+
+            bool next = !tm.autoAssignEnabled;
+            tm.SetAutoAssignEnabled(next);
+            AudioManager.Instance.PlaySE(AUDIO.SE_BUTTONCLICK);
+            ApplyAutoAssignVisualState(next);
+        }
+
+        private IEnumerator CoClearAutoAssignGuard()
+        {
+            yield return null; // clear next frame
+            autoAssignClickGuard = false;
+        }
+
+        private void SyncAutoAssignUIFromState()
+        {
+            var tm = TaskManager.Instance != null ? TaskManager.Instance : FindObjectOfType<TaskManager>(true);
+            if (tm == null) return;
+
+            autoAssignUnlocked = tm.autoAssignUnlocked;
+            RefreshAutoAssignButtonVisual();
+            ApplyAutoAssignGate(GetWave());
+            ApplyAutoAssignVisualState(tm.autoAssignEnabled);
+        }
+
+        private void RefreshAutoAssignButtonVisual()
+        {
+            if (autoAssignButtonCanvasGroup == null) return;
+            var tm = TaskManager.Instance != null ? TaskManager.Instance : FindObjectOfType<TaskManager>(true);
+            bool unlocked = autoAssignUnlocked || (tm != null && tm.autoAssignUnlocked);
+            autoAssignButtonCanvasGroup.alpha = unlocked ? 1f : 0.6f;
+            if (autoAssignButton != null) autoAssignButton.interactable = true;
+        }
+
+        private void ApplyAutoAssignVisualState(bool isOn)
+        {
+            if (autoAssignStateAnimator != null && !string.IsNullOrEmpty(stateBoolName))
+                autoAssignStateAnimator.SetBool(stateBoolName, isOn);
         }
     }
 }
-

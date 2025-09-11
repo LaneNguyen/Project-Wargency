@@ -20,6 +20,12 @@ namespace Wargency.Gameplay
         [SerializeField] private KeyCode toggleKeyboardKey = KeyCode.F5; // bấm cái này để tắt/mở đi bằng phím
         [SerializeField] private KeyCode toggleClickKey = KeyCode.F6; // bấm cái này để tắt/mở đi bằng chuột
 
+
+        [Tooltip("Thời gian đứng yên liên tục (và không có task activity) để bật animation yapping")]
+        [SerializeField] private float idleYapThreshold = 5f;
+        [Tooltip("Tên tham số Animator dạng Bool để bật/tắt yapping")]
+        [SerializeField] private string yappingBoolParam = "isYapping";
+
         private Rigidbody2D rb;
         private Vector2 moveInput;
 
